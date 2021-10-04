@@ -15,7 +15,10 @@
     if hostPlatform.isDarwin
     then "osx"
     else hostPlatform.parsed.kernel.name;
-  MODEL = toString hostPlatform.parsed.cpu.bits;
+  MODEL =
+    if OS == "osx"
+    then ""
+    else toString hostPlatform.parsed.cpu.bits;
 in
   stdenv.mkDerivation {
     pname = "dmd-binary";
@@ -41,18 +44,9 @@ in
 
       mkdir -p $out
 
-      # try to copy model-specific binaries into bin first
-      mv ${OS}/bin${MODEL} $out/bin || true
-
-      mv src license.txt ${OS}/* $out/
-
-      # move man into place
-      mkdir -p $out/share
-      mv man $out/share/
-
-      # move docs into place
-      mkdir -p $out/share/doc
-      mv html/d $out/share/doc/
+      # Move `src`, `bin` and `lib` into place:
+      mv -v ${OS}/bin${MODEL} $out/bin
+      mv -v src ${OS}/lib${MODEL} $out/
 
       # fix paths in dmd.conf (one level less)
       substituteInPlace $out/bin/dmd.conf --replace "/../../" "/../"
@@ -68,7 +62,6 @@ in
 
     meta = with lib; {
       description = "Digital Mars D Compiler Package";
-      # As of 2.075 all sources and binaries use the boost license
       license = licenses.boost;
       maintainers = [maintainers.lionello];
       homepage = "https://dlang.org/";
