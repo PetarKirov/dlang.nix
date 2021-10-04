@@ -120,7 +120,7 @@ stdenv.mkDerivation rec {
     cd ..
   '';
 
-  doCheck = true;
+  doCheck = false;
 
   # many tests are disbled because they are failing
 
