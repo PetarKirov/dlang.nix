@@ -1,9 +1,11 @@
 {callPackage}:
 callPackage ./binary.nix {
-  version = "2.090.1";
+  version = "2.098.0";
   hashes = {
-    # Get these from `nix-prefetch-url http://downloads.dlang.org/releases/2.x/2.090.1/dmd.2.090.1.linux.tar.xz` etc..
-    osx = "sha256-9HwGVO/8jfZ6aTiDIUi8w4C4Ukry0uUS8ACP3Ig8dmU=";
-    linux = "sha256-ByCrIA4Nt7i9YT0L19VXIL1IqIp+iObcZux407amZu4=";
+    # COMPILER=dmd VERSION=2.098.0 ./scripts/fetch-binary
+    "linux" = "sha256-EQTl5Z/UeCi3mNd6cr5Ue/CGu6HTdKGFXGtYFMTbAUU=";
+    "osx" = "sha256-d4Cq1EKdSZpkfn6Qdwb3dWVr539EJci0rqt5gCTH80I=";
+    "freebsd-64" = "sha256-c7ODMpI/kGdl3R4a7/gSTDzTcD3hbHtl4teHJvT0IGk=";
+    "windows" = "sha256-Yhw3hkkVdvHTayxdk/XNKZwrV8cDMfz63rgBqark+gU=";
   };
 }
