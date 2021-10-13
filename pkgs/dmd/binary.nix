@@ -25,7 +25,7 @@ in stdenv.mkDerivation {
   installPhase = ''
     mkdir -p $out
 
-    # Move src, bin, lib and license into place:
+    # Move `src`, `bin` and `lib` into place:
     mv -v ${OS}/bin${MODEL} $out/bin
     mv -v src ${OS}/lib${MODEL} $out/
 
