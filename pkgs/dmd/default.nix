@@ -3,10 +3,10 @@
 , curl, tzdata, gdb, Foundation, git, callPackage
 , targetPackages, fetchpatch, bash
 , HOST_DMD? "${callPackage ./bootstrap.nix { }}/bin/dmd"
-, version? "2.097.2"
-, dmdSha256? "16ldkk32y7ln82n7g2ym5d1xf3vly3i31hf8600cpvimf6yhr6kb"
-, druntimeSha256? "1sayg6ia85jln8g28vb4m124c27lgbkd6xzg9gblss8ardb8dsp1"
-, phobosSha256? "0czg13h65b6qwhk9ibya21z3iv3fpk3rsjr3zbcrpc2spqjknfw5"
+, version? "2.098.0"
+, dmdSha256? "03pk278rva7f0v464i6av6hnsac1rh22ppxxrlai82p06i9w7lxk"
+, druntimeSha256? "0p75h8gigc5yj090k7qxmzz04dbpkab890l2sv1mdsxvgabch08q"
+, phobosSha256? "0kdr9857kckpzsk59wyd7wvjd0d3ch9amqkq2y7ipx70rv9y6m0r"
 }:
 
 let
