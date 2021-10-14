@@ -3,6 +3,8 @@
 , curl, tzdata, gdb, Foundation, git, callPackage
 , targetPackages, fetchpatch, bash
 , HOST_DMD? "${callPackage ./bootstrap.nix { }}/bin/dmd"
+, doReleastBuild? true
+, doTest? false
 , version? "2.098.0"
 , dmdSha256? "03pk278rva7f0v464i6av6hnsac1rh22ppxxrlai82p06i9w7lxk"
 , druntimeSha256? "0p75h8gigc5yj090k7qxmzz04dbpkab890l2sv1mdsxvgabch08q"
@@ -57,37 +59,12 @@ stdenv.mkDerivation rec {
   # https://issues.dlang.org/show_bug.cgi?id=19553
   hardeningDisable = [ "fortify" ];
 
-  # Not using patches option to make it easy to patch, for example, dmd and
-  # Phobos at same time if that's required
-  patchPhase =
-  lib.optionalString (builtins.compareVersions version "2.092.1" <= 0) ''
-    patch -p1 -F3 --directory=druntime -i ${(fetchpatch {
-      url = "https://github.com/dlang/druntime/commit/438990def7e377ca1f87b6d28246673bb38022ab.patch";
-      sha256 = "0nxzkrd1rzj44l83j7jj90yz2cv01na8vn9d116ijnm85jl007b4";
-    })}
-
-  '' + postPatch;
-
-  postPatch =
-  ''
+  # many tests are disbled because they are failing
+  patchPhase = ''
     patchShebangs .
-
-  '' + lib.optionalString (version == "2.092.1") ''
-    rm dmd/test/dshell/test6952.d
-  '' + lib.optionalString (builtins.compareVersions "2.092.1" version < 0) ''
-    substituteInPlace dmd/test/dshell/test6952.d --replace "/usr/bin/env bash" "${bash}/bin/bash"
-
   '' + ''
-    rm dmd/test/runnable/gdb1.d
-    rm dmd/test/runnable/gdb10311.d
-    rm dmd/test/runnable/gdb14225.d
-    rm dmd/test/runnable/gdb14276.d
-    rm dmd/test/runnable/gdb14313.d
-    rm dmd/test/runnable/gdb14330.d
-    rm dmd/test/runnable/gdb15729.sh
-    rm dmd/test/runnable/gdb4149.d
-    rm dmd/test/runnable/gdb4181.d
-
+    rm -v dmd/test/runnable/gdb*.d
+    rm -v dmd/test/dshell/test6952.d
   '' + lib.optionalString stdenv.isLinux ''
     substituteInPlace phobos/std/socket.d --replace "assert(ih.addrList[0] == 0x7F_00_00_01);" ""
   '' + lib.optionalString stdenv.isDarwin ''
@@ -99,71 +76,78 @@ stdenv.mkDerivation rec {
   buildInputs = [ gdb curl tzdata ]
     ++ lib.optional stdenv.isDarwin [ Foundation gdb ];
 
-
   osname = if stdenv.isDarwin then
     "osx"
   else
     stdenv.hostPlatform.parsed.kernel.name;
-  top = "$NIX_BUILD_TOP";
-  pathToDmd = "${top}/dmd/generated/${osname}/release/${bits}/dmd";
+
+  buildModeArgs = if doReleastBuild then
+    "BUILD=release ENABLE_RELEASE=1"
+  else
+    "BUILD=debug ENABLE_RELEASE=0";
+
+  buildPath = if doReleastBuild then
+    "generated/${osname}/release/${bits}"
+  else
+    "generated/${osname}/debug/${bits}";
+
+  dmdBuildPath = "$NIX_BUILD_TOP/dmd/${buildPath}/dmd";
+
+  makeArgs = "-j$NIX_BUILD_CORES PIC=1 INSTALL_DIR=$out ${buildModeArgs} " +
+    "DMD=${dmdBuildPath} HOST_DMD=${HOST_DMD} SHELL=$SHELL";
+  dmdBuildCmd = "${HOST_DMD} -run ./src/build.d ${makeArgs}";
+  makeBuildCmd = "make -f posix.mak ${makeArgs}";
 
   # Build and install are based on http://wiki.dlang.org/Building_DMD
   buildPhase = ''
-    cd dmd
-    make -j$NIX_BUILD_CORES -f posix.mak INSTALL_DIR=$out BUILD=release ENABLE_RELEASE=1 PIC=1 HOST_DMD=${HOST_DMD}
+    cd $NIX_BUILD_TOP/dmd
+    ${dmdBuildCmd}
+
     cd ../druntime
-    make -j$NIX_BUILD_CORES -f posix.mak BUILD=release ENABLE_RELEASE=1 PIC=1 INSTALL_DIR=$out DMD=${pathToDmd}
+    ${makeBuildCmd}
+
     cd ../phobos
     echo ${tzdata}/share/zoneinfo/ > TZDatabaseDirFile
     echo ${curl.out}/lib/libcurl${stdenv.hostPlatform.extensions.sharedLibrary} > LibcurlPathFile
-    make -j$NIX_BUILD_CORES -f posix.mak BUILD=release ENABLE_RELEASE=1 PIC=1 INSTALL_DIR=$out DMD=${pathToDmd} DFLAGS="-version=TZDatabaseDir -version=LibcurlPath -J$(pwd)"
-    cd ..
+    ${makeBuildCmd} DFLAGS="-version=TZDatabaseDir -version=LibcurlPath -J$(pwd)"
   '';
 
-  doCheck = false;
+  doCheck = doTest;
 
-  # many tests are disbled because they are failing
-
-  # NOTE: Purity check is disabled for checkPhase because it doesn't fare well
+  # Purity check is disabled for checkPhase because it doesn't fare well
   # with the DMD linker. See https://github.com/NixOS/nixpkgs/issues/97420
   checkPhase = ''
-    cd dmd
+    cd $NIX_BUILD_TOP/dmd
     NIX_ENFORCE_PURITY= \
-      make -j$NIX_BUILD_CORES -C test -f Makefile PIC=1 CC=$CXX DMD=${pathToDmd} BUILD=release SHELL=$SHELL
+      ${makeBuildCmd} test
 
     cd ../druntime
     NIX_ENFORCE_PURITY= \
-      make -j$NIX_BUILD_CORES -f posix.mak unittest PIC=1 DMD=${pathToDmd} BUILD=release
+      ${makeBuildCmd} unittest
 
     cd ../phobos
     NIX_ENFORCE_PURITY= \
-      make -j$NIX_BUILD_CORES -f posix.mak unittest BUILD=release ENABLE_RELEASE=1 PIC=1 DMD=${pathToDmd} DFLAGS="-version=TZDatabaseDir -version=LibcurlPath -J$(pwd)"
-
-    cd ..
+      ${makeBuildCmd} unittest DFLAGS="-version=TZDatabaseDir -version=LibcurlPath -J$(pwd)"
   '';
 
   installPhase = ''
-    cd dmd
-    mkdir $out
-    mkdir $out/bin
-    cp ${pathToDmd} $out/bin
+    cd $NIX_BUILD_TOP/dmd
+    mkdir -p $out/bin
+    cp -v ${dmdBuildPath} $out/bin
 
-    mkdir -p $out/share/man/man1
-    mkdir -p $out/share/man/man5
-    cp -r docs/man/man1/* $out/share/man/man1/
-    cp -r docs/man/man5/* $out/share/man/man5/
+    mkdir -p $out/share/man
+    cp -rv docs/man/man{1,5} $out/share/man
 
     cd ../druntime
-    mkdir $out/include
-    mkdir $out/include/dmd
-    cp -r import/* $out/include/dmd
+    mkdir -p $out/include/dmd
+    cp -rv import/* $out/include/dmd
 
     cd ../phobos
     mkdir $out/lib
-    cp generated/${osname}/release/${bits}/libphobos2.* $out/lib
+    cp -rv std etc $out/include/dmd
+    rm -v ./${buildPath}/*.o
+    cp -v ./${buildPath}/libphobos2.* $out/lib
 
-    cp -r std $out/include/dmd
-    cp -r etc $out/include/dmd
 
     wrapProgram $out/bin/dmd \
       --prefix PATH ":" "${targetPackages.stdenv.cc}/bin" \
@@ -175,8 +159,6 @@ stdenv.mkDerivation rec {
   meta = with lib; {
     description = "Official reference compiler for the D language";
     homepage = "https://dlang.org/";
-    # Everything is now Boost licensed, even the backend.
-    # https://github.com/dlang/dmd/pull/6680
     license = licenses.boost;
     maintainers = with maintainers; [ ThomasMader lionello ];
     platforms = [ "x86_64-linux" "i686-linux" "x86_64-darwin" ];
