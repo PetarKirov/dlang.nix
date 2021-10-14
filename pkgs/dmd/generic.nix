@@ -3,6 +3,14 @@
   dmdSha256,
   druntimeSha256,
   phobosSha256,
+  doCheck ? true,
+  enableAsserts ? false,
+  enableCoverage ? false,
+  enableDebug ? false,
+  enableLTO ? false,
+  enableProfile ? false,
+  enableRelease ? true,
+  enableUnittest ? false,
 }: {
   stdenv,
   lib,
@@ -32,13 +40,39 @@
     };
   };
 
+  boolToNum = x:
+    if x
+    then "1"
+    else "0";
+
   bits = builtins.toString stdenv.hostPlatform.parsed.cpu.bits;
-  osname =
+  os =
     if stdenv.isDarwin
     then "osx"
     else stdenv.hostPlatform.parsed.kernel.name;
 
-  pathToDmd = "\${NIX_BUILD_TOP}/dmd/generated/${osname}/release/${bits}/dmd";
+  buildMode =
+    if enableRelease
+    then "release"
+    else "debug";
+
+  buildPath = "generated/${os}/${buildMode}/${bits}";
+
+  commonBuildFlags = [
+    "-fposix.mak"
+    "SHELL=${bash}/bin/bash"
+    "DMD=$(NIX_BUILD_TOP)/dmd/${buildPath}/dmd"
+    "HOST_DMD=${HOST_DMD}"
+    "PIC=1"
+    "BUILD=${buildMode}"
+    "ENABLE_RELEASE=${boolToNum enableRelease}"
+    "ENABLE_ASSERTS=${boolToNum enableAsserts}"
+    "ENABLE_COVERAGE=${boolToNum enableCoverage}"
+    "ENABLE_DEBUG=${boolToNum enableDebug}"
+    "ENABLE_LTO=${boolToNum enableLTO}"
+    "ENABLE_PROFILE=${boolToNum enableProfile}"
+    "ENABLE_UNITTEST=${boolToNum enableUnittest}"
+  ];
 in
   stdenv.mkDerivation rec {
     pname = "dmd";
@@ -155,11 +189,9 @@ in
 
     nativeCheckInputs = [gdb] ++ lib.optional (lib.versionOlder version "2.089.0") unzip;
 
-    buildFlags = [
-      "BUILD=release"
-      "ENABLE_RELEASE=1"
-      "PIC=1"
-    ];
+    dontConfigure = true;
+
+    buildFlags = commonBuildFlags;
 
     # Build and install are based on http://wiki.dlang.org/Building_DMD
     buildPhase = ''
@@ -169,19 +201,20 @@ in
       if [ -z $enableParallelBuilding ]; then
         buildJobs=1
       fi
+      export MAKEFLAGS="-j$buildJobs"
 
-      make -C dmd -f posix.mak $buildFlags -j$buildJobs HOST_DMD=${HOST_DMD}
-      make -C druntime -f posix.mak $buildFlags -j$buildJobs DMD=${pathToDmd}
+      make -C dmd $buildFlags
+      make -C druntime $buildFlags
       echo ${tzdata}/share/zoneinfo/ > TZDatabaseDirFile
       echo ${lib.getLib curl}/lib/libcurl${stdenv.hostPlatform.extensions.sharedLibrary} > LibcurlPathFile
-      make -C phobos -f posix.mak $buildFlags -j$buildJobs DMD=${pathToDmd} DFLAGS="-version=TZDatabaseDir -version=LibcurlPath -J$PWD"
+      make -C phobos $buildFlags DFLAGS="-version=TZDatabaseDir -version=LibcurlPath -J$PWD"
 
       runHook postBuild
     '';
 
-    doCheck = true;
+    inherit doCheck;
 
-    checkFlags = buildFlags;
+    checkFlags = commonBuildFlags ++ ["CC=$(CXX)" "N=$(checkJobs)"];
 
     # many tests are disbled because they are failing
 
@@ -195,14 +228,16 @@ in
         checkJobs=1
       fi
 
-      NIX_ENFORCE_PURITY= \
-        make -C dmd/test $checkFlags CC=$CXX SHELL=$SHELL -j$checkJobs N=$checkJobs
+      export MAKEFLAGS="-j$checkJobs"
 
       NIX_ENFORCE_PURITY= \
-        make -C druntime -f posix.mak unittest $checkFlags -j$checkJobs
+        make -C dmd test $checkFlags
 
       NIX_ENFORCE_PURITY= \
-        make -C phobos -f posix.mak unittest $checkFlags -j$checkJobs DFLAGS="-version=TZDatabaseDir -version=LibcurlPath -J$PWD"
+        make -C druntime unittest $checkFlags
+
+      NIX_ENFORCE_PURITY= \
+        make -C phobos unittest $checkFlags DFLAGS="-version=TZDatabaseDir -version=LibcurlPath -J$PWD"
 
       runHook postCheck
     '';
@@ -210,7 +245,7 @@ in
     installPhase = ''
       runHook preInstall
 
-      install -Dm755 ${pathToDmd} $out/bin/dmd
+      install -Dm755 dmd/${buildPath}/dmd $out/bin/dmd
 
       installManPage dmd/docs/man/man*/*
 
@@ -218,7 +253,7 @@ in
       cp -r {druntime/import/*,phobos/{std,etc}} $out/include/dmd/
 
       mkdir $out/lib
-      cp phobos/generated/${osname}/release/${bits}/libphobos2.* $out/lib/
+      cp phobos/${buildPath}/libphobos2.* $out/lib/
 
       wrapProgram $out/bin/dmd \
         --prefix PATH ":" "${targetPackages.stdenv.cc}/bin" \
@@ -232,8 +267,6 @@ in
     meta = with lib; {
       description = "Official reference compiler for the D language";
       homepage = "https://dlang.org/";
-      # Everything is now Boost licensed, even the backend.
-      # https://github.com/dlang/dmd/pull/6680
       license = licenses.boost;
       maintainers = with maintainers; [ThomasMader lionello dukc];
       platforms = ["x86_64-linux" "i686-linux" "x86_64-darwin"];
