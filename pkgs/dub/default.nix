@@ -4,7 +4,7 @@ assert dcompiler != null;
 
 stdenv.mkDerivation rec {
   pname = "dub";
-  version = "1.23.0";
+  version = "1.27.0";
 
   enableParallelBuilding = true;
 
@@ -12,7 +12,7 @@ stdenv.mkDerivation rec {
     owner = "dlang";
     repo = "dub";
     rev = "v${version}";
-    sha256 = "06a4whsl1m600k096nwif83n7za3vr7pj1xwapncy5fcad1gmady";
+    sha256 = "1zrsfi4jwpsma8zknwdmq56hl3nl0z83ch1dh7jh82123hz6mfd8";
   };
 
   postUnpack = ''
