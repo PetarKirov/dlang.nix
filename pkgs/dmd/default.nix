@@ -3,4 +3,5 @@ import ./generic.nix {
   dmdSha256 = "sha256-o4+G3ARXIGObYHtHooYZKr+Al6kHpiwpMIog3i4BlDM=";
   druntimeSha256 = "sha256-qXvY1ECN4mPwOGgOE1FWwvxoRvlSww3tGLWgBdhzAKo=";
   phobosSha256 = "sha256-kTHRaAKG7cAGb4IE/NGHWaZ8t7ZceKj03l6E8wLzJzs=";
+  toolsSha256 = "sha256-2yzdkarbsf0kOXzLaS6bvBFoiYbDulnEHTozmHX3Oc4=";
 }

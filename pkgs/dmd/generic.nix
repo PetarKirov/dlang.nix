@@ -3,6 +3,7 @@
   dmdSha256,
   druntimeSha256,
   phobosSha256,
+  toolsSha256,
   doCheck ? true,
   enableAsserts ? false,
   enableCoverage ? false,
@@ -101,6 +102,13 @@ in
         rev = "v${version}";
         sha256 = phobosSha256;
         name = "phobos";
+      })
+      (fetchFromGitHub {
+        owner = "dlang";
+        repo = "tools";
+        rev = "v${version}";
+        sha256 = toolsSha256;
+        name = "tools";
       })
     ];
 
@@ -208,6 +216,7 @@ in
       echo ${tzdata}/share/zoneinfo/ > TZDatabaseDirFile
       echo ${lib.getLib curl}/lib/libcurl${stdenv.hostPlatform.extensions.sharedLibrary} > LibcurlPathFile
       make -C phobos $buildFlags DFLAGS="-version=TZDatabaseDir -version=LibcurlPath -J$PWD"
+      make -C tools $buildFlags
 
       runHook postBuild
     '';
@@ -260,6 +269,10 @@ in
         --set-default CC "${targetPackages.stdenv.cc}/bin/cc"
 
       substitute ${dmdConfFile} "$out/bin/dmd.conf" --subst-var out
+
+      for tool in rdmd ddemangle dustmite; do
+        install -Dm755 tools/generated/${os}/${bits}/$tool $out/bin/$tool
+      done
 
       runHook postInstall
     '';
