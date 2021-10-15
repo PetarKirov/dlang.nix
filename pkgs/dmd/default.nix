@@ -9,6 +9,7 @@
 , dmdSha256? "03pk278rva7f0v464i6av6hnsac1rh22ppxxrlai82p06i9w7lxk"
 , druntimeSha256? "0p75h8gigc5yj090k7qxmzz04dbpkab890l2sv1mdsxvgabch08q"
 , phobosSha256? "0kdr9857kckpzsk59wyd7wvjd0d3ch9amqkq2y7ipx70rv9y6m0r"
+, toolsSha256? "0vs91j3yyzk5jgkaan7qqsqjx7azp900ws16sa34r1qisrgzp4gs"
 }:
 
 let
@@ -52,6 +53,13 @@ stdenv.mkDerivation rec {
       sha256 = phobosSha256;
       name = "phobos";
     })
+    (fetchFromGitHub {
+      owner = "dlang";
+      repo = "tools";
+      rev = "v${version}";
+      sha256 = toolsSha256;
+      name = "tools";
+    })
   ];
 
   sourceRoot = ".";
@@ -92,6 +100,7 @@ stdenv.mkDerivation rec {
     "generated/${osname}/debug/${bits}";
 
   dmdBuildPath = "$NIX_BUILD_TOP/dmd/${buildPath}/dmd";
+  toolsBuildPath = "$NIX_BUILD_TOP/tools/generated/${osname}/${bits}";
 
   makeArgs = "-j$NIX_BUILD_CORES PIC=1 INSTALL_DIR=$out ${buildModeArgs} " +
     "DMD=${dmdBuildPath} HOST_DMD=${HOST_DMD} SHELL=$SHELL";
@@ -110,6 +119,9 @@ stdenv.mkDerivation rec {
     echo ${tzdata}/share/zoneinfo/ > TZDatabaseDirFile
     echo ${curl.out}/lib/libcurl${stdenv.hostPlatform.extensions.sharedLibrary} > LibcurlPathFile
     ${makeBuildCmd} DFLAGS="-version=TZDatabaseDir -version=LibcurlPath -J$(pwd)"
+
+    cd ../tools
+    ${makeBuildCmd}
   '';
 
   doCheck = doTest;
@@ -148,6 +160,8 @@ stdenv.mkDerivation rec {
     rm -v ./${buildPath}/*.o
     cp -v ./${buildPath}/libphobos2.* $out/lib
 
+    cd ../tools
+    cp -v ${toolsBuildPath}/{rdmd,ddemangle,dustmite} $out/bin
 
     wrapProgram $out/bin/dmd \
       --prefix PATH ":" "${targetPackages.stdenv.cc}/bin" \
