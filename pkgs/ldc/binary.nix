@@ -6,7 +6,7 @@ let
   OS = if stdenv.hostPlatform.isDarwin then "osx" else hostPlatform.parsed.kernel.name;
   ARCH = toString hostPlatform.parsed.cpu.name;
 in stdenv.mkDerivation {
-  pname = "ldc-bootstrap";
+  pname = "ldc-binary";
   inherit version;
 
   src = fetchurl rec {
