@@ -124,12 +124,6 @@ in
       "-DCMAKE_BUILD_TYPE=Release"
     ];
 
-    postConfigure = ''
-      export DMD=$PWD/bin/ldmd2
-    '';
-
-    makeFlags = ["DMD=$DMD"];
-
     fixNames = lib.optionalString stdenv.hostPlatform.isDarwin ''
       fixDarwinDylibNames() {
         local flags=()
