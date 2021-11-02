@@ -8,7 +8,7 @@
   fetchurl,
   cmake,
   ninja,
-  llvm_11,
+  llvmPackages_12,
   curl,
   tzdata,
   libconfig,
@@ -108,7 +108,7 @@ in
         ldcBootstrap
         lit
         lit.python
-        llvm_11.dev
+        llvmPackages_12.llvm.dev
         makeWrapper
         ninja
         unzip
