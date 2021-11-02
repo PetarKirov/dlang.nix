@@ -18,6 +18,7 @@
   fetchFromGitHub,
   makeWrapper,
   which,
+  runCommand,
   writeTextFile,
   curl,
   tzdata,
@@ -32,11 +33,25 @@
   unzip,
   HOST_DMD ? "${callPackage ./bootstrap.nix {}}/bin/dmd",
 }: let
+  pathConfig = runCommand "phobos-tzdata-curl-paths" {} ''
+    mkdir $out
+    echo '${tzdata}/share/zoneinfo/' > $out/TZDatabaseDirFile
+    echo '${lib.getLib curl}/lib/libcurl${stdenv.hostPlatform.extensions.sharedLibrary}' > $out/LibcurlPathFile
+  '';
+
+  phobosDflags = "-version=TZDatabaseDir -version=LibcurlPath -J${pathConfig}";
+
   dmdConfFile = writeTextFile {
     name = "dmd.conf";
     text = lib.generators.toINI {} {
       Environment = {
-        DFLAGS = ''-I@out@/include/dmd -L-L@out@/lib -fPIC ${lib.optionalString (!targetPackages.stdenv.cc.isClang) "-L--export-dynamic"}'';
+        DFLAGS = builtins.concatStringsSep " " [
+          "-I@out@/include/dmd"
+          "-L-L@out@/lib"
+          "-fPIC"
+          (lib.optionalString (!targetPackages.stdenv.cc.isClang) "-L--export-dynamic")
+          phobosDflags
+        ];
       };
     };
   };
@@ -213,9 +228,7 @@ in
 
       make -C dmd $buildFlags
       make -C druntime $buildFlags
-      echo ${tzdata}/share/zoneinfo/ > TZDatabaseDirFile
-      echo ${lib.getLib curl}/lib/libcurl${stdenv.hostPlatform.extensions.sharedLibrary} > LibcurlPathFile
-      make -C phobos $buildFlags DFLAGS="-version=TZDatabaseDir -version=LibcurlPath -J$PWD"
+      make -C phobos $buildFlags DFLAGS="${phobosDflags}"
       make -C tools $buildFlags
 
       runHook postBuild
@@ -223,7 +236,7 @@ in
 
     inherit doCheck;
 
-    checkFlags = commonBuildFlags ++ ["CC=$(CXX)" "N=$(checkJobs)"];
+    checkFlags = commonBuildFlags ++ ["CC=${stdenv.cc}/bin/cc" "N=$(checkJobs)"];
 
     # many tests are disbled because they are failing
 
@@ -246,7 +259,7 @@ in
         make -C druntime unittest $checkFlags
 
       NIX_ENFORCE_PURITY= \
-        make -C phobos unittest $checkFlags DFLAGS="-version=TZDatabaseDir -version=LibcurlPath -J$PWD"
+        make -C phobos unittest $checkFlags DFLAGS="${phobosDflags}"
 
       runHook postCheck
     '';
