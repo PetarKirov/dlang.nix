@@ -1,5 +1,5 @@
 { version, ldcSha256 }:
-{ lib, stdenv, writeTextFile, fetchurl, cmake, ninja, llvm_11, curl, tzdata
+{ lib, stdenv, writeTextFile, fetchurl, cmake, ninja, llvmPackages_12, curl, tzdata
 , libconfig, lit, gdb, unzip, darwin, bash
 , callPackage, makeWrapper, runCommand, targetPackages
 , ldcBootstrap ? callPackage ./bootstrap.nix { }
@@ -85,7 +85,7 @@ stdenv.mkDerivation rec {
   '';
 
   nativeBuildInputs = [
-    cmake ldcBootstrap lit lit.python llvm_11.dev makeWrapper ninja unzip
+    cmake ldcBootstrap lit lit.python llvmPackages_12.llvm.dev makeWrapper ninja unzip
   ]
   ++ lib.optionals stdenv.hostPlatform.isDarwin [
     darwin.apple_sdk.frameworks.Foundation
