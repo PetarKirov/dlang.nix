@@ -1,5 +1,5 @@
 { stdenv, lib, fetchFromGitHub
-, makeWrapper, unzip, which, writeTextFile
+, makeWrapper, unzip, which, runCommand, writeTextFile
 , curl, tzdata, gdb, Foundation, git, callPackage
 , targetPackages, fetchpatch, bash
 , HOST_DMD? "${callPackage ./bootstrap.nix { }}/bin/dmd"
@@ -13,11 +13,19 @@
 }:
 
 let
+  pathConfig = runCommand "phobos-tzdata-curl-paths" {} ''
+    mkdir $out
+    echo ${tzdata}/share/zoneinfo/ > $out/TZDatabaseDirFile
+    echo ${curl.out}/lib/libcurl${stdenv.hostPlatform.extensions.sharedLibrary} > $out/LibcurlPathFile
+  '';
+
   dmdConfFile = writeTextFile {
     name = "dmd.conf";
     text = (lib.generators.toINI {} {
       Environment = {
-        DFLAGS = ''-I@out@/include/dmd -L-L@out@/lib -fPIC ${lib.optionalString (!targetPackages.stdenv.cc.isClang) "-L--export-dynamic"}'';
+        DFLAGS = ''-I@out@/include/dmd -L-L@out@/lib -fPIC '' +
+          (lib.optionalString (!targetPackages.stdenv.cc.isClang) "-L--export-dynamic ") +
+          ''-version=TZDatabaseDir -version=LibcurlPath -J${pathConfig}'';
       };
     });
   };
@@ -116,9 +124,7 @@ stdenv.mkDerivation rec {
     ${makeBuildCmd}
 
     cd ../phobos
-    echo ${tzdata}/share/zoneinfo/ > TZDatabaseDirFile
-    echo ${curl.out}/lib/libcurl${stdenv.hostPlatform.extensions.sharedLibrary} > LibcurlPathFile
-    ${makeBuildCmd} DFLAGS="-version=TZDatabaseDir -version=LibcurlPath -J$(pwd)"
+    ${makeBuildCmd} DFLAGS="-version=TZDatabaseDir -version=LibcurlPath -J${pathConfig}"
 
     cd ../tools
     ${makeBuildCmd}
@@ -139,7 +145,7 @@ stdenv.mkDerivation rec {
 
     cd ../phobos
     NIX_ENFORCE_PURITY= \
-      ${makeBuildCmd} unittest DFLAGS="-version=TZDatabaseDir -version=LibcurlPath -J$(pwd)"
+      ${makeBuildCmd} unittest DFLAGS="-version=TZDatabaseDir -version=LibcurlPath -J${pathConfig}"
   '';
 
   installPhase = ''
