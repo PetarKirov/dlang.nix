@@ -2,6 +2,14 @@
 
 assert dcompiler != null;
 
+let
+  xdmdName =
+    if lib.hasPrefix "ldc" dcompiler.pname
+    then "ldmd2"
+    else if lib.hasPrefix "dmd" dcompiler.pname
+    then "dmd"
+    else (assert lib.hasPrefix "gdc" dcompiler.pname; "gdmd");
+in
 stdenv.mkDerivation rec {
   pname = "dub";
   version = "1.27.0";
@@ -50,7 +58,7 @@ stdenv.mkDerivation rec {
   checkPhase = ''
     export DUB=$NIX_BUILD_TOP/source/bin/dub
     export PATH=$PATH:$NIX_BUILD_TOP/source/bin/
-    export DC=${dcompiler.out}/bin/${dcompiler.pname}
+    export DC=${dcompiler.out}/bin/${xdmdName}
     echo "DC out --> $DC"
     export HOME=$TMP
 
