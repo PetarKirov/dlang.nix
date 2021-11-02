@@ -123,9 +123,18 @@ in
     buildInputs = [curl tzdata];
 
     cmakeFlags = [
-      "-D D_FLAGS=-d-version=TZDatabaseDir;-d-version=LibcurlPath;-J${pathConfig}"
+      "-D D_FLAGS=-d-version=TZDatabaseDir;-d-version=LibcurlPath;-J${pathConfig};-O;-linker=gold;-defaultlib=phobos2-ldc-lto,druntime-ldc-lto"
       "-D CMAKE_BUILD_TYPE=Release"
       "-D ALTERNATIVE_MALLOC_O=${mimalloc}/lib/mimalloc.o"
+      "-D MULTILIB=OFF"
+      "-D BUILD_LTO_LIBS=ON"
+      "-D LDC_WITH_LLD=ON"
+      "-D LDC_INSTALL_LTOPLUGIN=ON"
+      "-D LDC_INSTALL_LLVM_RUNTIME_LIBS=ON"
+      "-D BUILD_SHARED_LIBS=ON"
+      "-D LDC_LINK_MANUALLY=ON"
+      "-D RT_SUPPORT_SANITIZERS=ON"
+      "-D CMAKE_INTERPROCEDURAL_OPTIMIZATION_CONFIG=ON"
     ];
 
     fixNames = lib.optionalString stdenv.hostPlatform.isDarwin ''
