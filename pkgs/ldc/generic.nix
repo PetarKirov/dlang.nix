@@ -11,6 +11,7 @@
   llvmPackages_12,
   curl,
   tzdata,
+  mimalloc,
   libconfig,
   lit,
   gdb,
@@ -122,8 +123,9 @@ in
     buildInputs = [curl tzdata];
 
     cmakeFlags = [
-      "-DD_FLAGS=-d-version=TZDatabaseDir;-d-version=LibcurlPath;-J${pathConfig}"
-      "-DCMAKE_BUILD_TYPE=Release"
+      "-D D_FLAGS=-d-version=TZDatabaseDir;-d-version=LibcurlPath;-J${pathConfig}"
+      "-D CMAKE_BUILD_TYPE=Release"
+      "-D ALTERNATIVE_MALLOC_O=${mimalloc}/lib/mimalloc.o"
     ];
 
     fixNames = lib.optionalString stdenv.hostPlatform.isDarwin ''
