@@ -8,7 +8,14 @@
   ldc,
   dcompiler ? ldc,
 }:
-assert dcompiler != null;
+assert dcompiler != null; let
+  xdmdName =
+    if lib.hasPrefix "ldc" dcompiler.pname
+    then "ldmd2"
+    else if lib.hasPrefix "dmd" dcompiler.pname
+    then "dmd"
+    else (assert lib.hasPrefix "gdc" dcompiler.pname; "gdmd");
+in
   stdenv.mkDerivation rec {
     pname = "dub";
     version = "1.30.0";
@@ -56,11 +63,7 @@ assert dcompiler != null;
     checkPhase = ''
       export DUB=$NIX_BUILD_TOP/source/bin/dub
       export PATH=$PATH:$NIX_BUILD_TOP/source/bin/
-      export DC=${dcompiler.out}/bin/${
-        if dcompiler.pname == "ldc"
-        then "ldc2"
-        else dcompiler.pname
-      }
+      export DC=${dcompiler.out}/bin/${xdmdName}
       echo "DC out --> $DC"
       export HOME=$TMP
 
