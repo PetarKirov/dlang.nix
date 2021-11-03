@@ -1,17 +1,48 @@
 { version, ldcSha256 }:
-{ lib, stdenv, fetchurl, cmake, ninja, llvm_11, curl, tzdata
+{ lib, stdenv, writeTextFile, fetchurl, cmake, ninja, llvm_11, curl, tzdata
 , libconfig, lit, gdb, unzip, darwin, bash
 , callPackage, makeWrapper, runCommand, targetPackages
 , ldcBootstrap ? callPackage ./bootstrap.nix { }
 }:
 
 let
-  pathConfig = runCommand "ldc-lib-paths" {} ''
+  pathConfig = runCommand "phobos-tzdata-curl-paths" {} ''
     mkdir $out
     echo ${tzdata}/share/zoneinfo/ > $out/TZDatabaseDirFile
     echo ${curl.out}/lib/libcurl${stdenv.hostPlatform.extensions.sharedLibrary} > $out/LibcurlPathFile
   '';
 
+  ldcConfFile = writeTextFile {
+    name = "ldc2.conf";
+    text = ''
+      // Based on https://github.com/ldc-developers/ldc/blob/v1.28.0/ldc2.conf.in
+      default:
+      {
+        switches = [
+          "-defaultlib=phobos2-ldc,druntime-ldc",
+          "-link-defaultlib-shared",
+          "-d-version=TZDatabaseDir",
+          "-d-version=LibcurlPath",
+        ];
+        post-switches = [
+          "-I=@out@/include/d",
+          "-J=${pathConfig}",
+        ];
+        lib-dirs = [
+          "@out@/lib",
+        ];
+        rpath = "@out@/lib";
+      };
+
+      "^wasm(32|64)-":
+      {
+        switches = [
+          "-defaultlib=",
+          "-L--export-dynamic",
+        ];
+        lib-dirs = [];
+      };'';
+  };
 in
 
 stdenv.mkDerivation rec {
@@ -121,6 +152,8 @@ stdenv.mkDerivation rec {
   '';
 
   postInstall = ''
+    substitute ${ldcConfFile} "$out/etc/ldc2.conf" --subst-var out
+
     wrapProgram $out/bin/ldc2 \
         --prefix PATH ":" "${targetPackages.stdenv.cc}/bin" \
         --set-default CC "${targetPackages.stdenv.cc}/bin/cc"
