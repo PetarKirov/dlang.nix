@@ -5,6 +5,7 @@ mkShell {
     nix-prefetch-git
     dmd
     ldc
+    dub
   ];
 
   shellHook = ''
