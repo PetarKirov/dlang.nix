@@ -1,0 +1,9 @@
+{
+  "inputs": {
+    "dmd": "github:dlang/dmd",
+    "druntime": "github:dlang/druntime",
+    "phobos": "github:dlang/phobos",
+    "tools": "github:dlang/tools"
+  },
+  "primaryInput": "dmd"
+}

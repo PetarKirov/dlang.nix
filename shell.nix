@@ -6,6 +6,7 @@ with pkgs;
       nix-prefetch-git
       dmd
       ldc
+      dub
     ];
 
     shellHook = ''
