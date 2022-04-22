@@ -3,3 +3,6 @@ result
 
 # direnv temporary files
 .direnv/
+
+# Dub
+.dub
