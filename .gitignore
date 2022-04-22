@@ -4,5 +4,8 @@ result
 # direnv temporary files
 .direnv/
 
+# Dub
+.dub
+
 # Dotenv
 .env
