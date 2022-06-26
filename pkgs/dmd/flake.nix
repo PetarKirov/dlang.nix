@@ -18,6 +18,5 @@
     };
     primary.follows = "dmd";
   };
-  outputs = {...}: {
-  };
+  outputs = {...}: {};
 }
