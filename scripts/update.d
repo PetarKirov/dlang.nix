@@ -5,32 +5,59 @@
 +/
 
 import std;
-import semver : SemVer;
+import semver : SemVer, VersionPart;
 import std.file : isFile;
 
 enum defaultPackagesDir = __FILE_FULL_PATH__.dirName.buildNormalizedPath("..", "pkgs");
 
+alias PackageName = string;
+alias Hash = string;
+alias Version = string;
 struct Ref { string name, repo; }
+struct Resolution { Ref input; Hash hash; }
+alias Result = Hash[PackageName][Version];
 
-struct PackageInputs
+JSONValue toJson(T)(T value)
 {
+    static if (isSomeString!T || isScalarType!T)
+        return JSONValue(value);
+    else static if (isArray!T)
+        return JSONValue(value.map!(v => toJson(v)).array);
+    else static if (isAssociativeArray!T)
+        return value.byPair
+            .map!(pair => tuple(pair[0], pair[1].toJson))
+            .array
+            .assocArray
+            .JSONValue;
+    else static if (is(T == struct))
+    {
+        JSONValue[string] res;
+        static foreach (idx, field; T.tupleof)
+            res[field.stringof] = value.tupleof[idx].toJson;
+        return JSONValue(res);
+    }
+    else
+        static assert(0, "Unsupport type: " ~ T.stringof);
+}
+
+struct PackageInfo
+{
+    string name;
     Ref[] inputs;
     size_t primaryInputIdx;
     ref const(Ref) primaryInput() const { return inputs[primaryInputIdx]; }
 }
 
-alias Sha256 = ubyte[32];
-struct Resolution { Input i; Sha256 hash; }
-
 alias PackageInputResolutions = Resolution[string];
 
 void main()
 {
-    allPackages()
-        .map!getPackageInputs
-        // .map!getTags
-        .writefln!"%(%s\n%)";
-        // .writefln!"%(%-(%s, %)\n%)";
+    auto r = allPackages()
+        .map!getPackageInfo
+        .map!getResolutions
+        .array;
+
+    toJson(r).toPrettyString(JSONOptions.doNotEscapeSlashes).writeln;
 }
 
 string[] allPackages(string pkgsDir = defaultPackagesDir)
@@ -41,7 +68,7 @@ string[] allPackages(string pkgsDir = defaultPackagesDir)
         .array;
 }
 
-PackageInputs getPackageInputs(string flakePath)
+PackageInfo getPackageInfo(string flakePath)
 in (flakePath.isFile)
 {
     import std.process : execute;
@@ -68,7 +95,8 @@ in (flakePath.isFile)
         primaryIdx != -1 && inputs[primaryIdx].name == primaryInput,
         "primary input not found"
     );
-    return PackageInputs(
+    return PackageInfo(
+        flakePath.dirName.baseName,
         inputs,
         primaryIdx
     );
@@ -76,38 +104,118 @@ in (flakePath.isFile)
 
 unittest
 {
-    assert(getNixFlakeInputs("pkgs/dmd").primaryInput == "dmd");
+    assert(getPackageInfo("pkgs/dmd/flake.nix").primaryInput.name == "dmd");
 }
 
-string[] getTags(string repoUri, bool includePrereleases = false)
+Result getResolutions(PackageInfo info, ushort maxCount = 100, bool includePrereleases = false)
 {
-    auto parts = repoUri.findSplit(":");
-    enforce(parts, "Expected format: <protocol>:<repo>, got: " ~ repoUri);
+    return info.primaryInput.repo
+        .getTags(maxCount, includePrereleases)
+        .map!((tag) {
+            auto resolutions = info.inputs
+                .map!(input => prefetchAndResolveInput(input, tag))
+                .array;
+            return tuple(tag, resolutions);
+        })
+        .assocArray;
+}
+
+string[] getTags(string repoUrl, ushort maxCount, bool includePrereleases = false)
+{
+    auto parts = repoUrl.findSplit(":");
+    enforce(parts, "Expected format: <protocol>:<repo>, got: " ~ repoUrl);
 
     auto protocol = parts[0];
     auto repo = parts[2];
 
-    SemVer[] versions;
-
+    string[] tags;
     switch(protocol)
     {
         default: throw new Error("Unknown protocol: " ~ protocol);
-        case "github": {
-            versions = getGitHubRepoTags(repo);
+        case "github":
+        {
+            tags = getGitHubRepoTags(repo, includePrereleases);
+            break;
         }
     }
 
-    return versions.map!(v => repoUri ~ "@" ~ v.toString()).array;
+    return zip(tags, tags.map!(tag => SemVer(tag)).array)
+        .sort!((a, b) => a[1] > b[1])
+        .uniq!((a, b) => equalMajorAndMinorVersion(a[1], b[1]))
+        .take(maxCount)
+        .map!"a[0]"
+        .array;
 }
 
-SemVer[] getGitHubRepoTags(string repo, bool includePrereleases = false)
+string[] getGitHubRepoTags(string repo, bool includePrereleases = false)
+{
+    return fetchPagedResponse!(JSONValue)(
+        (int page) =>
+            "https://api.github.com/repos/%s/tags?per_page=100&page=%s"
+                .format(repo, page),
+        (const(char)[] rawResponse) => rawResponse.parseJSON.array,
+        (JSONValue[] response) => response.length == 100,
+    )
+        .map!(j => j.object["name"].str)
+        .filter!(ver => SemVer(ver).isValid)
+        .filter!(ver => includePrereleases || SemVer(ver).isStable)
+        .array;
+}
+
+alias UrlForPage = const(char)[] delegate(int page);
+alias Deserialize(T) = T[] function(const(char)[] response);
+alias MoreData(T) = bool function(T[] data);
+
+T[] fetchPagedResponse(T)(
+    UrlForPage urlForPage,
+    Deserialize!T deserialize,
+    MoreData!T hasMoreData,
+)
 {
     import std.net.curl : get;
-    auto url = "https://api.github.com/repos/" ~ repo ~ "/tags";
-    return url.get
-        .parseJSON
-        .array
-        .map!(j => j.object["name"].str.SemVer)
-        .filter!(ver => includePrereleases || ver.isStable)
-        .array;
+
+    T[] result;
+    int page = 0;
+    bool moreData = false;
+
+    do
+    {
+        auto response = deserialize(get(urlForPage(page++)));
+        result ~= response;
+        moreData = hasMoreData(response);
+    }
+    while (moreData);
+
+    return result;
+}
+
+Resolution prefetchAndResolveInput(Ref input, string gitTag)
+{
+    const flakeUrl = input.repo ~ "/" ~ gitTag;
+    writefln("Prefeching '%s'...", flakeUrl);
+    const res = ["nix", "flake", "prefetch", "--json", flakeUrl].execute;
+    enforce(res.status == 0, "nix prefetch failed " ~ flakeUrl);
+    return Resolution(
+        input,
+        res.output.parseJSON()["hash"].str
+    );
+}
+
+bool equalMajorAndMinorVersion(SemVer a, SemVer b)
+{
+    return a == b || a.differAt(b) >= VersionPart.PATCH;
+}
+
+unittest
+{
+    assert(equalMajorAndMinorVersion(SemVer("1.2.3"), SemVer("1.2.3")));
+    assert(equalMajorAndMinorVersion(SemVer("1.2.3"), SemVer("1.2.4")));
+    assert(equalMajorAndMinorVersion(SemVer("1.2.0"), SemVer("1.2.3")));
+    assert(equalMajorAndMinorVersion(SemVer("1.2.3-rc.1"), SemVer("1.2.3-rc.1")));
+    assert(equalMajorAndMinorVersion(SemVer("1.2.3-rc.1"), SemVer("1.2.3-rc.2")));
+
+    assert(!equalMajorAndMinorVersion(SemVer("1.2.3"), SemVer("1.3.3")));
+    assert(!equalMajorAndMinorVersion(SemVer("1.2.3"), SemVer("1.0.3")));
+    assert(!equalMajorAndMinorVersion(SemVer("1.2.3"), SemVer("2.2.3")));
+    assert(!equalMajorAndMinorVersion(SemVer("1.2.3"), SemVer("0.2.3")));
 }
