@@ -2,6 +2,7 @@
 /+ dub.sdl:
     name "update-nix-inputs"
     dependency "semver" version="~>0.3.4"
+    dflags "-preview=shortenedMethods"
 +/
 
 import std;
@@ -150,12 +151,17 @@ string[] getTags(string repoUrl, ushort maxCount, bool includePrereleases = fals
 
 string[] getGitHubRepoTags(string repo, bool includePrereleases = false)
 {
+    string getGHPage(int page)
+    {
+        return "https://api.github.com/repos/%s/tags?per_page=100&page=%s"
+            .format(repo, page);
+    }
+
     return fetchPagedResponse!(JSONValue)(
-        (int page) =>
-            "https://api.github.com/repos/%s/tags?per_page=100&page=%s"
-                .format(repo, page),
+        getGHPage(1),
+        [ "Authorization": "Bearer " ~ environment["GH_TOKEN"]],
         (const(char)[] rawResponse) => rawResponse.parseJSON.array,
-        (JSONValue[] response) => response.length == 100,
+        (response, headers) => getNextPageFromLinkHeader(headers),
     )
         .map!(j => j.object["name"].str)
         .filter!(ver => SemVer(ver).isValid)
@@ -163,29 +169,77 @@ string[] getGitHubRepoTags(string repo, bool includePrereleases = false)
         .array;
 }
 
-alias UrlForPage = const(char)[] delegate(int page);
+string getNextPageFromLinkHeader(string[string] headers)
+{
+    auto linkHeader = headers.tryGet("Link", "link");
+    if (!linkHeader)
+        return null;
+    return parseLinkHeader(*linkHeader)
+        .firstOrDefault!(l => l.rel == "next")
+        .url;
+}
+
+alias Link = Tuple!(string, "url", string, "rel");
+
+Link[] parseLinkHeader(string header)
+{
+    return header
+        .split(",")
+        .map!(x => x.split(";").map!(part => part.strip).array)
+        .map!(parts => Link(
+            parts[0][1 .. $ - 1], // "<URL>"" -> "URL"
+            parts[1 .. $]
+                .find!((string p) => p.startsWith("rel"))
+                .map!(p => p[5 .. $ - 1]) // `rel="value"` -> `"value"`
+                .firstOrDefault!"!!a"
+        ))
+        .array;
+}
+
+auto firstOrDefault
+    (alias predicate, Range)
+    (Range r, ElementType!Range default_ = ElementType!Range.init)
+{
+    auto res = r.find!predicate;
+    return res.empty ? default_ : res.front;
+}
+
+V* tryGet(K, V)(V[K] aa, K[] keys...) => keys
+    .map!(k => k in aa)
+    .firstOrDefault!"!!a";
+
 alias Deserialize(T) = T[] function(const(char)[] response);
-alias MoreData(T) = bool function(T[] data);
+alias NextPage(T) = string function(
+    T[] data,
+    string[string] httpResponseHeaders,
+);
 
 T[] fetchPagedResponse(T)(
-    UrlForPage urlForPage,
+    string firstPage,
+    string[string] requestHeaders,
     Deserialize!T deserialize,
-    MoreData!T hasMoreData,
+    NextPage!T getNextPage,
 )
 {
-    import std.net.curl : get;
+    import std.net.curl : get, HTTP;
 
     T[] result;
     int page = 0;
     bool moreData = false;
+    auto nextPage = firstPage;
+
+    auto client = HTTP();
+
+    foreach (key, value; requestHeaders)
+        client.addRequestHeader(key, value);
 
     do
     {
-        auto response = deserialize(get(urlForPage(page++)));
+        auto response = deserialize(get(nextPage, client));
         result ~= response;
-        moreData = hasMoreData(response);
+        nextPage = getNextPage(response, client.responseHeaders);
     }
-    while (moreData);
+    while (nextPage);
 
     return result;
 }
@@ -202,10 +256,8 @@ Resolution prefetchAndResolveInput(Ref input, string gitTag)
     );
 }
 
-bool equalMajorAndMinorVersion(SemVer a, SemVer b)
-{
-    return a == b || a.differAt(b) >= VersionPart.PATCH;
-}
+bool equalMajorAndMinorVersion(SemVer a, SemVer b) =>
+    a == b || a.differAt(b) >= VersionPart.PATCH;
 
 unittest
 {
