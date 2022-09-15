@@ -6,3 +6,6 @@ result
 
 # Dub
 .dub
+
+# Dotenv
+.env
