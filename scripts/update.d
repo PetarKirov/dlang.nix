@@ -113,8 +113,9 @@ Result getResolutions(PackageInfo info, ushort maxCount = 100, bool includePrere
         .getTags(maxCount, includePrereleases)
         .map!((tag) {
             auto resolutions = info.inputs
-                .map!(input => prefetchAndResolveInput(input, tag))
-                .array;
+                .map!(input => tuple(input.name, "sha256"))
+                //.map!(input => prefetchAndResolveInput(input, tag))
+                .assocArray;
             return tuple(tag, resolutions);
         })
         .assocArray;
