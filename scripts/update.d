@@ -69,6 +69,12 @@ string[] allPackages(string pkgsDir = defaultPackagesDir)
         .array;
 }
 
+bool isVersionSupportedByPackage(string flakePath, string versionStr)
+{
+    const res = ["nix", "eval", "--json", "-f", flakePath,
+        "--apply", `flake: (flake.outputs {}).isVersionSupported ` ~ versionStr].execute;
+}
+
 PackageInfo getPackageInfo(string flakePath)
 in (flakePath.isFile)
 {
