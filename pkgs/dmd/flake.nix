@@ -18,5 +18,11 @@
     };
     primary.follows = "dmd";
   };
-  outputs = {...}: {};
+  outputs = {...}: let
+    versionBetween = after: before: version:
+      ((builtins.compareVersions version after) >= 0)
+      && ((builtins.compareVersions version before) < 0);
+  in {
+    isVersionSupported = version: versionBetween "2.070.0" "2.100.0" version;
+  };
 }
