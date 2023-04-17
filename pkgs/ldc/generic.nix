@@ -111,6 +111,7 @@ in
         lit
         lit.python
         llvmPackages_12.llvm.dev
+        llvmPackages_12.lld.dev
         makeWrapper
         ninja
         unzip
