@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  Nix:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ ubuntu-latest, macos-12 ]
+        pkg:
+          - dmd
+          - ldc
+          - dub
+
+    name: Building ${{ matrix.pkg }} on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: cachix/install-nix-action@v23
+        with:
+          # NIX_PATH is explicitly set to a wrong value to prevent accidental
+          # usage. `nixpkgs` should be accessed only through the locked flake
+          # reference.
+          nix_path: nixpkgs=null
+          github_access_token: ${{ secrets.GITHUB_TOKEN }}
+          extra_nix_config:
+            accept-flake-config = true
+
+      - uses: cachix/cachix-action@v12
+        with:
+          name: dlang-community
+          authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
+
+      - name: Build ${{ matrix.job_name }}
+        run: nix build -L --json --no-link '.#${{ matrix.pkg }}'
