@@ -10,24 +10,37 @@
   version,
   hashes,
 }: let
-  inherit (stdenv) hostPlatform;
-  OS =
-    if hostPlatform.isDarwin
-    then "osx"
-    else hostPlatform.parsed.kernel.name;
-  ARCH =
-    if hostPlatform.isDarwin && hostPlatform.isAarch64
-    then "arm64"
-    else hostPlatform.parsed.cpu.name;
+  inherit (stdenv) hostPlatform system;
+
+  systemToArchivePlatform = {
+    # FIXME: How should Android be supported?
+    # (It is not a separate Nixpkgs platform.)
+    "aarch64-android" = "android-aarch64";
+    "armv7a-android" = "android-armv7a";
+    "x86_64-freebsd" = "freebsd-x86_64";
+    "aarch64-linux" = "linux-aarch64";
+    "x86_64-linux" = "linux-x86_64";
+    "aarch64-darwin" = "osx-arm64";
+    "x86_64-darwin" = "osx-x86_64";
+    "x86_64-windows" = "windows-x64";
+    "i686-windows" = "windows-x86";
+  };
+
+  tarballSuffix =
+    if hostPlatform.isWindows
+    then "7z"
+    else "tar.xz";
+
+  archivePlatform = systemToArchivePlatform."${system}";
 in
   stdenv.mkDerivation {
     pname = "ldc-binary";
     inherit version;
 
     src = fetchurl rec {
-      name = "ldc2-${version}-${OS}-${ARCH}.tar.xz";
+      name = "ldc2-${version}-${archivePlatform}.${tarballSuffix}";
       url = "https://github.com/ldc-developers/ldc/releases/download/v${version}/${name}";
-      sha256 = hashes."${OS}-${ARCH}" or (throw "missing bootstrap sha256 for ${OS}-${ARCH}");
+      sha256 = hashes."${archivePlatform}" or (throw "missing bootstrap sha256 for ${archivePlatform}");
     };
 
     dontConfigure = true;
@@ -53,6 +66,8 @@ in
       # from https://github.com/ldc-developers/ldc/blob/master/LICENSE
       license = with licenses; [bsd3 boost mit ncsa gpl2Plus];
       maintainers = with maintainers; [ThomasMader lionello];
-      platforms = ["x86_64-linux" "x86_64-darwin" "aarch64-linux" "aarch64-darwin"];
+      # FIXME: change to the following after the CI verifies it:
+      # platforms = builtins.attrNames systemToArchivePlatform;
+      platforms = [ "x86_64-linux" "aarch64-linux" "x86_64-darwin" "aarch64-darwin"];
     };
   }
