@@ -6,18 +6,20 @@
     pkgs,
     ...
   }: let
-    inherit (pkgs) callPackage;
+    inherit (pkgs) callPackage lib darwin hostPlatform;
     darwinPkgs = {
-      inherit (pkgs.darwin.apple_sdk.frameworks) Foundation;
+      inherit (darwin.apple_sdk.frameworks) Foundation;
     };
   in {
     overlayAttrs = self'.packages;
-    packages = {
-      dmd = callPackage ./dmd ({} // darwinPkgs);
+    packages =
+      {
+        ldc = callPackage ./ldc {};
 
-      ldc = callPackage ./ldc {};
-
-      dub = callPackage ./dub {};
-    };
+        dub = callPackage ./dub {};
+      }
+      // lib.optionalAttrs hostPlatform.isx86 {
+        dmd = callPackage ./dmd darwinPkgs;
+      };
   };
 }
