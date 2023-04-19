@@ -1,13 +1,16 @@
 {pkgs ? import <nixpkgs> {}}:
 with pkgs;
   mkShell {
-    buildInputs = [
-      figlet
-      nix-prefetch-git
-      dmd
-      ldc
-      dub
-    ];
+    packages =
+      [
+        figlet
+        nix-prefetch-git
+        ldc
+        dub
+      ]
+      ++ lib.optionals stdenv.hostPlatform.isx86 [
+        dmd
+      ];
 
     shellHook = ''
       figlet "Welcome  to Dlang  Nix"
