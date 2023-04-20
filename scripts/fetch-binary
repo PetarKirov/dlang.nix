@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+VERSION="${VERSION:-1.28.0}"
+COMPILER="${COMPILER:-ldc}"
+
+if [ "$COMPILER" = ldc ]; then
+  platforms=(android-aarch64 android-armv7a freebsd-x86_64  linux-aarch64 linux-x86_64 osx-arm64 osx-x86_64 windows-x64 windows-x86)
+elif [ "$COMPILER" = dmd ]; then
+  platforms=(linux osx freebsd-64 windows)
+fi
+
+main() {
+  declare -A hashes
+
+  platforms_list=$(printf ", %s" "${platforms[@]}")
+  echo "Prefetching ${COMPILER^^} v$VERSION for [${platforms_list:2}]:"
+  echo "-----"
+  for platform in "${platforms[@]}"; do
+    url="$(getUrl "$platform")"
+    hash="$(prefech "$url")"
+    hashes[$platform]="$hash"
+  done
+
+  echo "-----"
+  echo "All done!"
+  echo
+
+  for platform in "${platforms[@]}"; do
+    echo "\"${platform}\" = \"${hashes[$platform]}\";"
+  done
+}
+
+getUrl() {
+  platform="$1"
+  if [[ "$platform" = windows* ]]; then
+    suffix="7z"
+  else
+    suffix="tar.xz"
+  fi
+
+  if [ "$COMPILER" = ldc ]; then
+    echo "https://github.com/ldc-developers/ldc/releases/download/v${VERSION}/ldc2-${VERSION}-${platform}.${suffix}"
+  elif [ "$COMPILER" = dmd ]; then
+    echo "http://downloads.dlang.org/releases/2.x/${VERSION}/dmd.${VERSION}.${platform}.${suffix}"
+  fi
+}
+
+prefech() {
+  url="$1"
+  echo '>' nix store prefetch-file --json "$url" >&2
+  nix store prefetch-file --json "$url" | jq -r '.hash'
+}
+
+main
