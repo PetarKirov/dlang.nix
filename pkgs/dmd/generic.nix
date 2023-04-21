@@ -23,6 +23,7 @@
   curl,
   tzdata,
   gdb,
+  gcc11,
   Foundation,
   callPackage,
   targetPackages,
@@ -236,7 +237,7 @@ in
 
     inherit doCheck;
 
-    checkFlags = commonBuildFlags ++ ["CC=${stdenv.cc}/bin/cc" "N=$(checkJobs)"];
+    checkFlags = commonBuildFlags ++ ["CC=${gcc11}/bin/cc" "N=$(checkJobs)"];
 
     # many tests are disbled because they are failing
 
