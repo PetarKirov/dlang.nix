@@ -149,26 +149,11 @@ in
         which
         installShellFiles
       ]
-      ++ lib.optionals (lib.versionOlder version "2.088.0") [
-        git
-      ];
+      ++ lib.optional (lib.versionOlder version "2.088.0") git;
 
-    buildInputs =
-      [
-        curl
-        tzdata
-      ]
-      ++ lib.optionals stdenv.isDarwin [
-        Foundation
-      ];
+    buildInputs = [curl tzdata] ++ lib.optional stdenv.isDarwin Foundation;
 
-    nativeCheckInputs =
-      [
-        gdb
-      ]
-      ++ lib.optionals (lib.versionOlder version "2.089.0") [
-        unzip
-      ];
+    nativeCheckInputs = [gdb] ++ lib.optional (lib.versionOlder version "2.089.0") unzip;
 
     buildFlags = [
       "BUILD=release"

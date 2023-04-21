@@ -31,20 +31,10 @@ in
     dontBuild = true;
 
     nativeBuildInputs =
-      lib.optionals hostPlatform.isLinux [
-        autoPatchelfHook
-      ]
-      ++ lib.optionals hostPlatform.isDarwin [
-        fixDarwinDylibNames
-      ];
-    propagatedBuildInputs =
-      [
-        curl
-        tzdata
-      ]
-      ++ lib.optionals hostPlatform.isLinux [
-        glibc
-      ];
+      lib.optional hostPlatform.isLinux autoPatchelfHook
+      ++ lib.optional hostPlatform.isDarwin fixDarwinDylibNames;
+
+    propagatedBuildInputs = [curl tzdata] ++ lib.optional hostPlatform.isLinux glibc;
 
     installPhase = ''
       runHook preInstall

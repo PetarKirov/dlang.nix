@@ -80,13 +80,9 @@ in
         ninja
         unzip
       ]
-      ++ lib.optionals stdenv.hostPlatform.isDarwin [
-        darwin.apple_sdk.frameworks.Foundation
-      ]
-      ++ lib.optionals (!stdenv.hostPlatform.isDarwin) [
-        # https://github.com/NixOS/nixpkgs/pull/36378#issuecomment-385034818
-        gdb
-      ];
+      ++ lib.optional stdenv.hostPlatform.isDarwin darwin.apple_sdk.frameworks.Foundation
+      # https://github.com/NixOS/nixpkgs/pull/36378#issuecomment-385034818
+      ++ lib.optional (!stdenv.hostPlatform.isDarwin) gdb;
 
     buildInputs = [curl tzdata];
 
