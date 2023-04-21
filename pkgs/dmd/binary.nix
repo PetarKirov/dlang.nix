@@ -18,7 +18,7 @@
   MODEL = toString hostPlatform.parsed.cpu.bits;
 in
   stdenv.mkDerivation {
-    pname = "dmd-bootstrap";
+    pname = "dmd-binary";
     inherit version;
 
     src = fetchurl rec {

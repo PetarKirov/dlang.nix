@@ -21,7 +21,7 @@
     else hostPlatform.parsed.cpu.name;
 in
   stdenv.mkDerivation {
-    pname = "ldc-bootstrap";
+    pname = "ldc-binary";
     inherit version;
 
     src = fetchurl rec {
