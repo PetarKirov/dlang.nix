@@ -6,7 +6,7 @@
   tzdata,
   autoPatchelfHook,
   fixDarwinDylibNames,
-  glibc,
+  gccForLibs,
   version,
   hashes,
 }: let
@@ -37,7 +37,7 @@ in
       lib.optional hostPlatform.isLinux autoPatchelfHook
       ++ lib.optional hostPlatform.isDarwin fixDarwinDylibNames;
 
-    propagatedBuildInputs = [curl tzdata] ++ lib.optional hostPlatform.isLinux glibc;
+    propagatedBuildInputs = [curl tzdata] ++ lib.optional hostPlatform.isLinux gccForLibs.libgcc;
 
     installPhase = ''
       runHook preInstall
