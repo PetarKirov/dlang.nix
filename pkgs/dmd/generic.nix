@@ -79,6 +79,7 @@
     "-fposix.mak"
     "SHELL=${bash}/bin/bash"
     "DMD=$(NIX_BUILD_TOP)/dmd/${buildPath}/dmd"
+    "CC=${if stdenv.isDarwin then stdenv.cc else gcc11}/bin/cc"
     "HOST_DMD=${HOST_DMD}"
     "PIC=1"
     "BUILD=${buildMode}"
@@ -237,7 +238,9 @@ in
 
     inherit doCheck;
 
-    checkFlags = commonBuildFlags ++ ["CC=${gcc11}/bin/cc" "N=$(checkJobs)"];
+    checkInputs = lib.optional stdenv.isDarwin Foundation;
+
+    checkFlags = commonBuildFlags ++ ["N=$(checkJobs)"];
 
     # many tests are disbled because they are failing
 
