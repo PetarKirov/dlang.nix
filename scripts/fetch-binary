@@ -19,7 +19,7 @@ main() {
   echo "-----"
   for platform in "${platforms[@]}"; do
     url="$(getUrl "$platform")"
-    hash="$(prefech "$url")"
+    hash="$(prefech "$url")" || continue
     hashes[$platform]="$hash"
   done
 
@@ -28,7 +28,11 @@ main() {
   echo
 
   for platform in "${platforms[@]}"; do
-    echo "\"${platform}\" = \"${hashes[$platform]}\";"
+    if [[ -v 'hashes[$platform]' ]]; then
+      echo "\"${platform}\" = \"${hashes[$platform]}\";"
+    else
+      echo "# \"${platform}\" = \"<not available>\";"
+    fi
   done
 }
 
