@@ -1,7 +1,8 @@
 {
   version,
   dmdSha256,
-  druntimeSha256,
+  # only needed before version 2.101.0
+  druntimeSha256 ? "",
   phobosSha256,
   toolsSha256,
   doCheck ? true,
@@ -74,6 +75,16 @@
     else "debug";
 
   buildPath = "generated/${os}/${buildMode}/${bits}";
+  druntimeRepo = lib.versionOlder version "2.101.0";
+  dmdPrefix =
+    if druntimeRepo
+    then "dmd"
+    else "dmd/compiler";
+
+  druntimePrefix =
+    if druntimeRepo
+    then "druntime"
+    else "dmd/druntime";
 
   commonBuildFlags = [
     "-fposix.mak"
@@ -108,13 +119,6 @@ in
       })
       (fetchFromGitHub {
         owner = "dlang";
-        repo = "druntime";
-        rev = "v${version}";
-        sha256 = druntimeSha256;
-        name = "druntime";
-      })
-      (fetchFromGitHub {
-        owner = "dlang";
         repo = "phobos";
         rev = "v${version}";
         sha256 = phobosSha256;
@@ -126,6 +130,14 @@ in
         rev = "v${version}";
         sha256 = toolsSha256;
         name = "tools";
+      })
+    ] ++ lib.optionals druntimeRepo [
+      (fetchFromGitHub {
+        owner = "dlang";
+        repo = "druntime";
+        rev = "v${version}";
+        sha256 = druntimeSha256;
+        name = "druntime";
       })
     ];
 
@@ -157,50 +169,50 @@ in
 
     postPatch =
       ''
-        patchShebangs dmd/test/{runnable,fail_compilation,compilable,tools}{,/extra-files}/*.sh
+        patchShebangs ${dmdPrefix}/test/{runnable,fail_compilation,compilable,tools}{,/extra-files}/*.sh
 
-        rm dmd/test/runnable/gdb1.d
-        rm dmd/test/runnable/gdb10311.d
-        rm dmd/test/runnable/gdb14225.d
-        rm dmd/test/runnable/gdb14276.d
-        rm dmd/test/runnable/gdb14313.d
-        rm dmd/test/runnable/gdb14330.d
-        rm dmd/test/runnable/gdb15729.sh
-        rm dmd/test/runnable/gdb4149.d
-        rm dmd/test/runnable/gdb4181.d
+        rm ${dmdPrefix}/test/runnable/gdb1.d
+        rm ${dmdPrefix}/test/runnable/gdb10311.d
+        rm ${dmdPrefix}/test/runnable/gdb14225.d
+        rm ${dmdPrefix}/test/runnable/gdb14276.d
+        rm ${dmdPrefix}/test/runnable/gdb14313.d
+        rm ${dmdPrefix}/test/runnable/gdb14330.d
+        rm ${dmdPrefix}/test/runnable/gdb15729.sh
+        rm ${dmdPrefix}/test/runnable/gdb4149.d
+        rm ${dmdPrefix}/test/runnable/gdb4181.d
 
         # Disable tests that rely on objdump whitespace until fixed upstream:
         #   https://issues.dlang.org/show_bug.cgi?id=23317
-        rm dmd/test/runnable/cdvecfill.sh
-        rm dmd/test/compilable/cdcmp.d
+        rm ${dmdPrefix}/test/runnable/cdvecfill.sh
+        rm ${dmdPrefix}/test/compilable/cdcmp.d
 
         # Grep'd string changed with gdb 12
         #   https://issues.dlang.org/show_bug.cgi?id=23198
-        substituteInPlace druntime/test/exceptions/Makefile \
+        substituteInPlace ${druntimePrefix}/test/exceptions/Makefile \
           --replace 'in D main (' 'in _Dmain ('
 
         # We're using gnused on all platforms
-        substituteInPlace druntime/test/coverage/Makefile \
+        substituteInPlace ${druntimePrefix}/test/coverage/Makefile \
           --replace 'freebsd osx' 'none'
       ''
       + lib.optionalString (lib.versionOlder version "2.091.0") ''
         # This one has tested against a hardcoded year, then against a current year on
         # and off again. It just isn't worth it to patch all the historical versions
         # of it, so just remove it until the most recent change.
-        rm dmd/test/compilable/ddocYear.d
+        rm ${dmdPrefix}/test/compilable/ddocYear.d
       ''
       + lib.optionalString (lib.versionAtLeast version "2.089.0" && lib.versionOlder version "2.092.2") ''
-        rm dmd/test/dshell/test6952.d
+        rm ${dmdPrefix}/test/dshell/test6952.d
       ''
       + lib.optionalString (lib.versionAtLeast version "2.092.2") ''
-        substituteInPlace dmd/test/dshell/test6952.d --replace "/usr/bin/env bash" "${bash}/bin/bash"
+        substituteInPlace ${dmdPrefix}/test/dshell/test6952.d --replace "/usr/bin/env bash" "${bash}/bin/bash"
       ''
       + lib.optionalString stdenv.isLinux ''
         substituteInPlace phobos/std/socket.d --replace "assert(ih.addrList[0] == 0x7F_00_00_01);" ""
       ''
       + lib.optionalString stdenv.isDarwin ''
-        rm dmd/test/runnable/{test13117.d,test13117b.d}
-        rm dmd/test/runnable_cxx/{cpp11.d,cppa.d,cpp_stdlib.d}
+        rm ${dmdPrefix}/test/runnable/{test13117.d,test13117b.d}
+        rm ${dmdPrefix}/test/runnable_cxx/{cpp11.d,cppa.d,cpp_stdlib.d}
 
         substituteInPlace phobos/std/socket.d --replace "foreach (name; names)" "names = []; foreach (name; names)"
       '';
@@ -232,7 +244,9 @@ in
       export MAKEFLAGS="-j$buildJobs"
 
       make -C dmd $buildFlags
-      make -C druntime $buildFlags
+      ${lib.optionalString druntimeRepo
+        "make -C druntime $buildFlags"
+      }
       make -C phobos $buildFlags DFLAGS="${phobosDflags}"
       make -C tools $buildFlags
 
@@ -259,11 +273,15 @@ in
 
       export MAKEFLAGS="-j$checkJobs"
 
+      # This will also test DRuntime for versions without
+      # a separate DRuntime repo
       NIX_ENFORCE_PURITY= \
         make -C dmd test $checkFlags
 
+      ${lib.optionalString druntimeRepo ''
       NIX_ENFORCE_PURITY= \
         make -C druntime unittest $checkFlags
+      ''}
 
       NIX_ENFORCE_PURITY= \
         make -C phobos unittest $checkFlags DFLAGS="${phobosDflags}"
@@ -279,7 +297,7 @@ in
       installManPage dmd/docs/man/man*/*
 
       mkdir -p $out/include/dmd
-      cp -r {druntime/import/*,phobos/{std,etc}} $out/include/dmd/
+      cp -r {${druntimePrefix}/import/*,phobos/{std,etc}} $out/include/dmd/
 
       mkdir $out/lib
       cp phobos/${buildPath}/libphobos2.* $out/lib/
