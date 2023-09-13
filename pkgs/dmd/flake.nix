@@ -23,6 +23,6 @@
       ((builtins.compareVersions version after) >= 0)
       && ((builtins.compareVersions version before) < 0);
   in {
-    isVersionSupported = version: versionBetween "2.070.0" "2.100.0" version;
+    isVersionSupported = version: versionBetween "2.098.1" "2.102.2" version;
   };
 }
