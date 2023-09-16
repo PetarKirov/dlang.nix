@@ -207,12 +207,17 @@ in
       + lib.optionalString (lib.versionAtLeast version "2.092.2") ''
         substituteInPlace ${dmdPrefix}/test/dshell/test6952.d --replace "/usr/bin/env bash" "${bash}/bin/bash"
       ''
+      # This test causes a linking failure before
+      # https://github.com/dlang/dmd/commit/cab51f946a8b2d3f0fcb856cf6c52a18a6779930
+      + lib.optionalString (lib.versionOlder version "2.103.0") ''
+        rm ${dmdPrefix}/test/runnable_cxx/cppa.d
+      ''
       + lib.optionalString stdenv.isLinux ''
         substituteInPlace phobos/std/socket.d --replace "assert(ih.addrList[0] == 0x7F_00_00_01);" ""
       ''
       + lib.optionalString stdenv.isDarwin ''
         rm ${dmdPrefix}/test/runnable/{test13117.d,test13117b.d}
-        rm ${dmdPrefix}/test/runnable_cxx/{cpp11.d,cppa.d,cpp_stdlib.d}
+        rm ${dmdPrefix}/test/runnable_cxx/{cpp11.d,cpp_stdlib.d}
 
         substituteInPlace phobos/std/socket.d --replace "foreach (name; names)" "names = []; foreach (name; names)"
       '';
