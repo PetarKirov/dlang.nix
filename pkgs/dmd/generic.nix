@@ -58,11 +58,6 @@
     };
   };
 
-  boolToNum = x:
-    if x
-    then "1"
-    else "0";
-
   bits = builtins.toString stdenv.hostPlatform.parsed.cpu.bits;
   os =
     if stdenv.isDarwin
@@ -94,14 +89,17 @@
     "HOST_DMD=${HOST_DMD}"
     "PIC=1"
     "BUILD=${buildMode}"
-    "ENABLE_RELEASE=${boolToNum enableRelease}"
-    "ENABLE_ASSERTS=${boolToNum enableAsserts}"
-    "ENABLE_COVERAGE=${boolToNum enableCoverage}"
-    "ENABLE_DEBUG=${boolToNum enableDebug}"
-    "ENABLE_LTO=${boolToNum enableLTO}"
-    "ENABLE_PROFILE=${boolToNum enableProfile}"
-    "ENABLE_UNITTEST=${boolToNum enableUnittest}"
-  ];
+  ]
+    # There is an "ifdef ENABLE_COVERAGE" rule in Phobos posix.max causing
+    # coverage to be enabled even if it's set to 0. For consistency we leave
+    # any false values unset.
+    ++ lib.optional enableRelease "ENABLE_RELEASE=1"
+    ++ lib.optional enableAsserts "ENABLE_ASSERTS=1"
+    ++ lib.optional enableDebug "ENABLE_DEBUG=1"
+    ++ lib.optional enableLTO "ENABLE_LTO=1"
+    ++ lib.optional enableProfile "ENABLE_PROFILE=1"
+    ++ lib.optional enableUnittest "ENABLE_UNITTEST=1"
+    ++ lib.optional enableCoverage "ENABLE_COVERAGE=1";
 in
   stdenv.mkDerivation rec {
     pname = "dmd";
