@@ -1,16 +1,16 @@
 {callPackage}:
 callPackage ./binary.nix {
-  version = "1.32.1";
+  version = "1.34.0";
   hashes = {
-    # COMPILER=ldc VERSION=1.32.1 ./scripts/fetch-binary
-    "android-aarch64" = "sha256-VT64VTqr4IfVXThw1Ycf0Wrx3ICJkm4ofuGG+gCJfDQ=";
-    "android-armv7a" = "sha256-wdEuHjD9NwtQ0goeiB1ExrzFE2X4Vnk1GhVZrleL4vU=";
-    # "freebsd-x86_64" = "<not available>";
-    "linux-aarch64" = "sha256-VZJFDzsiEuf/L8VbFWd+KtEyrkHp0mX2i9TuKC6zcTM=";
-    "linux-x86_64" = "sha256-IRW4A689ysDCXbHJvFuQRMgkW1CI7UPzKChe1uLrkgk=";
-    "osx-arm64" = "sha256-b1+9tgFmaeEdE82PqXAwpLIxarrpgMP9pq+5IvdyUVM=";
-    "osx-x86_64" = "sha256-uoQi4QqHFB/o7QSVCZZVnkacTn4VIP6ywc30ikRRX6A=";
-    "windows-x64" = "sha256-toR9xnw5B4H8/8tG2zo3mp93cdQHnY0cS3AujGenUBo=";
-    "windows-x86" = "sha256-ffQnS+HbtN6STK+wQ7jfS77m8BO+DwsevOAnhKy0jz4=";
+    # ./scripts/fetch_binary.d --compiler=ldc --version=1.34.0 --dry-run=false
+    "android-aarch64" = "sha256-SJRdpd5tzhLPhJuY6rhN7r0Z2gCvEVDZxDMj0+tufUc=";
+    "android-armv7a" = "sha256-1URd7kpVA5m8DOPLO+6M3xhKvztHwIvNj2oka8TFcYw=";
+    "freebsd-x86_64" = "sha256-vI/ubxF0wyw/KdyoVzv7g4/6JiyJOdwgb/N7T6rne14=";
+    "linux-aarch64" = "sha256-LRD817uG0XMf6i+GaqCi/vDuURU4WInhFCeU+dAtHaE=";
+    "linux-x86_64" = "sha256-cnmsxGlsElSE2iVQcs+KVHKsKMv6XYin4N+XhUFt/BU=";
+    "osx-arm64" = "sha256-W45AEOW1EPsxizCgJYUOZyq7MhotN62xobsEAbr2/tU=";
+    "osx-x86_64" = "sha256-93aJN7ZNOLrQmKd6z/435trWg5F6B3XfOmKU/j5M5ig=";
+    "windows-x64" = "sha256-WrZnrDo/8hnsOsY2Ih8txErDz3OaNhVzwFFXsPJCEFM=";
+    "windows-x86" = "sha256-Vu/W9z7cB7VrcBqrlClknCYYni+GCDB4baGZOT6JS54=";
   };
 }
