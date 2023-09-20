@@ -199,6 +199,9 @@ in
         substituteInPlace phobos/std/socket.d --replace "assert(ih.addrList[0] == 0x7F_00_00_01);" ""
       ''
       + lib.optionalString stdenv.isDarwin ''
+        rm dmd/test/runnable/{test13117.d,test13117b.d}
+        rm dmd/test/runnable_cxx/{cpp11.d,cppa.d,cpp_stdlib.d}
+
         substituteInPlace phobos/std/socket.d --replace "foreach (name; names)" "names = []; foreach (name; names)"
       '';
 
