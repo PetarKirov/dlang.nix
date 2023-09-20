@@ -13,14 +13,21 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
+        experimental: [false]
         os: [ ubuntu-latest, macos-12 ]
         pkg:
           - dmd
           - ldc
           - dub
+        include:
+          - { experimental: true, pkg: ldc, os: macos-12 }
+        exclude:
+          - { experimental: false, pkg: ldc, os: macos-12 }
 
-    name: Building ${{ matrix.pkg }} on ${{ matrix.os }}
+    name: ${{ matrix.pkg }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
+    continue-on-error: ${{ matrix.experimental }}
+
     steps:
       - uses: actions/checkout@v4
 
