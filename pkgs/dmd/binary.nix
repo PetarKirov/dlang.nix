@@ -1,4 +1,7 @@
 {
+  version,
+  hashes,
+}: {
   lib,
   stdenv,
   fetchurl,
@@ -7,8 +10,7 @@
   autoPatchelfHook,
   fixDarwinDylibNames,
   gccForLibs,
-  version,
-  hashes,
+  ...
 }: let
   inherit (stdenv) hostPlatform;
   OS =
