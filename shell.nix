@@ -7,6 +7,7 @@ with pkgs;
         nix-prefetch-git
         ldc
         dub
+        dtools
       ]
       ++ lib.optionals stdenv.hostPlatform.isx86 [
         dmd
