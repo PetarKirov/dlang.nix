@@ -1,0 +1,14 @@
+{
+  "2.090.1": {
+    "freebsd-64": "sha256-A5uqLKtl3D+2LNUcZjF9bSviKhrMO/GV3THxuXco1j8=",
+    "linux": "sha256-ByCrIA4Nt7i9YT0L19VXIL1IqIp+iObcZux407amZu4=",
+    "osx": "sha256-9HwGVO/8jfZ6aTiDIUi8w4C4Ukry0uUS8ACP3Ig8dmU=",
+    "windows": "sha256-ZDOJjN6Cml8GCQY2jrdVjDdJKmaRMp7vMhXD03SrUnU="
+  },
+  "2.098.0": {
+    "freebsd-64": "sha256-c7ODMpI/kGdl3R4a7/gSTDzTcD3hbHtl4teHJvT0IGk=",
+    "linux": "sha256-EQTl5Z/UeCi3mNd6cr5Ue/CGu6HTdKGFXGtYFMTbAUU=",
+    "osx": "sha256-d4Cq1EKdSZpkfn6Qdwb3dWVr539EJci0rqt5gCTH80I=",
+    "windows": "sha256-Yhw3hkkVdvHTayxdk/XNKZwrV8cDMfz63rgBqark+gU="
+  }
+}
