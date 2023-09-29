@@ -1,4 +1,5 @@
 #!/usr/bin/env dub
+
 /+ dub.sdl:
     name "update-nix-inputs"
     dependency "semver" version="~>0.3.4"
