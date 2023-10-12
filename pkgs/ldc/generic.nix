@@ -18,7 +18,7 @@
   unzip,
   darwin,
   bash,
-  pkgconfig,
+  pkg-config,
   callPackage,
   makeWrapper,
   runCommand,
@@ -115,7 +115,7 @@ in
         makeWrapper
         ninja
         unzip
-        pkgconfig
+        pkg-config
       ]
       ++ lib.optional stdenv.hostPlatform.isDarwin darwin.apple_sdk.frameworks.Foundation
       # https://github.com/NixOS/nixpkgs/pull/36378#issuecomment-385034818
