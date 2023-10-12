@@ -22,7 +22,7 @@ jobs:
 
       - name: Run `nix flake update`
         id: update-lockfile
-        run: ./utils/commit_flake_update.bash
+        run: ./scripts/commit_flake_update.bash
 
       - uses: tibdex/github-app-token@v2.1.0
         id: generate-token
