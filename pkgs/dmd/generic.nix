@@ -169,6 +169,25 @@ in
           sha256 = "sha256-N21mAPfaTo+zGCip4njejasraV5IsWVqlGR5eOdFZZE=";
         })
       ]
+      ++ lib.optionals (lib.versionOlder version "2.091.0") [
+        # Patches deprecated printf formats in dmd backend
+        (fetchpatch {
+          url = "https://github.com/dlang/dmd/commit/efe6d473c30c07074461f3de0b7a8ba1343c5429.patch";
+          stripLen = 1;
+          extraPrefix = "dmd/";
+          sha256 = "sha256-DdAIHK42q4vyVJsuTN0nRZAAjWXRBZHY8oUidW4pMwI=";
+        })
+      ]
+      ++ lib.optionals (lib.versionOlder version "2.096.1") [
+        # Stop using feature deprecated from 2.097.0 on, link:
+        # https://dlang.org/changelog/2.097.0.html#fqn-bypass-deprecation
+        (fetchpatch {
+          url = "https://github.com/dlang/dmd/commit/5198eedf6ef4e113773c15eff42de195be438fa1.patch";
+          stripLen = 1;
+          extraPrefix = "dmd/";
+          sha256 = "sha256-4Bd3YD14jzMelVvR2t738Dtrf7xMlWJM6AdsB34wKyM=";
+        })
+      ]
       ++ lib.optionals (lib.versionOlder version "2.092.2") [
         # Fixes C++ tests that compiled on older C++ but not on the current one
         (fetchpatch {
@@ -221,9 +240,16 @@ in
       ''
       # This test causes a linking failure before
       # https://github.com/dlang/dmd/commit/cab51f946a8b2d3f0fcb856cf6c52a18a6779930
-      + lib.optionalString (lib.versionOlder version "2.103.0") ''
-        rm ${dmdPrefix}/test/runnable_cxx/cppa.d
-      ''
+      + lib.optionalString (lib.versionOlder version "2.103.0")
+      (
+        if lib.versionAtLeast version "2.092.0"
+        then ''
+          rm ${dmdPrefix}/test/runnable_cxx/cppa.d
+        ''
+        else ''
+          rm ${dmdPrefix}/test/runnable/cppa.d
+        ''
+      )
       + lib.optionalString stdenv.isLinux ''
         substituteInPlace phobos/std/socket.d --replace "assert(ih.addrList[0] == 0x7F_00_00_01);" ""
       ''
