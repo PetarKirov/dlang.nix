@@ -45,8 +45,8 @@ jobs:
 
       - uses: cachix/cachix-action@v14
         with:
-          name: dlang-community
-          authToken: '${{ secrets.CACHIX_AUTH_TOKEN }}'
+          name: ${{ vars.CACHIX_CACHE }}
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
 
       - name: Build ${{ matrix.job_name }}
         run: nix build -L --json --no-link '.#${{ matrix.pkg }}'
