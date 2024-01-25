@@ -25,7 +25,7 @@
                   os = platform;
                   allowedToFail = builtins.elem system (p.passthru.allowedToFailOn or []);
                   inherit system package;
-                  attrPath = "packages.${system}.${package}";
+                  attrPath = "packages.${system}.${lib.strings.escapeNixIdentifier package}";
                 })
                 (builtins.attrNames self.packages.${system})
             ))
