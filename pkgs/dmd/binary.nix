@@ -13,6 +13,10 @@
   ...
 }: let
   inherit (stdenv) hostPlatform;
+
+  inherit (import ../../lib/build-status.nix {inherit lib;}) getBuildStatus;
+  buildStatus = getBuildStatus "dmd" version stdenv.system;
+
   OS =
     if hostPlatform.isDarwin
     then "osx"
@@ -25,6 +29,10 @@ in
   stdenv.mkDerivation {
     pname = "dmd-binary";
     inherit version;
+
+    passthru = {
+      inherit buildStatus;
+    };
 
     src = fetchurl rec {
       name = "dmd.${version}.${OS}.tar.xz";
