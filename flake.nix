@@ -23,7 +23,7 @@
   }:
     flake-parts.lib.mkFlake {inherit inputs;} {
       systems = ["x86_64-linux" "aarch64-linux" "x86_64-darwin" "aarch64-darwin"];
-      imports = [./pkgs];
+      imports = [./pkgs ./lib/mk-gh-actions-matrix.nix];
       perSystem = {final, ...}: {
         devShells.default = import ./shell.nix {pkgs = final;};
       };
