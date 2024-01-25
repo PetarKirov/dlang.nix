@@ -5,7 +5,6 @@
   druntimeSha256 ? "",
   phobosSha256,
   toolsSha256,
-  doCheck ? true,
   enableAsserts ? false,
   enableCoverage ? false,
   enableDebug ? false,
@@ -35,6 +34,10 @@
   unzip,
   HOST_DMD ? "${callPackage ./bootstrap.nix {}}/bin/dmd",
 }: let
+  inherit (import ../../lib/build-status.nix {inherit lib;}) getBuildStatus;
+
+  buildStatus = getBuildStatus "dmd" version stdenv.system;
+
   pathConfig = runCommand "phobos-tzdata-curl-paths" {} ''
     mkdir $out
     echo '${tzdata}/share/zoneinfo/' > $out/TZDatabaseDirFile
@@ -109,6 +112,10 @@ in
   stdenv.mkDerivation rec {
     pname = "dmd";
     inherit version;
+
+    passthru = {
+      inherit buildStatus;
+    };
 
     enableParallelBuilding = true;
 
@@ -264,19 +271,21 @@ in
       runHook postBuild
     '';
 
-    inherit doCheck;
+    doCheck = buildStatus.check;
 
     checkInputs = lib.optional stdenv.isDarwin Foundation;
 
     checkFlags = commonBuildFlags ++ ["N=$(checkJobs)"];
 
     # many tests are disbled because they are failing
-
     # NOTE: Purity check is disabled for checkPhase because it doesn't fare well
     # with the DMD linker. See https://github.com/NixOS/nixpkgs/issues/97420
     checkPhase = ''
       runHook preCheck
-
+      ${
+        lib.optionalString (buildStatus.skippedTests != [])
+        (lib.concatMapStringsSep "\n" (test: ''rm -v ${test}'') buildStatus.skippedTests)
+      }
       export checkJobs=$NIX_BUILD_CORES
       if [ -z $enableParallelChecking ]; then
         checkJobs=1

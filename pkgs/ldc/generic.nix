@@ -26,6 +26,9 @@
   ldcBootstrap ? callPackage ./bootstrap.nix {},
   ...
 }: let
+  inherit (import ../../lib/build-status.nix {inherit lib;}) getBuildStatus;
+  buildStatus = getBuildStatus "ldc" version stdenv.system;
+
   pathConfig = runCommand "phobos-tzdata-curl-paths" {} ''
     mkdir $out
     echo ${tzdata}/share/zoneinfo/ > $out/TZDatabaseDirFile
@@ -67,6 +70,10 @@ in
   stdenv.mkDerivation rec {
     pname = "ldc";
     inherit version;
+
+    passthru = {
+      inherit buildStatus;
+    };
 
     src = fetchurl {
       url = "https://github.com/ldc-developers/ldc/releases/download/v${version}/ldc-${version}-src.tar.gz";
@@ -163,25 +170,32 @@ in
       lib.optionalString stdenv.hostPlatform.isDarwin
       "|druntime-test-shared";
 
-    checkPhase = ''
-      # Build default lib test runners
-      ninja -j$NIX_BUILD_CORES all-test-runners
+    doCheck = buildStatus.check;
 
-      ${fixNames}
+    checkPhase =
+      (
+        lib.optionalString (buildStatus.skippedTests != [])
+        (lib.concatMapStringsSep "\n" (test: ''rm -v ${test}'') buildStatus.skippedTests)
+      )
+      + ''
+        # Build default lib test runners
+        ninja -j$NIX_BUILD_CORES all-test-runners
 
-      # Run dmd testsuite
-      export DMD_TESTSUITE_MAKE_ARGS="-j$NIX_BUILD_CORES DMD=$DMD"
-      ctest -V -R "dmd-testsuite"
+        ${fixNames}
 
-      # Build and run LDC D unittests.
-      ctest --output-on-failure -R "ldc2-unittest"
+        # Run dmd testsuite
+        export DMD_TESTSUITE_MAKE_ARGS="-j$NIX_BUILD_CORES DMD=$DMD"
+        ctest -V -R "dmd-testsuite"
 
-      # Run LIT testsuite.
-      ctest -V -R "lit-tests"
+        # Build and run LDC D unittests.
+        ctest --output-on-failure -R "ldc2-unittest"
 
-      # Run default lib unittests
-      ctest -j$NIX_BUILD_CORES --output-on-failure -E "ldc2-unittest|lit-tests|dmd-testsuite${additionalExceptions}"
-    '';
+        # Run LIT testsuite.
+        ctest -V -R "lit-tests"
+
+        # Run default lib unittests
+        ctest -j$NIX_BUILD_CORES --output-on-failure -E "ldc2-unittest|lit-tests|dmd-testsuite${additionalExceptions}"
+      '';
 
     postInstall = ''
       substitute ${ldcConfFile} "$out/etc/ldc2.conf" --subst-var out
@@ -190,10 +204,6 @@ in
           --prefix PATH ":" "${targetPackages.stdenv.cc}/bin" \
           --set-default CC "${targetPackages.stdenv.cc}/bin/cc"
     '';
-
-    passthru = {
-      allowedToFailOn = ["x86_64-darwin" "aarch64-darwin"];
-    };
 
     meta = with lib; {
       description = "The LLVM-based D compiler";

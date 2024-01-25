@@ -14,6 +14,9 @@
 }: let
   inherit (stdenv) hostPlatform system;
 
+  inherit (import ../../lib/build-status.nix {inherit lib;}) getBuildStatus;
+  buildStatus = getBuildStatus "ldc" version stdenv.system;
+
   systemToArchivePlatform = {
     # FIXME: How should Android be supported?
     # (It is not a separate Nixpkgs platform.)
@@ -38,6 +41,10 @@ in
   stdenv.mkDerivation {
     pname = "ldc-binary";
     inherit version;
+
+    passthru = {
+      inherit buildStatus;
+    };
 
     src = fetchurl rec {
       name = "ldc2-${version}-${archivePlatform}.${tarballSuffix}";

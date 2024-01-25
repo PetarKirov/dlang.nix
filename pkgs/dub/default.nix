@@ -13,6 +13,9 @@
   ...
 }:
 assert dcompiler != null; let
+  inherit (import ../../lib/build-status.nix {inherit lib;}) getBuildStatus;
+  buildStatus = getBuildStatus "dub" version stdenv.system;
+
   xdmdName =
     if lib.hasPrefix "ldc" dcompiler.pname
     then "ldmd2"
@@ -22,7 +25,11 @@ assert dcompiler != null; let
 in
   stdenv.mkDerivation rec {
     pname = "dub";
-    version = "1.30.0";
+    inherit version;
+
+    passthru = {
+      inherit buildStatus;
+    };
 
     enableParallelBuilding = true;
 
@@ -62,7 +69,7 @@ in
       ./build
     '';
 
-    doCheck = !stdenv.isDarwin;
+    doCheck = buildStatus.check;
 
     checkPhase = ''
       export DUB=$NIX_BUILD_TOP/source/bin/dub

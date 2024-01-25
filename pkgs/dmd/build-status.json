@@ -1,0 +1,22 @@
+{
+  "2.098.1": {
+    "x86_64-darwin": {
+      "build": true,
+      "check": true,
+      "skippedTests": [
+        "dmd/test/runnable/test17868.d",
+        "dmd/test/runnable/test17868b.d"
+      ]
+    }
+  },
+  "2.102.2": {
+    "x86_64-darwin": {
+      "build": true,
+      "check": true,
+      "skippedTests": [
+        "dmd/compiler/test/runnable/objc_class.d",
+        "dmd/compiler/test/runnable/objc_self_test.d"
+      ]
+    }
+  }
+}

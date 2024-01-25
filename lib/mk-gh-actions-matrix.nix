@@ -12,6 +12,8 @@
         # "macos-latest-xlarge" = "aarch64-darwin";
       };
 
+      inherit (import ./build-status.nix {inherit lib;}) getBuildStatus;
+
       mkGHActionsMatrix = {
         include = lib.pipe (builtins.attrNames nixSystemToGHPlatform) [
           (builtins.concatMap
@@ -23,7 +25,7 @@
                   p = self.packages.${system}.${package};
                 in {
                   os = platform;
-                  allowedToFail = builtins.elem system (p.passthru.allowedToFailOn or []);
+                  allowedToFail = !(p.passthru.buildStatus or (throw "${package} does not expose build status")).build;
                   inherit system package;
                   attrPath = "packages.${system}.${lib.strings.escapeNixIdentifier package}";
                 })
