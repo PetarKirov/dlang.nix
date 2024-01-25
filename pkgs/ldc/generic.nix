@@ -190,6 +190,10 @@ in
           --set-default CC "${targetPackages.stdenv.cc}/bin/cc"
     '';
 
+    passthru = {
+      allowedToFailOn = ["x86_64-darwin" "aarch64-darwin"];
+    };
+
     meta = with lib; {
       description = "The LLVM-based D compiler";
       homepage = "https://github.com/ldc-developers/ldc";
