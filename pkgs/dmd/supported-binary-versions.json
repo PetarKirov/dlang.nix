@@ -1,4 +1,70 @@
 {
+  "2.079.1": {
+    "freebsd-64": "sha256-55ooPIyaZ351BX7kZ2sDBUaV+sgy46mAL98lS2wVGO0=",
+    "linux": "sha256-rmYq4k3vU8swcz3Z6oEcQ2OibJQ0uqttCl2DKpLYryg=",
+    "osx": "sha256-QLR+1bM8VoWSRwxYUmwWN3Q+LW8Y8DuPoI1VtNSdeXI=",
+    "windows": "sha256-Mzp0bZv5SXzu2zfAOXOoEeV/t4eKHSUNRsuF8b8qwAo="
+  },
+  "2.080.1": {
+    "freebsd-64": "sha256-EPQtrexnGZnMurB0LGz4FeJ8oZixAdJVLnHnRiT5xpA=",
+    "linux": "sha256-TnnJKrw4I8+uWKlT8s70zEV0+pqcei2N421Pqks8zvE=",
+    "osx": "sha256-EdCsHTurQ6zIiV0yL+sB1ZzUw4JTNAZsl20BISS2WVE=",
+    "windows": "sha256-6XnH8KoFhfXhBe5HMHbfj+rD96ivEyqX6r3tREeYpIU="
+  },
+  "2.081.2": {
+    "freebsd-64": "sha256-U29CPOSo6sNMUdHTG4pKE4YeOPRjQwCGwS6mF1OCMmE=",
+    "linux": "sha256-IoNy7uGhD/gc78Fo3d5MjGfhmdRG2CZifF4T50g+Z94=",
+    "osx": "sha256-0i3anqjkKxJHEd86p3HbCX47X59IHwn6S/z4lnCcWc4=",
+    "windows": "sha256-GpCgfr9QrFkP9/dT1YCFsHsxqH6ud4LJm1S9Mw6kJuk="
+  },
+  "2.082.1": {
+    "freebsd-64": "sha256-3JplXYlaCFi9Jui146c03M7ecjhC0VvR/6URTsUhcJA=",
+    "linux": "sha256-5gaPvZaikqO7UWkkPNuveENC6y1FDtLSJ1OkfimSJFo=",
+    "osx": "sha256-5+I9p24hhYe9E2NicENrW1GppWybX0k0Z4xjE2Q5GcA=",
+    "windows": "sha256-Vs3j5MDvXCHcZOh0HmbtDwL4E7i4hC1VAvQuSBby1tY="
+  },
+  "2.083.1": {
+    "freebsd-64": "sha256-1CwoFmjrKaQLprBIe1vCUivkbdfn9K8glwhhJ3T/P7c=",
+    "linux": "sha256-MyRe0DMKztK99f5YsNwUh8hBe9MZLlhAgNkygv6Hmv4=",
+    "osx": "sha256-x9lHqG3qCKUu9hHTDoaS4TIZQvZZZ/12AwW6ZLsPQDU=",
+    "windows": "sha256-xREqv/Vj6PQUzdEnulx/tiusSzybh/JsA99sdNNB2Qo="
+  },
+  "2.084.1": {
+    "freebsd-64": "sha256-uPn65pBoiksDU5foXoKH2t9bQaQ6X/aA1M0xMyeyySY=",
+    "linux": "sha256-evOyjbjufW3l+NxTgn3Z6hUggw2jc8B9Js+XTCA42Ns=",
+    "osx": "sha256-hrfE3dbmrkv60k/j7dvy5znyuKXTfOopzGce4R0ALZc=",
+    "windows": "sha256-CUfGnoPj/gGeUcn0/UmxODWbB4IjssRIrAUNnTOpiAc="
+  },
+  "2.085.1": {
+    "freebsd-64": "sha256-1ivQpvCAgW7l8zMw5KkTXqMgUBF/S0bKXbfjuzwHvJw=",
+    "linux": "sha256-U15U4/V6hUWiHjjeieAr+0UELAw0tkljN0rEA3sA764=",
+    "osx": "sha256-fXEYS/7C9QRTV84qtc8uz0El+zdMoq9YJUUTVNyzGk0=",
+    "windows": "sha256-XyUl4Rpt6up40pcEqbQq32VoakRRV5ZkA0ac290VoXo="
+  },
+  "2.086.1": {
+    "freebsd-64": "sha256-f8yIP/pH30XWRmVJr4+CBAjFa8dsne/ati4tnM5TPjQ=",
+    "linux": "sha256-ThehilDciiQQdrefFQ1fJfF79kB4xGjovnQYm43uqFs=",
+    "osx": "sha256-ZTi9rliYSgiVQguDKsSM3BZ6TIx1OJqhzG4omNW/WsY=",
+    "windows": "sha256-hrt3/Ae+KxVGE5mQakYsyNfk6wJsJPb+y7nPTJz2yG0="
+  },
+  "2.087.1": {
+    "freebsd-64": "sha256-ZMb1nG9SheLAAUzROHWpfPHyu0S9IxcWwcwHCNbI0wg=",
+    "linux": "sha256-w8bMhl9apm3OQkRGd5e1lu0K2ivekwMTUNw2cTczz8E=",
+    "osx": "sha256-DqvhA71tctPEhDrInOULEkxK5yl68YFR7wJWhev7rtQ=",
+    "windows": "sha256-TzLEjsm5+7zx7HSAO1J0gmKmAHNeM3hMAg0Q+C8jtks="
+  },
+  "2.088.1": {
+    "freebsd-64": "sha256-wE4OJ+hLWHXgp26tuOa6bwY5Pw/HDVb5ndH8z4DovZM=",
+    "linux": "sha256-t/uwMPU4ZpqhtSwpMtRyhS7fawqigO6luMmHWylMgn0=",
+    "osx": "sha256-sH+VoyiZtt/2hhrzIQ11PNBqKzbUp7jZ06L1RJVskRI=",
+    "windows": "sha256-LPttUQC/kmTAJT5P0b5QcbUDibS7zahn6U8fwdHgjaI="
+  },
+  "2.089.1": {
+    "freebsd-64": "sha256-78rTN8le2JUcrCiOXM0CwJgoZwkdJ6W8u8zqVHlITWw=",
+    "linux": "sha256-rVtcaYYSPrIeEGn+euxU7BF/dICmuVNd0aQOAO4WDXA=",
+    "osx": "sha256-wwvUX2kn3UPA2pR+FOr4/5iho994R5bMgb7HijiC7O0=",
+    "windows": "sha256-3lTLX7oVlsqy9gWlMu8SEvvD3xIcxh+mXQHu50wnpY0="
+  },
   "2.090.1": {
     "freebsd-64": "sha256-A5uqLKtl3D+2LNUcZjF9bSviKhrMO/GV3THxuXco1j8=",
     "linux": "sha256-ByCrIA4Nt7i9YT0L19VXIL1IqIp+iObcZux407amZu4=",

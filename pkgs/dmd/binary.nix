@@ -37,7 +37,10 @@ in
       lib.optional hostPlatform.isLinux autoPatchelfHook
       ++ lib.optional hostPlatform.isDarwin fixDarwinDylibNames;
 
-    propagatedBuildInputs = [curl tzdata] ++ lib.optional hostPlatform.isLinux gccForLibs.libgcc;
+    propagatedBuildInputs =
+      [curl tzdata]
+      ++ (lib.optional hostPlatform.isLinux gccForLibs.libgcc)
+      ++ (lib.optional (lib.versionOlder version "2.084.0") stdenv.cc.cc.lib);
 
     installPhase = ''
       runHook preInstall
