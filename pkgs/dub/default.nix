@@ -1,4 +1,7 @@
 {
+  version,
+  dubSha256,
+}: {
   lib,
   stdenv,
   fetchFromGitHub,
@@ -7,6 +10,7 @@
   rsync,
   ldc,
   dcompiler ? ldc,
+  ...
 }:
 assert dcompiler != null; let
   xdmdName =
@@ -26,7 +30,7 @@ in
       owner = "dlang";
       repo = "dub";
       rev = "v${version}";
-      sha256 = "sha256-iVl7bjblvIxvrUX7Phq6h4AIAmZjNVkGYYFA1hhsE7c=";
+      sha256 = dubSha256;
     };
 
     dubvar = "\\$DUB";
