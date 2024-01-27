@@ -1,0 +1,57 @@
+{
+  "1.19.0": {
+    "android-aarch64": "sha256-Jq+/KWRFkzQGwhkT4fhGvcc70jvMHRXt4duGCIm5P54=",
+    "android-armv7a": "sha256-1lmdK4RAHmNf0uCko0eyDlFLVdpj2VtdN+pVhk0Eaqo=",
+    "freebsd-x86_64": null,
+    "linux-aarch64": "sha256-I1IE1MAZbiNcw/nHqkqT2ARxHwy4P63qqSXE7aCWZrs=",
+    "linux-x86_64": "sha256-MPi4EKsS3wiFJi4LHYNWY5nVz1n+zsdHmC4rTkXOz5A=",
+    "osx-x86_64": "sha256-x79vrPph8udxCRuDQ5ezYzH1wopW6Yjwb8Tcn+Ds464=",
+    "osx-arm64": null,
+    "windows-x64": "sha256-4AOOlBdK9kcm+nE6pj0Pv1KQ6RGQXoaQHnRVNgTrimw=",
+    "windows-x86": "sha256-phnMkhQvp8NgVuPl22il12HrRwA58YrUibFhjTES9XY="
+  },
+  "1.25.0": {
+    "android-aarch64": "sha256-kTlEPW3cLTze80bIxZ2LOvghcGeCiZkLj4aZYt6ozkc=",
+    "android-armv7a": "sha256-4jN03bFJ+aNHRBkZUOcBik54WybchdBENcQi41sdheg=",
+    "freebsd-x86_64": "sha256-s7EcW1CfjMY92yA3TsojvD+r08o4qmL/sBj6QWkZeoo=",
+    "linux-aarch64": "sha256-UDZ43x4flSo+SfsPeE8juZO2Wtk2ZzwySk0ADHnvJBI=",
+    "linux-x86_64": "sha256-sfg47RdlsIpryc3iZvE17OtLweh3Zw6DeuNJYgpuH+o=",
+    "osx-arm64": "sha256-O/x0vy0wwQFaDc4uWSeMhx+chJKqbQb6e5QNYf+7DCw=",
+    "osx-x86_64": "sha256-6iKnbS+oalLKmyS8qYD/wS21b7+O+VgsWG2iT4PrWPU=",
+    "windows-x64": "sha256-Yc9vg6Uuw7Sn8Z+CfoCsgM8KqxvezS26h1NROsHWfd0=",
+    "windows-x86": "sha256-iR28Yh+nQbCZvq8Lrey7ryvUq4ajsS27nXMsienFPcY="
+  },
+  "1.28.0": {
+    "android-aarch64": "sha256-UmZuvq7d7kAsAiy83Dm4wnBF5vqrFeU8clZLnq8yzP8=",
+    "android-armv7a": "sha256-ybIuqE7Vc4r83xdA9QHupooyab2n4anrHxOfnE5blt4=",
+    "freebsd-x86_64": "sha256-13YsPqfowDM3k7YN0elSroZubcSSSbMx6UDkot9D6oY=",
+    "linux-aarch64": "sha256-9zo22af/3QAK6sNy8gKFCztlgkqnmZj3H5Ud8deTdGU=",
+    "linux-x86_64": "sha256-l4bDbE39Kd0wilDEmcEV5MIHm66t7QflrFOWxKf9Ang=",
+    "osx-arm64": "sha256-+XhrjCjYrx/dMx2OuImt2AKF2+v7l+pH1d2REKffB0s=",
+    "osx-x86_64": "sha256-AkclB96YjItd2DsYnG3ztHR0FUZYlJbC/z1nPya40Jo=",
+    "windows-x64": "sha256-Jrs+znd073DZx0heq1+8GC1OdEEeSo0vM56bQhp28Gk=",
+    "windows-x86": "sha256-r1RlsxbftYLe1P1vg9+gLf3YlvrW05fMU9CY47qfkoE="
+  },
+  "1.32.1": {
+    "android-aarch64": "sha256-VT64VTqr4IfVXThw1Ycf0Wrx3ICJkm4ofuGG+gCJfDQ=",
+    "android-armv7a": "sha256-wdEuHjD9NwtQ0goeiB1ExrzFE2X4Vnk1GhVZrleL4vU=",
+    "freebsd-x86_64": null,
+    "linux-aarch64": "sha256-VZJFDzsiEuf/L8VbFWd+KtEyrkHp0mX2i9TuKC6zcTM=",
+    "linux-x86_64": "sha256-IRW4A689ysDCXbHJvFuQRMgkW1CI7UPzKChe1uLrkgk=",
+    "osx-arm64": "sha256-b1+9tgFmaeEdE82PqXAwpLIxarrpgMP9pq+5IvdyUVM=",
+    "osx-x86_64": "sha256-uoQi4QqHFB/o7QSVCZZVnkacTn4VIP6ywc30ikRRX6A=",
+    "windows-x64": "sha256-toR9xnw5B4H8/8tG2zo3mp93cdQHnY0cS3AujGenUBo=",
+    "windows-x86": "sha256-ffQnS+HbtN6STK+wQ7jfS77m8BO+DwsevOAnhKy0jz4="
+  },
+  "1.34.0": {
+    "android-aarch64": "sha256-SJRdpd5tzhLPhJuY6rhN7r0Z2gCvEVDZxDMj0+tufUc=",
+    "android-armv7a": "sha256-1URd7kpVA5m8DOPLO+6M3xhKvztHwIvNj2oka8TFcYw=",
+    "freebsd-x86_64": "sha256-vI/ubxF0wyw/KdyoVzv7g4/6JiyJOdwgb/N7T6rne14=",
+    "linux-aarch64": "sha256-LRD817uG0XMf6i+GaqCi/vDuURU4WInhFCeU+dAtHaE=",
+    "linux-x86_64": "sha256-cnmsxGlsElSE2iVQcs+KVHKsKMv6XYin4N+XhUFt/BU=",
+    "osx-arm64": "sha256-W45AEOW1EPsxizCgJYUOZyq7MhotN62xobsEAbr2/tU=",
+    "osx-x86_64": "sha256-93aJN7ZNOLrQmKd6z/435trWg5F6B3XfOmKU/j5M5ig=",
+    "windows-x64": "sha256-WrZnrDo/8hnsOsY2Ih8txErDz3OaNhVzwFFXsPJCEFM=",
+    "windows-x86": "sha256-Vu/W9z7cB7VrcBqrlClknCYYni+GCDB4baGZOT6JS54="
+  }
+}

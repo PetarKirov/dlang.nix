@@ -12,8 +12,6 @@ in {
     pkgs,
     ...
   }: let
-    inherit (pkgs) callPackage hostPlatform;
-
     inherit
       (import ../lib/version-catalog.nix {inherit lib pkgs;})
       genPkgVersions
@@ -23,17 +21,20 @@ in {
     legacyPackages =
       {}
       // (genPkgVersions "dmd").hierarchical
+      // (genPkgVersions "ldc").hierarchical
       // (genPkgVersions "dub").hierarchical;
 
     packages =
       {
-        ldc-binary = callPackage ./ldc/bootstrap.nix {};
-        ldc = callPackage ./ldc {};
+        ldc-binary = self'.packages."ldc-binary-1_34_0";
+        ldc = self'.packages."ldc-1_30_0";
 
         dub = self'.packages."dub-1_30_0";
       }
+      // (genPkgVersions "ldc").flattened "binary"
+      // (genPkgVersions "ldc").flattened "source"
       // (genPkgVersions "dub").flattened "source"
-      // optionalAttrs hostPlatform.isx86 (
+      // optionalAttrs pkgs.hostPlatform.isx86 (
         {
           dmd-bootstrap = self'.packages."dmd-binary-2_098_0";
           dmd = self'.packages."dmd-2_100_2";
