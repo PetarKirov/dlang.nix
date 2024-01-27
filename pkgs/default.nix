@@ -22,14 +22,17 @@ in {
     overlayAttrs = self'.packages;
     legacyPackages =
       {}
-      // (genPkgVersions "dmd").hierarchical;
+      // (genPkgVersions "dmd").hierarchical
+      // (genPkgVersions "dub").hierarchical;
+
     packages =
       {
         ldc-binary = callPackage ./ldc/bootstrap.nix {};
         ldc = callPackage ./ldc {};
 
-        dub = callPackage ./dub {};
+        dub = self'.packages."dub-1_30_0";
       }
+      // (genPkgVersions "dub").flattened "source"
       // optionalAttrs hostPlatform.isx86 (
         {
           dmd-bootstrap = self'.packages."dmd-binary-2_098_0";
