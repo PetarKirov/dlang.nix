@@ -68,6 +68,6 @@ in
       maintainers = with maintainers; [ThomasMader lionello];
       # FIXME: change to the following after the CI verifies it:
       # platforms = builtins.attrNames systemToArchivePlatform;
-      platforms = [ "x86_64-linux" "aarch64-linux" "x86_64-darwin" "aarch64-darwin"];
+      platforms = ["x86_64-linux" "aarch64-linux" "x86_64-darwin" "aarch64-darwin"];
     };
   }
