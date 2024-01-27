@@ -14,7 +14,7 @@ import std.typecons : tuple;
 
 import utils : prefech, Version, Platform, Hash, Url;
 
-enum Compiler { dmd, ldc };
+enum Compiler { dmd, ldc, ldc_src };
 
 alias UrlFormatter = Url function(Platform platform, Version compilerVersion);
 
@@ -41,6 +41,14 @@ enum CompilerInfo[Compiler] supportedPlatforms = [
                 "linux-aarch64", "linux-x86_64",
                 "osx-arm64", "osx-x86_64",
                 "windows-x64", "windows-x86"
+            ],
+    ),
+    Compiler.ldc_src: CompilerInfo(
+        (platform, compilerVersion) =>
+            "https://github.com/ldc-developers/ldc/releases/download/v%s/ldc-%s-src.tar.gz"
+                .format(compilerVersion, compilerVersion),
+            [
+                "src"
             ],
     ),
 ];
