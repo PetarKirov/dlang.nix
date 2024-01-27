@@ -24,6 +24,7 @@
   runCommand,
   targetPackages,
   ldcBootstrap ? callPackage ./bootstrap.nix {},
+  ...
 }: let
   pathConfig = runCommand "phobos-tzdata-curl-paths" {} ''
     mkdir $out

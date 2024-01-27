@@ -1,5 +1,4 @@
-{callPackage}:
-callPackage ./binary.nix {
+import ./binary.nix {
   version = "1.34.0";
   hashes = {
     # ./scripts/fetch_binary.d --compiler=ldc --version=1.34.0 --dry-run=false
