@@ -81,15 +81,20 @@
     then "druntime"
     else "dmd/druntime";
 
-  commonBuildFlags = [
-    "-fposix.mak"
-    "SHELL=${bash}/bin/bash"
-    "DMD=$(NIX_BUILD_TOP)/dmd/${buildPath}/dmd"
-    "CC=${if stdenv.isDarwin then stdenv.cc else gcc11}/bin/cc"
-    "HOST_DMD=${HOST_DMD}"
-    "PIC=1"
-    "BUILD=${buildMode}"
-  ]
+  commonBuildFlags =
+    [
+      "-fposix.mak"
+      "SHELL=${bash}/bin/bash"
+      "DMD=$(NIX_BUILD_TOP)/dmd/${buildPath}/dmd"
+      "CC=${
+        if stdenv.isDarwin
+        then stdenv.cc
+        else gcc11
+      }/bin/cc"
+      "HOST_DMD=${HOST_DMD}"
+      "PIC=1"
+      "BUILD=${buildMode}"
+    ]
     # There is an "ifdef ENABLE_COVERAGE" rule in Phobos posix.max causing
     # coverage to be enabled even if it's set to 0. For consistency we leave
     # any false values unset.
@@ -107,37 +112,39 @@ in
 
     enableParallelBuilding = true;
 
-    srcs = [
-      (fetchFromGitHub {
-        owner = "dlang";
-        repo = "dmd";
-        rev = "v${version}";
-        sha256 = dmdSha256;
-        name = "dmd";
-      })
-      (fetchFromGitHub {
-        owner = "dlang";
-        repo = "phobos";
-        rev = "v${version}";
-        sha256 = phobosSha256;
-        name = "phobos";
-      })
-      (fetchFromGitHub {
-        owner = "dlang";
-        repo = "tools";
-        rev = "v${version}";
-        sha256 = toolsSha256;
-        name = "tools";
-      })
-    ] ++ lib.optionals druntimeRepo [
-      (fetchFromGitHub {
-        owner = "dlang";
-        repo = "druntime";
-        rev = "v${version}";
-        sha256 = druntimeSha256;
-        name = "druntime";
-      })
-    ];
+    srcs =
+      [
+        (fetchFromGitHub {
+          owner = "dlang";
+          repo = "dmd";
+          rev = "v${version}";
+          sha256 = dmdSha256;
+          name = "dmd";
+        })
+        (fetchFromGitHub {
+          owner = "dlang";
+          repo = "phobos";
+          rev = "v${version}";
+          sha256 = phobosSha256;
+          name = "phobos";
+        })
+        (fetchFromGitHub {
+          owner = "dlang";
+          repo = "tools";
+          rev = "v${version}";
+          sha256 = toolsSha256;
+          name = "tools";
+        })
+      ]
+      ++ lib.optionals druntimeRepo [
+        (fetchFromGitHub {
+          owner = "dlang";
+          repo = "druntime";
+          rev = "v${version}";
+          sha256 = druntimeSha256;
+          name = "druntime";
+        })
+      ];
 
     sourceRoot = ".";
 
@@ -247,7 +254,8 @@ in
       export MAKEFLAGS="-j$buildJobs"
 
       make -C dmd $buildFlags
-      ${lib.optionalString druntimeRepo
+      ${
+        lib.optionalString druntimeRepo
         "make -C druntime $buildFlags"
       }
       make -C phobos $buildFlags DFLAGS="${phobosDflags}"
@@ -282,8 +290,8 @@ in
         make -C dmd test $checkFlags
 
       ${lib.optionalString druntimeRepo ''
-      NIX_ENFORCE_PURITY= \
-        make -C druntime unittest $checkFlags
+        NIX_ENFORCE_PURITY= \
+          make -C druntime unittest $checkFlags
       ''}
 
       NIX_ENFORCE_PURITY= \
