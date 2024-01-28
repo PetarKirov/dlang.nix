@@ -115,7 +115,41 @@ $ dub --version
 DUB version 1.30.0, built on Jan  1 1980
 ```
 
-See complete example in [`templates/devshell/flake.nix`](./templates/devshell/flake.nix).
+You can find the full example in [`templates/devshell/`](./templates/devshell/).
+
+### Pre-flakes usage
+
+The `default.nix` file in the root of this repo exposes all flake outputs as
+Nix attributes. This is useful for users who haven't yet made the jump to the
+Nix Flakes world.
+
+For example, if you have an existing `shell.nix` file, all you need to do is add
+the changes marked as "NEW" from the snippet below:
+
+```nix
+{pkgs ? import <nixpkgs> {}}: let
+  # NEW: Import the dlang-nix Nix library:
+  dlang-nix = import (pkgs.fetchFromGitHub {
+    owner = "PetarKirov";
+    repo = "dlang.nix";
+    rev = "3502a9f6dd2074c2f84d49baa5043f6601ca6407";
+    hash = "sha256-djp8c2iONh+ET+wHbPLruNTuF7xSAYoMmwp1HfsrVTA=";
+  });
+
+  # NEW: Add `dpkgs` shorthand:
+  dpkgs = dlang-nix.packages."${pkgs.system}";
+in
+  pkgs.mkShell {
+    packages = [
+      # NEW: Reference D-related packages from `dpkgs`:
+      dpkgs.dmd
+      dpkgs.dub
+    ];
+  }
+```
+
+You can find the full example in
+[`templates/pre-flake-devshell/`](./templates/pre-flake-devshell/).
 
 ## Source and binary variants
 
