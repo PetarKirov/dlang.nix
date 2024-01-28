@@ -2,8 +2,8 @@
   dlang-nix = import (pkgs.fetchFromGitHub {
     owner = "PetarKirov";
     repo = "dlang.nix";
-    rev = "3502a9f6dd2074c2f84d49baa5043f6601ca6407";
-    hash = "sha256-djp8c2iONh+ET+wHbPLruNTuF7xSAYoMmwp1HfsrVTA=";
+    rev = "b9b7ef694329835bec97aa78e93757c3fbde8e13";
+    hash = "sha256-zNvuU0DFSfCtQPFQ3rxri2e3mlMzLtJB/qaDsS0i9Gg=";
   });
 
   dpkgs = dlang-nix.packages."${pkgs.system}";

@@ -13,11 +13,18 @@
 
 </div>
 
-This projects provides Nix derivations for building reproducible and declarative development environments for the D programming language.
+This projects provides Nix derivations for building reproducible and declarative
+development environments for the D programming language.
 
-Currently
+## Support Matrix
 
-This project provides Nix expressions for building DMD, LDC and DUB.
+| package      | version range                          | platforms                      |
+| ------------ | -------------------------------------- | ------------------------------ |
+| `dmd-binary` | 2.079.1 - 2.090.1, 2.098.0             | ✅ Linux x86_64, ✅ macOS x86_64 |
+| `dmd`        | 2.098.1, 2.100.2, 2.102.2              | ✅ Linux x86_64, ✅ macOS x86_64 |
+| `ldc-binary` | 1.19.0, 1.25.0, 1.28.0, 1.32.1, 1.34.0 | ✅ Linux x86_64, ✅ macOS x86_64 |
+| `ldc`        | 1.30.0                                 | ✅ Linux x86_64, ❌ macOS x86_64 |
+| `dub`        | 1.30.0                                 | ✅ Linux x86_64, ✅ macOS x86_64 |
 
 ## Usage
 
@@ -70,7 +77,7 @@ DUB version 1.30.0, built on Jan  1 1980
 #### Install packages to your Nix profile
 
 ```bash
-➤ nix profile install d#dmd-2_102_2 d#dub-1_30_0 d#ldc_
+➤ nix profile install d#dmd d#dub d#ldc
 ```
 
 #### Creating declarative & reproducible development environment
@@ -132,8 +139,8 @@ the changes marked as "NEW" from the snippet below:
   dlang-nix = import (pkgs.fetchFromGitHub {
     owner = "PetarKirov";
     repo = "dlang.nix";
-    rev = "3502a9f6dd2074c2f84d49baa5043f6601ca6407";
-    hash = "sha256-djp8c2iONh+ET+wHbPLruNTuF7xSAYoMmwp1HfsrVTA=";
+    rev = "b9b7ef694329835bec97aa78e93757c3fbde8e13";
+    hash = "sha256-zNvuU0DFSfCtQPFQ3rxri2e3mlMzLtJB/qaDsS0i9Gg=";
   });
 
   # NEW: Add `dpkgs` shorthand:
