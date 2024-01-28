@@ -80,6 +80,26 @@ DUB version 1.30.0, built on Jan  1 1980
 ➤ nix profile install d#dmd d#dub d#ldc
 ```
 
+#### Build multiple versions of DMD and DUB in parallel
+
+```bash
+➤ nix build -L --json \
+  github:PetarKirov/dlang-nix#dmd-2_098_1 \
+  github:PetarKirov/dlang-nix#dmd-2_100_2 \
+  github:PetarKirov/dlang-nix#dmd-2_102_2 \
+  github:PetarKirov/dlang-nix#dub-1_30_0
+```
+
+Or if you're inside this repo:
+
+```bash
+➤ nix build -L --json \
+  .#dmd-2_098_1 \
+  .#dmd-2_100_2 \
+  .#dmd-2_102_2 \
+  .#dub-1_30_0
+```
+
 #### Creating declarative & reproducible development environment
 
 Add the following `flake.nix` to your project:
