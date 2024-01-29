@@ -18,5 +18,38 @@
         "dmd/compiler/test/runnable/objc_self_test.d"
       ]
     }
+  },
+  "2.103.1": {
+    "x86_64-darwin": {
+      "build": true,
+      "check": true,
+      "skippedTests": [
+        "dmd/compiler/test/runnable/objc_class.d",
+        "dmd/compiler/test/runnable/objc_self_test.d",
+        "dmd/compiler/test/runnable_cxx/cppa.d"
+      ]
+    }
+  },
+  "2.104.2": {
+    "x86_64-darwin": {
+      "build": true,
+      "check": true,
+      "skippedTests": [
+        "dmd/compiler/test/runnable/objc_class.d",
+        "dmd/compiler/test/runnable/objc_self_test.d",
+        "dmd/compiler/test/runnable_cxx/cppa.d"
+      ]
+    }
+  },
+  "2.105.2": {
+    "x86_64-darwin": {
+      "build": true,
+      "check": true,
+      "skippedTests": [
+        "dmd/compiler/test/runnable/objc_class.d",
+        "dmd/compiler/test/runnable/objc_self_test.d",
+        "dmd/compiler/test/runnable_cxx/cppa.d"
+      ]
+    }
   }
 }
