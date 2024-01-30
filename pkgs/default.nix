@@ -37,7 +37,7 @@ in {
       // optionalAttrs pkgs.hostPlatform.isx86 (
         {
           dmd-bootstrap = self'.packages."dmd-binary-2_098_0";
-          dmd = self'.packages."dmd-2_100_2";
+          dmd = self'.packages."dmd-2_105_2";
         }
         // (genPkgVersions "dmd").flattened "binary"
         // (genPkgVersions "dmd").flattened "source"
