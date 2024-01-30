@@ -26,8 +26,16 @@
     flake-parts.lib.mkFlake {inherit inputs;} {
       systems = ["x86_64-linux" "aarch64-linux" "x86_64-darwin" "aarch64-darwin"];
       imports = [./pkgs ./lib/mk-gh-actions-matrix.nix];
+
       perSystem = {pkgs, ...}: {
         devShells.default = import ./shell.nix {inherit pkgs;};
+      };
+
+      flake.templates = {
+        macos-aarch64-devshell-for-dmd = {
+          path = ./templates/macos-aarch64-devshell-with-dmd;
+          description = "A minimal x86_64-darwin devshell that allows running dmd on Apple Silicon macOS";
+        };
       };
     };
 }
