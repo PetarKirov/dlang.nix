@@ -1,4 +1,10 @@
 {
+   "2.096.1": {
+    "dmd": "04s5z2skhvjjxwpgdffgksk6whd2jsyrqb5f57icp1qvm1ywz1vb",
+    "druntime": "1jzs6qrljs7nvq0dlld9l7f5n2yj306i5czpvxgxymbrcyzzh1q4",
+    "phobos": "0jyxkdy6h35z1cv22pqhx136mcpg8h2hwxr4j4lixpzyr8kw0i4d",
+    "tools": "sha256-uz0sWHPtXhU/pI9/+o0PxrpZpEA/AZoTAxawf7TIqgg="
+  },
   "2.098.1": {
     "dmd": "sha256-61hViU/IBUKHwXO+mt63lo3kBGL4Gtve83Uxi32gwnU=",
     "druntime": "sha256-HN/bxmGJHqubiUESZ7Y/4gdUj8ja9WhyLq24IDdZoe0=",
