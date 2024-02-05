@@ -2,7 +2,7 @@
   "2.096.1": {
     "x86_64-darwin": {
       "build": true,
-      "check": true,
+      "check": false,
       "skippedTests": [
         "dmd/test/runnable/test15779.d",
         "dmd/test/runnable/test17868.d",
