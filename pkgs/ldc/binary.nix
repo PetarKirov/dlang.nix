@@ -31,6 +31,13 @@
     "i686-windows" = "windows-x86";
   };
 
+  defaultSystems = ["x86_64-linux" "aarch64-linux" "x86_64-darwin" "aarch64-darwin"];
+
+  supportedSystems = lib.pipe (builtins.attrNames systemToArchivePlatform) [
+    (builtins.filter (x: builtins.elem x defaultSystems))
+    (builtins.filter (sys: hashes.${systemToArchivePlatform.${sys}} != null))
+  ];
+
   tarballSuffix =
     if hostPlatform.isWindows
     then "7z"
@@ -43,7 +50,7 @@ in
     inherit version;
 
     passthru = {
-      inherit buildStatus;
+      inherit buildStatus supportedSystems hashes;
     };
 
     src = fetchurl rec {
@@ -75,8 +82,6 @@ in
       # from https://github.com/ldc-developers/ldc/blob/master/LICENSE
       license = with licenses; [bsd3 boost mit ncsa gpl2Plus];
       maintainers = with maintainers; [ThomasMader lionello];
-      # FIXME: change to the following after the CI verifies it:
-      # platforms = builtins.attrNames systemToArchivePlatform;
-      platforms = ["x86_64-linux" "aarch64-linux" "x86_64-darwin" "aarch64-darwin"];
+      platforms = supportedSystems;
     };
   }
