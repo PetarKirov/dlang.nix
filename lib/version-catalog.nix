@@ -10,6 +10,12 @@
   darwinPkgs = {
     inherit (pkgs.darwin.apple_sdk.frameworks) Foundation;
   };
+
+  system = pkgs.hostPlatform.system;
+  filterBySystem = pkgs:
+    lib.filterAttrs
+    (_name: pkg: builtins.elem system pkg.meta.platforms)
+    pkgs;
 in {
   genPkgVersions = pkgName: let
     mod = ../pkgs/${pkgName}/version-catalog.nix;
@@ -47,6 +53,7 @@ in {
           )
         )
         listToAttrs
+        filterBySystem
       ];
 
     hierarchical = {
@@ -58,6 +65,7 @@ in {
             supportedVersions."${type}"
           )))
         listToAttrs
+        filterBySystem
       ];
     };
   };
