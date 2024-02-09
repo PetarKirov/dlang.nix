@@ -9,6 +9,11 @@
       "build": false,
       "check": false,
       "skippedTests": []
+    },
+    "aarch64-darwin": {
+      "build": false,
+      "check": false,
+      "skippedTests": []
     }
   }
 }
