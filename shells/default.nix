@@ -4,7 +4,9 @@ with pkgs;
     packages =
       [
         figlet
-        nix-prefetch-git
+        nix-eval-jobs
+        jq
+        nurl
         ldc
         dub
         dtools
