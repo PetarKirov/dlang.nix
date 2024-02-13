@@ -1,5 +1,9 @@
 # Nix build output
+.result
 result
+comment.md
+matrix-pre.json
+matrix-post.json
 
 # direnv temporary files
 .direnv/
