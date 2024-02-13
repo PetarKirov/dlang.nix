@@ -202,21 +202,6 @@ in
       ''
         patchShebangs ${dmdPrefix}/test/{runnable,fail_compilation,compilable,tools}{,/extra-files}/*.sh
 
-        rm ${dmdPrefix}/test/runnable/gdb1.d
-        rm ${dmdPrefix}/test/runnable/gdb10311.d
-        rm ${dmdPrefix}/test/runnable/gdb14225.d
-        rm ${dmdPrefix}/test/runnable/gdb14276.d
-        rm ${dmdPrefix}/test/runnable/gdb14313.d
-        rm ${dmdPrefix}/test/runnable/gdb14330.d
-        rm ${dmdPrefix}/test/runnable/gdb15729.sh
-        rm ${dmdPrefix}/test/runnable/gdb4149.d
-        rm ${dmdPrefix}/test/runnable/gdb4181.d
-
-        # Disable tests that rely on objdump whitespace until fixed upstream:
-        #   https://issues.dlang.org/show_bug.cgi?id=23317
-        rm ${dmdPrefix}/test/runnable/cdvecfill.sh
-        rm ${dmdPrefix}/test/compilable/cdcmp.d
-
         # Grep'd string changed with gdb 12
         #   https://issues.dlang.org/show_bug.cgi?id=23198
         substituteInPlace ${druntimePrefix}/test/exceptions/Makefile \
@@ -226,37 +211,15 @@ in
         substituteInPlace ${druntimePrefix}/test/coverage/Makefile \
           --replace 'freebsd osx' 'none'
       ''
-      + lib.optionalString (lib.versionOlder version "2.091.0") ''
-        # This one has tested against a hardcoded year, then against a current year on
-        # and off again. It just isn't worth it to patch all the historical versions
-        # of it, so just remove it until the most recent change.
-        rm ${dmdPrefix}/test/compilable/ddocYear.d
-      ''
-      + lib.optionalString (lib.versionAtLeast version "2.089.0" && lib.versionOlder version "2.092.2") ''
-        rm ${dmdPrefix}/test/dshell/test6952.d
-      ''
       + lib.optionalString (lib.versionAtLeast version "2.092.2") ''
         substituteInPlace ${dmdPrefix}/test/dshell/test6952.d --replace "/usr/bin/env bash" "${bash}/bin/bash"
       ''
       # This test causes a linking failure before
       # https://github.com/dlang/dmd/commit/cab51f946a8b2d3f0fcb856cf6c52a18a6779930
-      + lib.optionalString (lib.versionOlder version "2.103.0")
-      (
-        if lib.versionAtLeast version "2.092.0"
-        then ''
-          rm ${dmdPrefix}/test/runnable_cxx/cppa.d
-        ''
-        else ''
-          rm ${dmdPrefix}/test/runnable/cppa.d
-        ''
-      )
       + lib.optionalString stdenv.isLinux ''
         substituteInPlace phobos/std/socket.d --replace "assert(ih.addrList[0] == 0x7F_00_00_01);" ""
       ''
       + lib.optionalString stdenv.isDarwin ''
-        rm ${dmdPrefix}/test/runnable/{test13117.d,test13117b.d}
-        rm ${dmdPrefix}/test/runnable_cxx/{cpp11.d,cpp_stdlib.d}
-
         substituteInPlace phobos/std/socket.d --replace "foreach (name; names)" "names = []; foreach (name; names)"
       '';
 
