@@ -21,6 +21,18 @@
 
       inherit (import ./build-status.nix {inherit lib;}) getBuildStatus;
 
+      allowedToFailMap = lib.pipe (mkGHActionsMatrix.include) [
+        (builtins.groupBy (p: p.package))
+        (builtins.mapAttrs (
+          n: v:
+            builtins.mapAttrs (
+              s: ps:
+                (builtins.head ps).allowedToFail
+            )
+            (builtins.groupBy (p: p.system) v)
+        ))
+      ];
+
       mkGHActionsMatrix = {
         include = lib.pipe (builtins.attrNames nixSystemToGHPlatform) [
           (builtins.concatMap

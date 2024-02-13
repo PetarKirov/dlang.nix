@@ -20,17 +20,24 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Nix
-        uses: DeterminateSystems/nix-installer-action@v9
+      - name: Post initial package status comment
+        uses: marocchino/sticky-pull-request-comment@v2.9.0
+        with:
+          recreate: true
+          message: |
+            Thanks for your Pull Request!
 
-      - id: generate-matrix
-        name: Generate Nix Matrix
-        run: |
-          set -Eeu
-          matrix="$(nix eval --json '.#lib.mkGHActionsMatrix')"
-          echo "matrix=$matrix" >> "$GITHUB_OUTPUT"
+            This comment will be updated automatically with the status of each package.
+
+      - name: Generate CI Matrix
+        id: generate-matrix
+        uses: ./.github/generate-matrix
+        with:
+          is-initial: 'true'
+          cachix-cache: ${{ vars.CACHIX_CACHE }}
     outputs:
       matrix: ${{ steps.generate-matrix.outputs.matrix }}
+      comment: ${{ steps.generate-matrix.outputs.comment }}
 
   build:
     needs: generate-matrix
@@ -54,17 +61,24 @@ jobs:
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
 
       - name: Build ${{ matrix.package }}
-        run: nix build -L --json --no-link '.#${{ matrix.attrPath }}'
+        run: nix build -L --json --no-link '.#packages.${{ matrix.attrPath }}'
 
   results:
-    if: ${{ always() }}
     runs-on: ubuntu-latest
     name: Final Results
-    needs: [build]
+    needs: [build, generate-matrix]
     steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate Matrix
+        uses: ./.github/generate-matrix
+        with:
+          is-initial: 'false'
+          cachix-cache: ${{ vars.CACHIX_CACHE }}
+
       - run: exit 1
         if: >-
-          ${{
-               contains(needs.*.result, 'failure')
-            || contains(needs.*.result, 'cancelled')
-          }}
+          ${{ fromJSON(needs.generate-matrix.outputs.matrix).include.length > 0 &&
+            (contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')) }}
+      - run: exit 0
+        if: ${{fromJSON(needs.generate-matrix.outputs.matrix).include.length == 0}}
