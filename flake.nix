@@ -28,7 +28,8 @@
       imports = [./pkgs ./lib/mk-gh-actions-matrix.nix];
 
       perSystem = {pkgs, ...}: {
-        devShells.default = import ./shell.nix {inherit pkgs;};
+        devShells.default = import ./shells/default.nix {inherit pkgs;};
+        devShells.ci = import ./shells/ci.nix {inherit pkgs;};
       };
 
       flake.templates = {
