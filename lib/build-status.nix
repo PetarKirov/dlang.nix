@@ -1,6 +1,6 @@
 {lib, ...}: {
   getBuildStatus = package: version: system: let
-    data = lib.importJSON ./../pkgs/${package}/build-status.json;
+    data = import ./../pkgs/${package}/build-status.nix {inherit lib;};
   in
     data.${version}.${system}
     or {
