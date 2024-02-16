@@ -118,7 +118,7 @@ Add the following `flake.nix` to your project:
   outputs = inputs @ {flake-parts, ...}:
     flake-parts.lib.mkFlake {inherit inputs;} {
       systems = ["x86_64-linux" "x86_64-darwin" "aarch64-darwin"];
-      perSystem = { inputs', ... }: {
+      perSystem = { inputs', pkgs, ... }: {
         devShells.default = pkgs.mkShell {
           packages = [
             inputs'.dlang-nix.packages.ldc
