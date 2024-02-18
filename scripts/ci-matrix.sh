@@ -22,8 +22,8 @@ eval_packages_to_json() {
     | .[1:] as $nix_eval_results
     | {
       "x86_64-linux": "ubuntu-latest",
-      "x86_64-darwin": "macos-14",
-      "aarch64-darwin": "macos-14"
+      "x86_64-darwin": "macos-13",
+      "aarch64-darwin": "flyci-macos-large-latest-m1"
     } as $system_to_gh_platform
     | $nix_eval_results
     | map({
