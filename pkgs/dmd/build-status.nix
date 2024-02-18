@@ -3,11 +3,13 @@
 
   versionBetween = after: before: version:
     ((builtins.compareVersions version after) >= 0)
-    && ((builtins.compareVersions version before) < 0);
+    && ((builtins.compareVersions version before) <= 0);
 
   supportedVersions =
     builtins.attrNames
     (lib.importJSON ./supported-source-versions.json);
+
+  latestVersion = lib.last supportedVersions;
 
   mergeVersions = attrs: lib.foldr lib.recursiveUpdate {} attrs;
 
@@ -62,11 +64,22 @@
           "${cxxTestDir}/cpp11.d"
           "${cxxTestDir}/cpp_stdlib.d"
           "${cxxTestDir}/cppa.d"
+          "${cxxTestDir}/externmangle2.d"
+          "${cxxTestDir}/cpp_abi_tests.d"
+          "${cxxTestDir}/externmangle.d"
+          "${dmdTestDir}/dshell/dll_cxx.d"
+        ]
+        ++ lib.optionals (versionBetween "2.099.0" latestVersion version) [
+          "${cxxTestDir}/test22287.d"
+          "${cxxTestDir}/test7925.d"
+        ]
+        ++ lib.optionals (versionBetween "2.101.0" latestVersion version) [
+          "${cxxTestDir}/test23135.d"
         ]
         ++ (
-          if versionBetween "2.092.1" "2.099.0" version
+          if versionBetween "2.092.1" "2.098.1" version
           then
-            if versionBetween "2.092.1" "2.098.0" version
+            if versionBetween "2.092.1" "2.097.2" version
             then [
               "${dmdTestDir}/runnable/test15779.d"
               "${dmdTestDir}/runnable/test17868.d"
@@ -76,7 +89,7 @@
               "${dmdTestDir}/runnable/test17868.d"
               "${dmdTestDir}/runnable/test17868b.d"
             ]
-          else if versionBetween "2.100.0" "2.105.4" version
+          else if versionBetween "2.100.0" "2.105.3" version
           then [
             "${dmdTestDir}/runnable/objc_class.d"
             "${dmdTestDir}/runnable/objc_self_test.d"
