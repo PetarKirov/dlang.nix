@@ -35,6 +35,7 @@
   HOST_DMD ? "${callPackage ./bootstrap.nix {}}/bin/dmd",
 }: let
   inherit (import ../../lib/build-status.nix {inherit lib;}) getBuildStatus;
+  inherit (import ../../lib/version-utils.nix {inherit lib;}) versionBetween;
 
   buildStatus = getBuildStatus "dmd" version stdenv.system;
 
@@ -195,6 +196,16 @@ in
           stripLen = 1;
           extraPrefix = "druntime/";
           sha256 = "sha256-/pPKK7ZK9E/mBrxm2MZyBNhYExE8p9jz8JqBdZSE6uY=";
+        })
+      ]
+      ++ lib.optionals (versionBetween "2.102.2" "2.104.0" version) [
+        (fetchpatch {
+          # Fix for: https://issues.dlang.org/show_bug.cgi?id=23846
+          # Implemented in: https://github.com/dlang/dmd/pull/15139
+          url = "https://github.com/dlang/dmd/commit/deaf1b81986c57d31a1b1163301ca4d157505220.patch";
+          stripLen = 1;
+          extraPrefix = "dmd/";
+          sha256 = "sha256-xgaIraFH3ZfIn99ms148MP7cKV63JgU90yEYq21noRw=";
         })
       ];
 
