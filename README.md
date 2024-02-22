@@ -178,7 +178,12 @@ in
 You can find the full example in
 [`templates/pre-flake-devshell/`](./templates/pre-flake-devshell/).
 
-It should be noted that unlike most traditional Nix projects, this will not build the compilers using your `<nixpkgs>`. Instead it will build them using a fixed Nixpkgs version defined in `flake.lock` of this project. Indeed this is one of the differences how things are usually done with and without flakes, even when it's possible to either pin or to not pin the nixpkgs version regardless of flake use.
+It should be noted that unlike most traditional Nix projects, this will not
+build the compilers using your `<nixpkgs>`. Instead it will build them using a
+fixed Nixpkgs version defined in `flake.lock` of this project. Indeed this is
+one of the differences how things are usually done with and without flakes,
+even when it's possible to either pin or to not pin the nixpkgs version
+regardless of flake use.
 
 ## Source and binary variants
 
