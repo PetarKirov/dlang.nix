@@ -32,10 +32,29 @@
   installShellFiles,
   git,
   unzip,
-  HOST_DMD ? "${callPackage ./bootstrap.nix {}}/bin/dmd",
+  buildCompiler ? callPackage ./bootstrap.nix {},
 }: let
   inherit (import ../../lib/build-status.nix {inherit lib;}) getBuildStatus;
   inherit (import ../../lib/version-utils.nix {inherit lib;}) versionBetween;
+
+  # results in "dmd" or "ldc", maybe "gdc" in the future.
+  buildCompilerAPI = builtins.substring 0 3 buildCompiler.name;
+
+  # todo: replace buildCompilerPath with `getDmdWrapper buildCompiler` once
+  # pull request 53 is merged
+  in with (if buildCompilerAPI == "dmd" then {
+    buildCompilerPath = buildCompiler + /bin/dmd;
+    buildFrontendVersion = buildCompiler.version;
+  }
+  else if buildCompilerAPI == "ldc" then {
+    buildCompilerPath = buildCompiler + /bin/ldmd2;
+
+    # Close enough! This gives the correct minor version number for all versions
+    # from 2.070 to 2.107 (the newest as of writing)
+    buildFrontendVersion = "2."
+      + toString (builtins.fromJSON (lib.versions.minor buildCompiler.version) + 70) + ".1";
+  }
+  else throw ("Unrecognised build compiler " + buildCompiler.name)); let
 
   buildStatus = getBuildStatus "dmd" version stdenv.system;
 
@@ -85,9 +104,8 @@
     then "druntime"
     else "dmd/druntime";
 
-  commonBuildFlags =
+  commonBuildFlags = {forMake}:
     [
-      "-fposix.mak"
       "SHELL=${bash}/bin/bash"
       "DMD=$(NIX_BUILD_TOP)/dmd/${buildPath}/dmd"
       "CC=${
@@ -95,10 +113,11 @@
         then stdenv.cc
         else gcc11
       }/bin/cc"
-      "HOST_DMD=${HOST_DMD}"
+      "HOST_DMD=${ buildCompilerPath }"
       "PIC=1"
       "BUILD=${buildMode}"
     ]
+    ++ lib.optional forMake "-fposix.mak"
     # There is an "ifdef ENABLE_COVERAGE" rule in Phobos posix.max causing
     # coverage to be enabled even if it's set to 0. For consistency we leave
     # any false values unset.
@@ -109,8 +128,7 @@
     ++ lib.optional enableProfile "ENABLE_PROFILE=1"
     ++ lib.optional enableUnittest "ENABLE_UNITTEST=1"
     ++ lib.optional enableCoverage "ENABLE_COVERAGE=1";
-in
-  stdenv.mkDerivation rec {
+in stdenv.mkDerivation rec {
     pname = "dmd";
     inherit version;
 
@@ -210,7 +228,13 @@ in
       ];
 
     postPatch =
+      # Older compilers use -dip25 in their build flags, but if the build
+      # compiler is 2.092 or newer it doesn't need it anymore, and from
+      # 2.103 on using the flag is a deprecation error.
+      lib.optionalString (lib.versionAtLeast buildFrontendVersion "2.092.0") ''
+        substituteInPlace ${dmdPrefix}/src/build.d --replace '"-dip25"' ""
       ''
+      + ''
         patchShebangs ${dmdPrefix}/test/{runnable,fail_compilation,compilable,tools}{,/extra-files}/*.sh
 
         # Grep'd string changed with gdb 12
@@ -248,7 +272,7 @@ in
 
     dontConfigure = true;
 
-    buildFlags = commonBuildFlags;
+    buildFlags = commonBuildFlags {forMake=true;};
 
     # Build and install are based on http://wiki.dlang.org/Building_DMD
     buildPhase = ''
@@ -275,7 +299,8 @@ in
 
     checkInputs = lib.optional stdenv.isDarwin Foundation;
 
-    checkFlags = commonBuildFlags ++ ["N=$(checkJobs)"];
+    checkFlagsMake = commonBuildFlags {forMake=true;} ++ ["N=$(checkJobs)"];
+    checkFlagsRunD = commonBuildFlags {forMake=false;};
 
     # many tests are disbled because they are failing
     # NOTE: Purity check is disabled for checkPhase because it doesn't fare well
@@ -295,16 +320,16 @@ in
 
       # This will also test DRuntime for versions without
       # a separate DRuntime repo
-      NIX_ENFORCE_PURITY= \
-        make -C dmd test $checkFlags
+      (NIX_ENFORCE_PURITY= \
+        cd ${dmdPrefix}/test && env $checkFlagsRunD ${buildCompiler + /bin/rdmd} run.d -j $checkJobs all)
 
       ${lib.optionalString druntimeRepo ''
         NIX_ENFORCE_PURITY= \
-          make -C druntime unittest $checkFlags
+          make -C druntime unittest $checkFlagsMake
       ''}
 
       NIX_ENFORCE_PURITY= \
-        make -C phobos unittest $checkFlags DFLAGS="${phobosDflags}"
+        make -C phobos unittest $checkFlagsMake DFLAGS="${phobosDflags}"
 
       runHook postCheck
     '';
