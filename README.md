@@ -146,9 +146,10 @@ You can find the full example in [`templates/devshell/`](./templates/devshell/).
 
 ### Pre-flakes usage
 
-The `default.nix` file in the root of this repo exposes all flake outputs as
-Nix attributes. This is useful for users who haven't yet made the jump to the
-Nix Flakes world.
+The `default.nix` file in the root of this repo is a
+[shim](https://nixos.wiki/wiki/Flakes#Using_flakes_with_stable_Nix) that
+exposes all flake outputs as Nix attributes. This is useful for users who
+haven't yet made the jump to the Nix Flakes world.
 
 For example, if you have an existing `shell.nix` file, all you need to do is add
 the changes marked as "NEW" from the snippet below:
