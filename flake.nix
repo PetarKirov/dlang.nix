@@ -32,11 +32,18 @@
         devShells.ci = import ./shells/ci.nix {inherit pkgs;};
       };
 
-      flake.templates = {
-        macos-aarch64-devshell-for-dmd = {
-          path = ./templates/macos-aarch64-devshell-with-dmd;
-          description = "A minimal x86_64-darwin devshell that allows running dmd on Apple Silicon macOS";
-        };
-      };
+      flake.templates = let
+        lib = nixpkgs.lib;
+        allTemplates = lib.pipe (builtins.readDir ./templates) [
+          (lib.filterAttrs (k: v: v == "directory"))
+          (builtins.mapAttrs (k: v: rec {
+            path = ./templates + "/${k}";
+            description = lib.removeSuffix "\n" (
+              builtins.readFile (path + "/description.txt")
+            );
+          }))
+        ];
+      in
+        allTemplates;
     };
 }

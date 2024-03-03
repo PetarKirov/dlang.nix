@@ -1,0 +1,1 @@
+A minimal devshell showcasing usage with classic Nix (pre-flakes)
