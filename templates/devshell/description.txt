@@ -1,0 +1,1 @@
+Flake Parts-style minimal flak containing devshell with ldc and dub
