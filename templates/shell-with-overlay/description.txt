@@ -1,0 +1,1 @@
+Example of using dlang.nix via its overlay in a minimal dev shell
