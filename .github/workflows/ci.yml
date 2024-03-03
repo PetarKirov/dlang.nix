@@ -41,6 +41,7 @@ jobs:
 
   build:
     needs: generate-matrix
+    if: needs.generate-matrix.outputs.matrix != '{}' && needs.generate-matrix.outputs.matrix != '{"include":[]}'
     strategy:
       fail-fast: false
       matrix: ${{fromJSON(needs.generate-matrix.outputs.matrix)}}
