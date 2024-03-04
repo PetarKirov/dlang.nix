@@ -32,10 +32,13 @@
   installShellFiles,
   git,
   unzip,
-  HOST_DMD ? "${callPackage ./bootstrap.nix {}}/bin/dmd",
+  hostDCompiler,
 }: let
   inherit (import ../../lib/build-status.nix {inherit lib;}) getBuildStatus;
   inherit (import ../../lib/version-utils.nix {inherit lib;}) versionBetween;
+  inherit (import ../../lib/dc.nix {inherit lib;}) getDmdWrapper;
+
+  HOST_DMD = getDmdWrapper hostDCompiler;
 
   buildStatus = getBuildStatus "dmd" version stdenv.system;
 

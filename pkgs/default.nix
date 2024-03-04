@@ -13,7 +13,7 @@ in {
     ...
   }: let
     inherit
-      (import ../lib/version-catalog.nix {inherit lib pkgs;})
+      (import ../lib/version-catalog.nix {inherit lib pkgs self';})
       genPkgVersions
       ;
   in {
