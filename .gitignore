@@ -14,3 +14,8 @@ bin/
 
 # Dotenv
 .env
+
+# CI matrix
+matrix-pre.json
+matrix-post.json
+comment.md

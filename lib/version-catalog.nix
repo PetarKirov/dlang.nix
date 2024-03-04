@@ -1,13 +1,15 @@
 {
   lib,
   pkgs,
+  self',
   ...
 }: let
   inherit (builtins) attrNames listToAttrs map mapAttrs;
   inherit (lib) nameValuePair pipe optional;
 
   inherit (pkgs) callPackage;
-  darwinPkgs = {
+  extraPkgs = {
+    hostDCompiler = self'.packages.ldc-bootstrap;
     inherit (pkgs.darwin.apple_sdk.frameworks) Foundation;
   };
 
@@ -49,7 +51,7 @@ in {
             version:
               nameValuePair
               "${pkgName}${nameSuffix}-${sanitizeVersion version}"
-              (callPackage (getVersion type version) darwinPkgs)
+              (callPackage (getVersion type version) extraPkgs)
           )
         )
         listToAttrs
@@ -61,7 +63,7 @@ in {
         (map (type:
           nameValuePair type (
             mapAttrs
-            (version: _: (callPackage (getVersion type version) darwinPkgs))
+            (version: _: (callPackage (getVersion type version) extraPkgs))
             supportedVersions."${type}"
           )))
         listToAttrs

@@ -23,7 +23,7 @@
   makeWrapper,
   runCommand,
   targetPackages,
-  ldcBootstrap ? callPackage ./bootstrap.nix {},
+  hostDCompiler,
   ...
 }: let
   inherit (import ../../lib/build-status.nix {inherit lib;}) getBuildStatus;
@@ -115,7 +115,7 @@ in
     nativeBuildInputs =
       [
         cmake
-        ldcBootstrap
+        hostDCompiler
         lit
         lit.python
         llvmPackages_12.llvm.dev
