@@ -8,7 +8,7 @@ in
   perSystem =
     { self', pkgs, ... }:
     let
-      inherit (import ../lib/version-catalog.nix { inherit lib pkgs; }) genPkgVersions;
+      inherit (import ../lib/version-catalog.nix { inherit lib pkgs self'; }) genPkgVersions;
     in
     {
       overlayAttrs = self'.packages;

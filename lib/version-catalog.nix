@@ -1,4 +1,9 @@
-{ lib, pkgs, ... }:
+{
+  lib,
+  pkgs,
+  self',
+  ...
+}:
 let
   inherit (builtins)
     attrNames
@@ -10,6 +15,7 @@ let
 
   inherit (pkgs) callPackage;
   extraPkgs = {
+    hostDCompiler = self'.packages.ldc-bootstrap;
     inherit (pkgs.darwin.apple_sdk.frameworks) Foundation;
   };
 

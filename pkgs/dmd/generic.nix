@@ -26,43 +26,20 @@
   gdb,
   gcc11,
   Foundation,
-  callPackage,
   targetPackages,
   fetchpatch,
   bash,
   installShellFiles,
   git,
   unzip,
-  buildCompiler ? callPackage ./bootstrap.nix { },
+  hostDCompiler,
 }:
 let
   inherit (import ../../lib/build-status.nix { inherit lib; }) getBuildStatus;
   inherit (import ../../lib/version-utils.nix { inherit lib; }) versionBetween;
+  inherit (import ../../lib/dc.nix { inherit lib; }) getDCInfo;
 
-  # results in "dmd" or "ldc", maybe "gdc" in the future.
-  buildCompilerAPI = builtins.substring 0 3 buildCompiler.name;
-in
-# todo: replace buildCompilerPath with `getDmdWrapper buildCompiler` once
-# pull request 53 is merged
-with (
-  if buildCompilerAPI == "dmd" then
-    {
-      buildCompilerPath = buildCompiler + /bin/dmd;
-      buildFrontendVersion = buildCompiler.version;
-    }
-  else if buildCompilerAPI == "ldc" then
-    {
-      buildCompilerPath = buildCompiler + /bin/ldmd2;
-
-      # Close enough! This gives the correct minor version number for all versions
-      # from 2.070 to 2.107 (the newest as of writing)
-      buildFrontendVersion =
-        "2." + toString (builtins.fromJSON (lib.versions.minor buildCompiler.version) + 70) + ".1";
-    }
-  else
-    throw ("Unrecognised build compiler " + buildCompiler.name)
-);
-let
+  hostDCInfo = getDCInfo hostDCompiler;
 
   buildStatus = getBuildStatus "dmd" version stdenv.system;
 
@@ -106,7 +83,7 @@ let
       "SHELL=${bash}/bin/bash"
       "DMD=$(NIX_BUILD_TOP)/dmd/${buildPath}/dmd"
       "CC=${if stdenv.isDarwin then stdenv.cc else gcc11}/bin/cc"
-      "HOST_DMD=${buildCompilerPath}"
+      "HOST_DMD=${hostDCInfo.dmdWrapper}"
       "PIC=1"
       "BUILD=${buildMode}"
     ]
@@ -239,7 +216,7 @@ stdenv.mkDerivation rec {
     # Older compilers use -dip25 in their build flags, but if the build
     # compiler is 2.092 or newer it doesn't need it anymore, and from
     # 2.103 on using the flag is a deprecation error.
-    lib.optionalString (lib.versionAtLeast buildFrontendVersion "2.092.0") ''
+    lib.optionalString (lib.versionAtLeast hostDCInfo.frontendVersion "2.092.0") ''
       substituteInPlace ${dmdPrefix}/src/build.d --replace '"-dip25"' ""
     ''
     + lib.optionalString (versionBetween "2.092.0" "2.103.0" version) ''
@@ -329,7 +306,7 @@ stdenv.mkDerivation rec {
     # This will also test DRuntime for versions without
     # a separate DRuntime repo
     (NIX_ENFORCE_PURITY= \
-      cd ${dmdPrefix}/test && env $checkFlagsRunD ${buildCompiler + /bin/rdmd} run.d -j $checkJobs all)
+      cd ${dmdPrefix}/test && env $checkFlagsRunD ${hostDCompiler + /bin/rdmd} run.d -j $checkJobs all)
 
     ${lib.optionalString druntimeRepo ''
       NIX_ENFORCE_PURITY= \
