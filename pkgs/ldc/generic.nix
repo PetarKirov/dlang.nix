@@ -10,18 +10,16 @@
   curl,
   tzdata,
   mimalloc,
-  libconfig,
   lit,
   gdb,
   unzip,
   darwin,
   bash,
   pkg-config,
-  callPackage,
   makeWrapper,
   runCommand,
   targetPackages,
-  ldcBootstrap ? callPackage ./bootstrap.nix { },
+  hostDCompiler,
   ...
 }:
 let
@@ -114,7 +112,7 @@ stdenv.mkDerivation rec {
   nativeBuildInputs =
     [
       cmake
-      ldcBootstrap
+      hostDCompiler
       lit
       lit.python
       llvmPackages_12.llvm.dev
