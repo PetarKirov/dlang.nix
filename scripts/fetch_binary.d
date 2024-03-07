@@ -1,69 +1,100 @@
 #!/usr/bin/env -S rdmd -preview=shortenedMethods
 
-import std.algorithm : map, startsWith, joiner;
-import std.array : array;
+import std.algorithm : joiner, map, predSwitch, startsWith, uniq;
+import std.array : array, join, split;
+import std.conv : to;
+import std.exception : enforce;
 import std.format : format;
+import std.functional : adjoin;
 import std.getopt : getopt, GetOptException, defaultGetoptFormatter;
 static import std.getopt;
 import std.json : JSONValue, JSONOptions;
 import std.parallelism : parallel;
 import std.process : executeShell, Config;
+import std.range : walkLength;
 import std.stdio : stdout, stderr;
-import std.string : strip;
+import std.string : strip, toLower;
 import std.typecons : tuple;
 
 import utils : prefech, Version, Platform, Hash, Url;
 
-enum Compiler { dmd, ldc, ldc_src };
+enum Compiler { dmd, dmd_src, ldc, ldc_src };
 
-alias UrlFormatter = Url function(Platform platform, Version compilerVersion);
+alias UrlFormatter =
+    Url function(Platform platform, Version compilerVersion) @safe pure;
 
-struct CompilerInfo { UrlFormatter urlFormatter; Platform[] platforms; }
+alias PlatformQuery = Platform[] function(Version) @safe pure;
 
-string suffix(Platform p) => p.startsWith("windows") ? "7z" : "tar.xz";
+struct CompilerInfo { UrlFormatter urlFormatter; PlatformQuery platforms; }
+
+@safe pure string suffix(Platform p) => p.startsWith("windows") ?
+    "7z" : "tar.xz";
 
 enum CompilerInfo[Compiler] supportedPlatforms = [
     Compiler.dmd: CompilerInfo(
         (platform, compilerVersion) =>
             "http://downloads.dlang.org/releases/2.x/%s/dmd.%s.%s.%s"
                 .format(compilerVersion, compilerVersion, platform, suffix(platform)),
-            [
-                "linux", "osx", "freebsd-64", "windows"
-            ],
+        compVersion => [
+            "linux", "osx", "freebsd-64", "windows"
+        ],
+    ),
+    Compiler.dmd_src: CompilerInfo(
+        (platform, compilerVersion) =>
+            "https://github.com/dlang/%s/archive/refs/tags/v%s.tar.gz"
+                .format(platform, compilerVersion),
+        compVersion => [
+            ["dmd"],
+            compVersion.split(".")[1].to!int >= 101 ? [] : ["druntime"],
+            ["phobos", "tools"]
+        ].join,
     ),
     Compiler.ldc: CompilerInfo(
         (platform, compilerVersion) =>
             "https://github.com/ldc-developers/ldc/releases/download/v%s/ldc2-%s-%s.%s"
                 .format(compilerVersion, compilerVersion, platform, suffix(platform)),
-            [
-                "android-aarch64", "android-armv7a",
-                "freebsd-x86_64",
-                "linux-aarch64", "linux-x86_64",
-                "osx-arm64", "osx-x86_64",
-                "windows-x64", "windows-x86"
-            ],
+        compVersion => [
+            "android-aarch64", "android-armv7a",
+            "freebsd-x86_64",
+            "linux-aarch64", "linux-x86_64",
+            "osx-arm64", "osx-x86_64",
+            "windows-x64", "windows-x86"
+        ],
     ),
     Compiler.ldc_src: CompilerInfo(
         (platform, compilerVersion) =>
             "https://github.com/ldc-developers/ldc/releases/download/v%s/ldc-%s-src.tar.gz"
                 .format(compilerVersion, compilerVersion),
-            [
-                "src"
-            ],
+        compVersion => [
+            "src"
+        ],
     ),
 ];
 
 void main(string[] args) {
     Version[] compilerVersions;
     Compiler compiler = Compiler.ldc;
-    bool dryRun = true;
+    bool liveRun = false;
 
     auto parseCLI(string[] args) {
         std.getopt.arraySep = ",";
         return args.getopt(
-            "versions", &compilerVersions,
-            "compiler", &compiler,
-            "dry-run", &dryRun,
+            "versions", "list of compiler versions to fetch. For example, " ~
+                    "2.099.1,2.100.2",
+                &compilerVersions,
+            "compiler",
+                // Ideally we would generate the list of allowed values as
+                // opposed to this hardcoding
+                "What compiler to fetch. dmd | dmd_src | ldc | ldc_src, " ~
+                    "default ldc",
+                &compiler,
+            "dry-run",
+                "Only print what would be done, but don't really act." ~
+                    " Opposite of live-run. This is the default. ",
+                (){liveRun = false;},
+            "live-run",
+                "Actually perform the fetching. Opposite of dry-run.",
+                (){liveRun = true;}
         );
     }
 
@@ -80,7 +111,7 @@ void main(string[] args) {
         defaultGetoptFormatter(
             w,
             "fetch_binary.d - " ~
-                "tool for fetching binary releases of DMD and LDC",
+                "tool for fetching source and binary releases of DMD and LDC",
             parseCLI(args[0 .. 1]).options,
         );
         return;
@@ -93,7 +124,16 @@ void main(string[] args) {
         : [ "2.105.0" ];
 
     const compilerInfo = supportedPlatforms[compiler];
-    const platforms = compilerInfo.platforms;
+    const platforms = compilerVersions.map!(vers =>
+        compilerInfo.platforms(vers)
+    ).uniq.adjoin!(
+        versArrays => enforce(versArrays.walkLength(2) == 1,
+            "Requested versions differ in set of platforms they support. " ~
+                "Please specify a set of versions with a common set of " ~
+                "supported platforms."),
+        versArrays => versArrays.front
+    )[1];
+
     const getUrl = compilerInfo.urlFormatter;
 
     foreach (compilerVersion; compilerVersions)
@@ -115,10 +155,10 @@ void main(string[] args) {
 
     foreach (job; jobs.parallel) {
         const compilerVersion = job[0], platform = job[1], url = job[2];
-        hashes[compilerVersion][platform] = prefech(dryRun, url);
+        hashes[compilerVersion][platform] = prefech(!liveRun, url);
     }
 
-    if (dryRun) {
+    if (!liveRun) {
         stderr.writeln("-----");
         stderr.writeln("Fetching was not performed, this was a dry run.");
     }
