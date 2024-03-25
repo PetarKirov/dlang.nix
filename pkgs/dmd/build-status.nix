@@ -89,16 +89,25 @@ let
                   "${dmdTestDir}/runnable/test17868.d"
                   "${dmdTestDir}/runnable/test17868b.d"
                 ]
-            else if versionBetween "2.100.0" "2.105.3" version then
-              [
-                "${dmdTestDir}/runnable/objc_class.d"
-                "${dmdTestDir}/runnable/objc_self_test.d"
-              ]
-            else if versionAtLeast "2.105.5" version then
-              [
-                "${dmdTestDir}/runnable/objc_class.d"
-                "${dmdTestDir}/runnable/objc_self_test.d"
-              ]
+            else if versionAtLeast version "2.100.0" then
+              if versionOlder version "2.106.0" then
+                [
+                  "${dmdTestDir}/runnable/objc_class.d"
+                  "${dmdTestDir}/runnable/objc_self_test.d"
+                ]
+              else if versionOlder version "2.107.0" then
+                [
+                  "${dmdTestDir}/runnable/objc_class.d"
+                  "${dmdTestDir}/runnable/objc_self_test.d"
+                  "${dmdTestDir}/runnable/closure.d"
+                ]
+              else
+                [
+                  "${dmdTestDir}/runnable/objc_class.d"
+                  "${dmdTestDir}/runnable/objc_self_test.d"
+                  "${dmdTestDir}/runnable/closure.d"
+                  "${dmdTestDir}/runnable/eh.d"
+                ]
             else
               [ ]
           );
@@ -107,7 +116,7 @@ let
   };
 in
 mergeVersions [
-  (between "2.092.0" "2.105.4" (version: {
+  (between "2.092.0" "2.107.2" (version: {
     x86_64-linux = {
       build = true;
       check = true;
@@ -121,7 +130,7 @@ mergeVersions [
       skippedTests = (getInfo version).darwinSkippedTests;
     };
   }))
-  (between "2.098.0" "2.105.4" (version: {
+  (between "2.098.0" "2.107.2" (version: {
     x86_64-darwin = {
       build = true;
       check = true;
