@@ -8,11 +8,11 @@ alias Platform = string;
 alias Hash = string;
 alias Url = string;
 
-Hash prefech(bool dryRun, Url url) =>
+Hash prefech(bool dryRun, Url url, bool unpack = false) =>
     executeCommand(
         dryRun,
-        `nix store prefetch-file --json "%s" | jq -r '.hash'`
-            .format(url)
+        `nix-hash --to-sri --type sha256 $( nix-prefetch-url %s "%s" )`
+            .format(unpack ? "--unpack" : "", url)
     ).strip;
 
 
