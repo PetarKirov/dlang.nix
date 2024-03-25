@@ -25,7 +25,13 @@ alias UrlFormatter =
 
 alias PlatformQuery = Platform[] function(Version) @safe pure;
 
-struct CompilerInfo { UrlFormatter urlFormatter; PlatformQuery platforms; }
+enum UnpackingNeeded : bool { no, yes }
+
+struct CompilerInfo {
+    UrlFormatter urlFormatter;
+    PlatformQuery platforms;
+    UnpackingNeeded unpackingNeed;
+}
 
 @safe pure string suffix(Platform p) => p.startsWith("windows") ?
     "7z" : "tar.xz";
@@ -38,6 +44,7 @@ enum CompilerInfo[Compiler] supportedPlatforms = [
         compVersion => [
             "linux", "osx", "freebsd-64", "windows"
         ],
+        UnpackingNeeded.no,
     ),
     Compiler.dmd_src: CompilerInfo(
         (platform, compilerVersion) =>
@@ -48,6 +55,7 @@ enum CompilerInfo[Compiler] supportedPlatforms = [
             compVersion.split(".")[1].to!int >= 101 ? [] : ["druntime"],
             ["phobos", "tools"]
         ].join,
+        UnpackingNeeded.yes,
     ),
     Compiler.ldc: CompilerInfo(
         (platform, compilerVersion) =>
@@ -60,6 +68,7 @@ enum CompilerInfo[Compiler] supportedPlatforms = [
             "osx-arm64", "osx-x86_64",
             "windows-x64", "windows-x86"
         ],
+        UnpackingNeeded.no,
     ),
     Compiler.ldc_src: CompilerInfo(
         (platform, compilerVersion) =>
@@ -68,6 +77,7 @@ enum CompilerInfo[Compiler] supportedPlatforms = [
         compVersion => [
             "src"
         ],
+        UnpackingNeeded.no,
     ),
 ];
 
@@ -149,13 +159,15 @@ void main(string[] args) {
 
     auto jobs = compilerVersions.map!(compilerVersion =>
         platforms.map!(platform =>
-            tuple(compilerVersion, platform, getUrl(platform, compilerVersion))
+            tuple(compilerVersion, platform, getUrl(platform, compilerVersion),
+                compilerInfo.unpackingNeed)
         ).array
     ).joiner.array;
 
     foreach (job; jobs.parallel) {
-        const compilerVersion = job[0], platform = job[1], url = job[2];
-        hashes[compilerVersion][platform] = prefech(!liveRun, url);
+        const compilerVersion = job[0], platform = job[1], url = job[2],
+            unpack = job[3];
+        hashes[compilerVersion][platform] = prefech(!liveRun, url, unpack);
     }
 
     if (!liveRun) {
