@@ -42,5 +42,20 @@
     "dmd": "sha256-IjzIQZttB1711VayKDWcpYvf1MAan+GWGTdpdDTgo1k=",
     "phobos": "sha256-2hAq48sBC1qvS1XBWZhGIPUlsA4pGcn4pHNok6lC8R0=",
     "tools": "sha256-Y8jSwd6tldCnq3yEuO/xUYrSV+lp7tBPMiheMA06f0M="
+  },
+  "2.105.3": {
+    "dmd": "sha256-7MqdTnKzy3Yd7RUKn5Ef2t9x+g7zUwii1u5fU3OwAHY=",
+    "phobos": "sha256-2hAq48sBC1qvS1XBWZhGIPUlsA4pGcn4pHNok6lC8R0=",
+    "tools": "sha256-Y8jSwd6tldCnq3yEuO/xUYrSV+lp7tBPMiheMA06f0M="
+  },
+  "2.106.1": {
+    "dmd": "sha256-vjYa/Pxrz7J2htXT+fa+xaeen/Vxne++lELbHTSXBK8=",
+    "phobos": "sha256-yRL9ub3u4mREG9PVxBvgQ/LDXD57RadPTZ2h08qyh/s=",
+    "tools": "sha256-Y8jSwd6tldCnq3yEuO/xUYrSV+lp7tBPMiheMA06f0M="
+  },
+  "2.107.1": {
+    "dmd": "sha256-byWGO13TGzx7RHkFmI2xi1PibIWBZPfvcSYX5990vak=",
+    "phobos": "sha256-maMEdm52+4cNpHSrd48FRZzAqjmJi5ddEPM52XEnqaM=",
+    "tools": "sha256-YEBUgJPG/+WN4MnQUNAVftZM0ULxZZzpHoOozXua46U="
   }
 }
