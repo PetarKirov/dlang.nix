@@ -24,12 +24,13 @@ dubInstallHook() {
         fi
     fi
 
-    mkdir -p "$out/lib"
-    cp -r *.a *.so *.so.* *.dylib "$out/lib"
 
     if [ -n "${bin-}" ]; then
         cp "$bin" "$out/bin"
     fi
+
+    mkdir -p "$out/lib"
+    cp -r *.a *.so *.so.* *.dylib "$out/lib" 2>/dev/null || true
 
     for f in $extraFiles; do
         fDir=$(dirname "$f")
