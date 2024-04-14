@@ -64,6 +64,9 @@ in {
         symmetry-gelf = pkgs.callPackage ./examples/symmetry-gelf {
           inherit buildDubPackage;
         };
+        xlsxreader = pkgs.callPackage ./examples/xlsxreader {
+          inherit buildDubPackage;
+        };
       }
       // rec {
         ldc-binary = self'.packages."ldc-binary-1_34_0";
