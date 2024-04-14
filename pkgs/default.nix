@@ -70,6 +70,9 @@ in {
         mir-algorithm = pkgs.callPackage ./examples/mir-algorithm {
           inherit buildDubPackage;
         };
+        mir-optim = pkgs.callPackage ./examples/mir-optim {
+          inherit buildDubPackage;
+        };
       }
       // rec {
         ldc-binary = self'.packages."ldc-binary-1_34_0";
