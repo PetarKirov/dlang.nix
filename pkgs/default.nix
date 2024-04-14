@@ -55,6 +55,9 @@ in {
         faked = pkgs.callPackage ./examples/faked {
           inherit buildDubPackage;
         };
+        juliad = pkgs.callPackage ./examples/juliad {
+          inherit buildDubPackage;
+        };
       }
       // rec {
         ldc-binary = self'.packages."ldc-binary-1_34_0";
