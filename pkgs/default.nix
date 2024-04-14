@@ -43,6 +43,9 @@ in {
           dub = self'.packages.dub;
           dmd = self'.packages.dmd;
         };
+        inochi2d = pkgs.callPackage ./examples/inochi2d {
+          inherit buildDubPackage;
+        };
       }
       // rec {
         ldc-binary = self'.packages."ldc-binary-1_34_0";

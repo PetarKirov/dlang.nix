@@ -24,6 +24,9 @@ dubInstallHook() {
         fi
     fi
 
+    mkdir -p "$out/lib"
+    cp -r *.a *.so *.so.* *.dylib "$out/lib"
+
     if [ -n "${bin-}" ]; then
         cp "$bin" "$out/bin"
     fi
