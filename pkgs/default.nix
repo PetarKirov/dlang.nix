@@ -85,6 +85,9 @@ in {
         concurrency = pkgs.callPackage ./examples/concurrency {
           inherit buildDubPackage;
         };
+        arsd = pkgs.callPackage ./examples/arsd {
+          inherit buildDubPackage;
+        };
       }
       // rec {
         ldc-binary = self'.packages."ldc-binary-1_34_0";
