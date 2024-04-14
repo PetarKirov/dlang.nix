@@ -18,7 +18,7 @@ in
       owner = "symmetryinvestments";
       repo = "dubproxy";
       rev = "v${version}";
-      hash = "sha256-KasJe6CzMQLKqrcJFkuGkexLUEQu8ZkUN8etdvo+uqk=";
+      hash = "sha256-olQ2gcGHsTETXqa7FbBZ986kHN0wRQulak/maHkEYmA=";
       leaveDotGit = true;
     };
 
