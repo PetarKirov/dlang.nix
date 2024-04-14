@@ -1,0 +1,14 @@
+{
+	"fileVersion": 1,
+	"versions": {
+		"cblas": "2.3.4",
+		"lapack": "0.1.0",
+		"mir-algorithm": "3.22.0",
+		"mir-blas": "1.1.17",
+		"mir-core": "1.7.1",
+		"mir-lapack": "1.1.1",
+		"mir-linux-kernel": "1.2.1",
+		"mir-random": "2.2.19",
+		"silly": "1.1.1"
+	}
+}
