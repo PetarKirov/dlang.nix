@@ -167,8 +167,10 @@ in
     '';
 
     installPhase = ''
+      mkdir -p $out/share/dub/dub
       mkdir -p $out/bin
       cp bin/dub $out/bin
+      cp -r source/* $out/share/dub/dub
     '';
 
     meta = with lib; {
