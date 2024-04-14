@@ -194,7 +194,7 @@ Flags can be supplied to dub using dubFlags, dubTestFlags and dubBuildFlags. dub
 
 Unittests are run by default, but can be disabled by `dontDubTest = true;`.
 
-buildDubPackage resolves dependencies using dub.selections.json. If the package repository doesn't contain a dub.selections.json file, it must be supplied through `dubSelectionsJson`.
+buildDubPackage resolves dependencies using dub.selections.json. If the package repository doesn't contain a dub.selections.json file, it must be supplied through `dubSelections`.
 
 Specific dub/ldc versions can be supplied by using override.
 
