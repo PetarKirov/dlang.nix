@@ -36,6 +36,9 @@ in {
         serve-d = pkgs.callPackage ./serve-d {
           inherit buildDubPackage;
         };
+        dlangide = pkgs.callPackage ./dlangide {
+          inherit buildDubPackage;
+        };
         tsv-utils = pkgs.callPackage ./examples/tsv-utils {
           dub = self'.packages.dub;
           dmd = self'.packages.dmd;
