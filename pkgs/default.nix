@@ -58,6 +58,9 @@ in {
         juliad = pkgs.callPackage ./examples/juliad {
           inherit buildDubPackage;
         };
+        libbetterc = pkgs.callPackage ./examples/libbetterc {
+          inherit buildDubPackage;
+        };
       }
       // rec {
         ldc-binary = self'.packages."ldc-binary-1_34_0";
