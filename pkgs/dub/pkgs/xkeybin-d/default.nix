@@ -1,0 +1,1 @@
+{  url = "https://github.com/WebFreak001/XKeyBinD";  versions = {    "~master" =  {      rev = "bdf16a67d7183861dd1b77a5466201c9dbd53476";      sha256 = "sha256-prUKmiKjbTV5MpJ+GFA4Nv3w540NBZxOCB/3HwZdB6I=";    };    "1.0.0" =  {      rev = "bdf16a67d7183861dd1b77a5466201c9dbd53476";      sha256 = "sha256-prUKmiKjbTV5MpJ+GFA4Nv3w540NBZxOCB/3HwZdB6I=";    };  };}

@@ -1,0 +1,1 @@
+{  url = "https://github.com/UI-Manufaktur/uim-sql";  versions = {    "~master" =  {      rev = "7b5b475ade1ce7d4adfcc52ee6bd69ba1a3a8685";      sha256 = "sha256-WbOWVlin+MecUwlV+BQQv9qewmfHtZi9oJ+1k4qxofA=";    };    "0.19.6" =  {      rev = "de737ce3ddc844f5e19b11107be1e174a854ef21";      sha256 = "sha256-P5eU0nlLAdeuBOFyGb+epHjHOnoX8Cu9VYpVPNY0NO4=";    };  };}

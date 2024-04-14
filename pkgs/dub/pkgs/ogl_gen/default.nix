@@ -1,0 +1,1 @@
+{  url = "https://github.com/rikkimax/ogl_gen";  versions = {    "~master" =  {      rev = "57a06d6aef003759a3c039b1c629953b077cd9e0";      sha256 = "sha256-5tpi9rNAs6E1oXZTMunuTeG0G0fIL36xmrX4WpT7bpo=";    };    "1.0.0" =  {      rev = "e927f9b3f61d00bb35b9e0c798643c7d9937e9f8";      sha256 = "sha256-8pdQjq1lzMB8h3S54B+V4f8v7AQNy5905hWAXR+usXE=";    };  };}

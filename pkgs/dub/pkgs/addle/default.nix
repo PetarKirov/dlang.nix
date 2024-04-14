@@ -1,0 +1,1 @@
+{  url = "https://github.com/pbackus/addle";  versions = {    "0.1.0" =  {      rev = "22e2d8d51652f5aef0cd001a9f02fb3368e9c32e";      sha256 = "sha256-cmeIHk4qapBVskHUfdj5dXPnbvdO9UD6HBmYRok0D78=";    };    "~master" =  {      rev = "86b103d14be4bf51ca1cd04e913b59fb12058314";      sha256 = "sha256-mjbWJqAK1TFvO2e23gc/1o5Lu/jTMoXB1nvpsheLcPw=";    };  };}

@@ -1,0 +1,1 @@
+{  url = "https://github.com/WebFreak001/RFC";  versions = {    "0.1.0" =  {      rev = "9e345557aabc5b36908c964f7b1fc20f590f5f09";      sha256 = "sha256-lWWzArUNVlkKJZ/t5PClZaQtCdkD2P/ImTeG9CaBkKA=";    };    "~master" =  {      rev = "9e345557aabc5b36908c964f7b1fc20f590f5f09";      sha256 = "sha256-lWWzArUNVlkKJZ/t5PClZaQtCdkD2P/ImTeG9CaBkKA=";    };  };}

@@ -1,0 +1,1 @@
+{  url = "https://github.com/kazoo04/progress-d";  versions = {    "~master" =  {      rev = "2ef3c4d4f8495e7a547b4b7f1aef066348a21046";      sha256 = "sha256-NWEwBC6y0ZTNB9/Vml7NNvrqPGZsIWBOegZHhUKsC1g=";    };    "1.0.0" =  {      rev = "2ef3c4d4f8495e7a547b4b7f1aef066348a21046";      sha256 = "sha256-NWEwBC6y0ZTNB9/Vml7NNvrqPGZsIWBOegZHhUKsC1g=";    };  };}

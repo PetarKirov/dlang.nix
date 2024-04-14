@@ -1,0 +1,1 @@
+{  url = "https://github.com/cosenmarco/djack";  versions = {    "~master" =  {      rev = "5920f4c201af35b8c4abf8dd8258f8be6756bc26";      sha256 = "sha256-HuHXXPvfchtuLz88y+Li6eHTUnFppHMY6G+X0KWdSRU=";    };    "0.0.1" =  {      rev = "fe003d259a87a93dcca9207fde306809898a50ef";      sha256 = "sha256-fWXcJ1r1132XqxyBELEnx8VE086eTl+ZGGxMFaGOBzg=";    };  };}

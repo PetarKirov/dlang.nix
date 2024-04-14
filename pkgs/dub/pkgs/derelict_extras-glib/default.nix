@@ -1,0 +1,1 @@
+{  url = "https://github.com/PaulFreund/DerelictGlib";  versions = {    "~master" =  {      rev = "5cf0971b5463ee0955a8dbcff46eb24ab2b27922";      sha256 = "sha256-PLHOPuVNMHBU8CWqvyFNDmn3gSFHOXiWkoZvO3gaHvA=";    };  };}

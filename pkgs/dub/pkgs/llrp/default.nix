@@ -1,0 +1,1 @@
+{  url = "https://github.com/anton-dutov/llrp-d";  versions = {    "~master" =  {      rev = "2b0922bfa52b1ec9492e0d5d7d7e70902b6f07c0";      sha256 = "sha256-r42OinxCIEMaXh6UWiS/8urvBAnRUIUZnw7uJ1q0Q4o=";    };    "0.0.1" =  {      rev = "2b0922bfa52b1ec9492e0d5d7d7e70902b6f07c0";      sha256 = "sha256-r42OinxCIEMaXh6UWiS/8urvBAnRUIUZnw7uJ1q0Q4o=";    };  };}

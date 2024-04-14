@@ -1,0 +1,1 @@
+{  url = "https://github.com/vnayar/DerelictCLBlast";  versions = {    "0.1.0" =  {      rev = "611986249c18cd4381e1ae419ea21f9c9bf3772d";      sha256 = "sha256-mQSN8+BM/nB4eRXYqxYZHGNcEONoDvEp4AiEdnKql6g=";    };    "~master" =  {      rev = "611986249c18cd4381e1ae419ea21f9c9bf3772d";      sha256 = "sha256-mQSN8+BM/nB4eRXYqxYZHGNcEONoDvEp4AiEdnKql6g=";    };  };}

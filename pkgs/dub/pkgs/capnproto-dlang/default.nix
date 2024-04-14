@@ -1,0 +1,1 @@
+{  url = "https://github.com/capnproto/capnproto-dlang";  versions = {    "0.1.2" =  {      rev = "de99fbb3a60006955784c12b0243ca744adf22d3";      sha256 = "sha256-eg4ZiBr7yZFlN2FPgWeK5jyHJEbCM3s4Nf0H6/Ut/Vc=";    };    "~master" =  {      rev = "7a48c3ba4def5487d8d282ec894c07ff30d588be";      sha256 = "sha256-C9kTW85wauGoiA8T5KAGsho/BFTvD4LYhZEUtKcHJb8=";    };  };}

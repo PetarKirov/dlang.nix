@@ -1,0 +1,1 @@
+{  url = "https://github.com/mintyfresh/state-machine";  versions = {    "0.1.0" =  {      rev = "68b9ee519a5e8cb2fd3c4b8ddfdde2c2627b42f2";      sha256 = "sha256-GVEWyCjLOiivtrHO5jsOTHBaG99sOJB1N+8waNuOrFY=";    };    "~master" =  {      rev = "68b9ee519a5e8cb2fd3c4b8ddfdde2c2627b42f2";      sha256 = "sha256-GVEWyCjLOiivtrHO5jsOTHBaG99sOJB1N+8waNuOrFY=";    };  };}

@@ -1,0 +1,1 @@
+{  url = "https://github.com/mab-on/credexil";  versions = {    "~master" =  {      rev = "2b6f0b5f3ad7ce60a69b784ee5fb308735d510f7";      sha256 = "sha256-jyoiNrC3yqrSINHKwrR7u1YdlGNQYsUD4vdgn3Z4K5o=";    };    "0.9.2" =  {      rev = "2b6f0b5f3ad7ce60a69b784ee5fb308735d510f7";      sha256 = "sha256-jyoiNrC3yqrSINHKwrR7u1YdlGNQYsUD4vdgn3Z4K5o=";    };  };}

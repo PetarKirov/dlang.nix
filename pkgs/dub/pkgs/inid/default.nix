@@ -1,0 +1,1 @@
+{  url = "https://github.com/stefan-brus/inid";  versions = {    "0.1.0" =  {      rev = "68da22f1800358e8076908992e2ea378ed000de0";      sha256 = "sha256-Ed20KOblZROkTAXCuGvnILZQzuoMuk0Lg43geC7+jGA=";    };    "~master" =  {      rev = "68da22f1800358e8076908992e2ea378ed000de0";      sha256 = "sha256-Ed20KOblZROkTAXCuGvnILZQzuoMuk0Lg43geC7+jGA=";    };  };}

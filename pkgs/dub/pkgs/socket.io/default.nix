@@ -1,0 +1,1 @@
+{  url = "https://github.com/eldar/socket.io-d";  versions = {    "~master" =  {      rev = "0649271b8122f5048e2d8d6ad2424197e118b297";      sha256 = "sha256-D7moIWrsOgsrKKS9U5kNO2K5gfBMSS94l8ZJ4AF+YZc=";    };  };}

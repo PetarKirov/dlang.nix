@@ -1,0 +1,1 @@
+{  url = "https://github.com/bheads/snappy";  versions = {    "~master" =  {      rev = "76064f15920c1f0877b607096bf1898b0976b44b";      sha256 = "sha256-xCURx5HStWH6POHDZ+wkPYCNE0m1VrWWNWaIog+ulMA=";    };  };}

@@ -1,0 +1,1 @@
+{  url = "https://github.com/Zero-error-no-warning/gged";  versions = {    "0.0.1" =  {      rev = "58b8357e6ade1970a2e0368aa5fa45498ad9ac2f";      sha256 = "sha256-fW3531Nz8A1UbyPz0iTWSHChOoxlIo7C8yZ+DgYovoA=";    };    "~main" =  {      rev = "a5e125a2c3c331b01d79e279cdd415ab9bd485b7";      sha256 = "sha256-a2DwVWo5M+jqtrCoTmoLAsSpLLkDTAOAzdcsllLXP20=";    };  };}

@@ -1,0 +1,1 @@
+{  url = "https://github.com/schveiguy/enet-d";  versions = {    "~master" =  {      rev = "f905e6ccecf61b9e2bad5234d6fcee873b422464";      sha256 = "sha256-hhfGNZ6oCixYhKgMXNGdHTrwYRjgk80SIVe41GZvp8Q=";    };    "0.0.1" =  {      rev = "f905e6ccecf61b9e2bad5234d6fcee873b422464";      sha256 = "sha256-hhfGNZ6oCixYhKgMXNGdHTrwYRjgk80SIVe41GZvp8Q=";    };  };}

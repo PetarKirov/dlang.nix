@@ -1,0 +1,1 @@
+{  url = "https://github.com/JakobOvrum/LuaD";  versions = {    "~travistest" =  {      rev = "21137965d36f9a81e1590c2639a729c248565bab";      sha256 = "sha256-NwX1q6lIKhKiU8V2gsnrixX45m7qH6tInv486ZuxxWc=";    };    "~master" =  {      rev = "1f23658e9b6ffe65321b21b5f75d0453653c7de0";      sha256 = "sha256-LftPOm+euNmsusOtaV+PL/PEwpt9sTK5j80rynnxX3c=";    };  };}

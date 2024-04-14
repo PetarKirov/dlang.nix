@@ -1,0 +1,1 @@
+{  url = "https://github.com/bithavoc/medea";  versions = {    "~master" =  {      rev = "3885042cb6054b5b31e38364045ad80c50e34675";      sha256 = "sha256-2nJa8X2l+WXaoP2HG90EZVq0mF5REf9jn7L0gF1ouV4=";    };    "0.0.1" =  {      rev = "63d135f6b2e6bc4e90717fa63b6b7f98bee958b1";      sha256 = "sha256-3f+yiSwv1gwYj/Ge1imSat9POjxrYoQO7/s4UO1ti2A=";    };  };}

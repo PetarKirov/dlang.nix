@@ -1,0 +1,1 @@
+{  url = "https://github.com/MrSmith33/DCPU-16-emulator";  versions = {    "0.2.0" =  {      rev = "94faeda334190123ba1c40a6afc5cb8e88e333cd";      sha256 = "sha256-e+8gCgGLA2ritJ8QfPaKRyRVmhRj8a9I8cTI48Dn+y8=";    };    "~master" =  {      rev = "94faeda334190123ba1c40a6afc5cb8e88e333cd";      sha256 = "sha256-e+8gCgGLA2ritJ8QfPaKRyRVmhRj8a9I8cTI48Dn+y8=";    };  };}

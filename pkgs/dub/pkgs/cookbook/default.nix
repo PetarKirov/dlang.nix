@@ -1,0 +1,1 @@
+{  url = "https://github.com/natepisarski/Cookbook-d";  versions = {    "~master" =  {      rev = "bc0281094cc212c5f2bb33d3431a516b2ee074d4";      sha256 = "sha256-zeU5hnkJ8NBokcAiucy2fghWdvV3mO51i6YnCoiecxM=";    };  };}

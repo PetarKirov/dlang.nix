@@ -1,0 +1,1 @@
+{  url = "https://github.com/extrawurst/twitter-d";  versions = {    "0.1.0" =  {      rev = "43b67bd043d44a627e965958825ef5b90a554044";      sha256 = "sha256-Zd6LDEnuu5inN8HISKBOHU0Mmq3tsrrOnZhsWyQq1BY=";    };    "~master" =  {      rev = "76895f1aade401e9b863cf02f95b8325fc419de4";      sha256 = "sha256-w8oM+dILExIBjc4i9vtkw5MydjjsCt3f57IpWnc/UcE=";    };  };}

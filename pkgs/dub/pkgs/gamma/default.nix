@@ -1,0 +1,1 @@
+{  url = "https://github.com/linkrope/gamma";  versions = {    "~master" =  {      rev = "7be92f3e38cc532de922a7de9dd5beb57d8bdee9";      sha256 = "sha256-8HiHcb1zjp5/MTGvlp9+mmXHSi4GQUXr/eYgNclPDRk=";    };  };}

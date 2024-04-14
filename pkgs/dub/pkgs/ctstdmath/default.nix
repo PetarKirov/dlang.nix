@@ -1,0 +1,1 @@
+{  url = "https://github.com/majiang/ctstdmath";  versions = {    "0.1.0" =  {      rev = "47257df357be73cc6f8dee32d971120dfd6a7a64";      sha256 = "sha256-f8JpmdbuJBkqQ/j3pGpHrwSm2krSLSF1jyn/4BvrGO8=";    };    "~master" =  {      rev = "47257df357be73cc6f8dee32d971120dfd6a7a64";      sha256 = "sha256-f8JpmdbuJBkqQ/j3pGpHrwSm2krSLSF1jyn/4BvrGO8=";    };  };}

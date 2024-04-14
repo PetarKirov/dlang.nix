@@ -1,0 +1,1 @@
+{  url = "https://github.com/economicmodeling/xlsxwriter";  versions = {    "~master" =  {      rev = "e602d91d3e282b7740c2d2b0ffb1f8ec57fdd19d";      sha256 = "sha256-RsET30bw/Wp5j3Rd+cfSebhzPRCD734JIje7FyuAka0=";    };    "0.0.1" =  {      rev = "e602d91d3e282b7740c2d2b0ffb1f8ec57fdd19d";      sha256 = "sha256-RsET30bw/Wp5j3Rd+cfSebhzPRCD734JIje7FyuAka0=";    };  };}

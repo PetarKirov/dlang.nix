@@ -1,0 +1,1 @@
+{  url = "https://github.com/nuisanceofcats/post-rock";  versions = {    "~master" =  {      rev = "065b806f5bc1904c579035b628b64985a802dc3f";      sha256 = "sha256-ZkNhV62OkD8+WxmfioaRRa2QIaO59jWjIQaQkCxV9TU=";    };    "1.0.1" =  {      rev = "048f14cb7240c166a9e00241a502b888781309c7";      sha256 = "sha256-FkoA3QaGts47B9R4Hvhc75ELXz1g7vaOnu63yKfULN8=";    };  };}

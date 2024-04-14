@@ -1,0 +1,1 @@
+{  url = "https://github.com/CodeMyst/PhysacD";  versions = {    "~master" =  {      rev = "8ae177d0479a1156f38432bc8aa22f33794c3faa";      sha256 = "sha256-39tGqhIdS8jjrefXRvkHoX4q6GD4Vw9mgFKhWHZ8nRQ=";    };    "1.0.0" =  {      rev = "8ae177d0479a1156f38432bc8aa22f33794c3faa";      sha256 = "sha256-39tGqhIdS8jjrefXRvkHoX4q6GD4Vw9mgFKhWHZ8nRQ=";    };  };}

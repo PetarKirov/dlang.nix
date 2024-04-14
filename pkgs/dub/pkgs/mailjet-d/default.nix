@@ -1,0 +1,1 @@
+{  url = "https://github.com/Extrawurst/mailjet-d";  versions = {    "0.1.0" =  {      rev = "efd8b6accd27d64cbfdafd305d6ec0286d9aa81a";      sha256 = "sha256-Km1Ir6UAxYlptpVaNC7FvNySxZtn1sO9b3MMB1bS4Dk=";    };    "~master" =  {      rev = "efd8b6accd27d64cbfdafd305d6ec0286d9aa81a";      sha256 = "sha256-Km1Ir6UAxYlptpVaNC7FvNySxZtn1sO9b3MMB1bS4Dk=";    };  };}

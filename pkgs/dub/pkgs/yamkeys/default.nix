@@ -1,0 +1,1 @@
+{  url = "https://github.com/carlor/yamkeys";  versions = {    "~master" =  {      rev = "be11c7533ee6348e4fbeae20bf7c748af3543e44";      sha256 = "sha256-m3Ypph9EVJnT2jjRqjTkxHB3FPiel+KEmRBPybFyimw=";    };    "0.1.1" =  {      rev = "be11c7533ee6348e4fbeae20bf7c748af3543e44";      sha256 = "sha256-m3Ypph9EVJnT2jjRqjTkxHB3FPiel+KEmRBPybFyimw=";    };  };}

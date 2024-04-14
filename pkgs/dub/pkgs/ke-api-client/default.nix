@@ -1,0 +1,1 @@
+{  url = "https://github.com/konnex-engine/old-client";  versions = {    "~master" =  {      rev = "c6ff55db3a6f83d35df8c190400a75df0b41ddea";      sha256 = "sha256-s9lxh9Eqcgk48mt2+8Zt28esluFBaQVdcr21r/ryGZc=";    };    "0.0.1" =  {      rev = "c6ff55db3a6f83d35df8c190400a75df0b41ddea";      sha256 = "sha256-s9lxh9Eqcgk48mt2+8Zt28esluFBaQVdcr21r/ryGZc=";    };  };}

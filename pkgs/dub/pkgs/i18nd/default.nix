@@ -1,0 +1,1 @@
+{  url = "https://github.com/LightHouseSoftware/i18nd";  versions = {    "1.0.0" =  {      rev = "b12475443466301234116dfbeb6db74826f50b75";      sha256 = "sha256-/QvfSN+rLJzd3psylXnQxP6hxFnjGv1yyAn1fz79qPs=";    };    "~main" =  {      rev = "b12475443466301234116dfbeb6db74826f50b75";      sha256 = "sha256-/QvfSN+rLJzd3psylXnQxP6hxFnjGv1yyAn1fz79qPs=";    };  };}

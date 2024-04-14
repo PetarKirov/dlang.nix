@@ -1,0 +1,1 @@
+{  url = "https://github.com/Imperatorn/logicless";  versions = {    "~master" =  {      rev = "3d83d571bb260d515a5fa9e4de9696b4b3a2357b";      sha256 = "sha256-OygAflL3E1CMe/2YFA9IDGJRVmHt6IYUiXEtLnE5RHM=";    };    "0.1.7" =  {      rev = "3d83d571bb260d515a5fa9e4de9696b4b3a2357b";      sha256 = "sha256-OygAflL3E1CMe/2YFA9IDGJRVmHt6IYUiXEtLnE5RHM=";    };  };}

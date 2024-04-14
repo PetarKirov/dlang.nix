@@ -1,0 +1,1 @@
+{  url = "https://github.com/kaleidicassociates/libzfs";  versions = {    "~master" =  {      rev = "eea79469364d95d81c0e4acc19d21a533dbc3582";      sha256 = "sha256-SovdU2lIhJkIKcKzuCrOER5NODHS1wqUV9WCmlK4VtA=";    };    "0.0.1" =  {      rev = "eea79469364d95d81c0e4acc19d21a533dbc3582";      sha256 = "sha256-SovdU2lIhJkIKcKzuCrOER5NODHS1wqUV9WCmlK4VtA=";    };  };}

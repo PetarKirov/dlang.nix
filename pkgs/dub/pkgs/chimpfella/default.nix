@@ -1,0 +1,1 @@
+{  url = "https://github.com/maxhaton/chimpfella";  versions = {    "~master" =  {      rev = "fae22cbeaa2776b5b80910714d27d605d0620c78";      sha256 = "sha256-uMJyv6eITtG8SQYmgjEVnP8pOp6Ozq5qEC7ksJlRs2s=";    };    "0.0.1" =  {      rev = "dadcd9377816ac5426a01213b22106e71e03e8fe";      sha256 = "sha256-NnxcJ+IuUGOS5pzP5SKmRycedPCKxwTs0T+MYIUgLno=";    };  };}

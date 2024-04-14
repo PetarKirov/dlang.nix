@@ -1,0 +1,1 @@
+{  url = "https://github.com/mkalte666/selfscript";  versions = {    "0.1.0-alpha" =  {      rev = "71bf6379c03f952f5baec57d9729b13fb53797e6";      sha256 = "sha256-gtNWo+k8PbCvmU5qUxyiep9AuL8hfRLl569aJQn024U=";    };    "~master" =  {      rev = "71bf6379c03f952f5baec57d9729b13fb53797e6";      sha256 = "sha256-gtNWo+k8PbCvmU5qUxyiep9AuL8hfRLl569aJQn024U=";    };  };}

@@ -1,0 +1,1 @@
+{  url = "https://github.com/maisvendoo/lua_d_api";  versions = {    "~master" =  {      rev = "06dacd2e6b53d2d8c8edfddf9926215f81db5a42";      sha256 = "sha256-aohFCZ2y2dPZuOJ3cyAFHkl9DL7QlDbQyKOUctR8GY0=";    };    "0.0.1" =  {      rev = "e64aae1600decf859207431e958d319d1a030292";      sha256 = "sha256-lLOHUUPhMUV7aaTpf31LH41kO/XmrYKP/YDWvhPGLQ8=";    };  };}

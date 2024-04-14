@@ -1,0 +1,1 @@
+{  url = "https://github.com/thechampagne/rustls-d";  versions = {    "1.0.0" =  {      rev = "010c3d1bdf15a73a5e811666e7f14a29a595fe6b";      sha256 = "sha256-QfvVdKBpyrg7psRGshOTa3pPrc0vwTmPqCw6nDbBOOg=";    };    "~main" =  {      rev = "010c3d1bdf15a73a5e811666e7f14a29a595fe6b";      sha256 = "sha256-QfvVdKBpyrg7psRGshOTa3pPrc0vwTmPqCw6nDbBOOg=";    };  };}

@@ -1,0 +1,1 @@
+{  url = "https://github.com/WebFreak001/OpenVR-D";  versions = {    "~master" =  {      rev = "fbcf1078d6279fe8488a7f618f4450b53a965a22";      sha256 = "sha256-rgGVURzTWIIBjaehHl9YXKz1oXGQNJvXAiKtZBhqmto=";    };    "0.0.1" =  {      rev = "fbcf1078d6279fe8488a7f618f4450b53a965a22";      sha256 = "sha256-rgGVURzTWIIBjaehHl9YXKz1oXGQNJvXAiKtZBhqmto=";    };  };}

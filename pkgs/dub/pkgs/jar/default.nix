@@ -1,0 +1,1 @@
+{  url = "https://github.com/redthing1/jar";  versions = {    "0.1.0" =  {      rev = "5faf1c0ff2cd41d3faba8dd0c87a4e74c6137efb";      sha256 = "sha256-UGD1FGu3GJwj/A+1wDUQak1cPSzQvL8eFyBsUi9oiVk=";    };    "~master" =  {      rev = "5faf1c0ff2cd41d3faba8dd0c87a4e74c6137efb";      sha256 = "sha256-UGD1FGu3GJwj/A+1wDUQak1cPSzQvL8eFyBsUi9oiVk=";    };  };}

@@ -1,0 +1,1 @@
+{  url = "https://github.com/Abscissa/unit-threaded-abscissa";  versions = {    "~master" =  {      rev = "988a59355790e7c2a74c65d074261a3553f61177";      sha256 = "sha256-78UnSQyOHTxzOf/OjscH1VbvekI0+y8KrDkGZviPQ60=";    };    "0.0.1" =  {      rev = "83b90d7163a22924213540b03c9f79426370a729";      sha256 = "sha256-pUQEttO8kpzuTNLHhM3D3Achqq7ECo2ei0JiQVHVz0c=";    };  };}

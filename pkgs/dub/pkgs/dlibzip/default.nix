@@ -1,0 +1,1 @@
+{  url = "https://github.com/katyukha/dlibzip";  versions = {    "1.9.2" =  {      rev = "fbdbd1f253e1ed80ecadd6d519dfeb994064eafe";      sha256 = "sha256-Xrq3fx4NWpAaGgtO1X8fXb79EfsNLXewjUzhif6R9cA=";    };    "~master" =  {      rev = "c8bf0c75df2037aad1d5d79c71d5eb3e09b2e5c0";      sha256 = "sha256-ACFZjsPOMKSibpWoes1e07pNZtGe5FD/IxYoDdURXVg=";    };  };}

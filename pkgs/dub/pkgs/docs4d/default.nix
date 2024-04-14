@@ -1,0 +1,1 @@
+{  url = "https://github.com/kingsleyh/docs4d";  versions = {    "~master" =  {      rev = "bfafc882192d6861d65a75eef87bd4b4863b79a8";      sha256 = "sha256-3pQdAKsOaOpUy4Gqs6oTnZglTMdVwbtLJhIA8L3I++w=";    };    "0.0.1" =  {      rev = "a5cd445ce455e8670f5db794eca6defc3c82db2e";      sha256 = "sha256-LWaXVebiNsJDQEWUqsbA2skOobL+Lsrl/BnAXqcCRx4=";    };  };}

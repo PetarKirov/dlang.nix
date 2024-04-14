@@ -1,0 +1,1 @@
+{  url = "https://github.com/rumbu13/windows-d";  versions = {    "1.1.0" =  {      rev = "8d874c19fa13cbdc129019b5fc00b3671d20235d";      sha256 = "sha256-memUTNUdnPpBLHAv51kC3Ki4UH14wLXqJb53ZNQikfE=";    };    "~master" =  {      rev = "a0c30eb580daea52477c70a38534ec9b4ce2256f";      sha256 = "sha256-yFYKDXBpEyzjhcjZ+zjkucPiofYgyIkJj7h/M9oyYSc=";    };  };}

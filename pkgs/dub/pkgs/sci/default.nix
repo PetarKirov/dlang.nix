@@ -1,0 +1,1 @@
+{  url = "https://github.com/DlangScience/sci";  versions = {    "~master" =  {      rev = "18e644ebfec449a5ed779ae0d22746519b0c45dc";      sha256 = "sha256-edaCEb+M+cU/4eYfoaQmjhJhQPasDbXs2cYoWH86Bew=";    };    "0.0.0" =  {      rev = "18e644ebfec449a5ed779ae0d22746519b0c45dc";      sha256 = "sha256-edaCEb+M+cU/4eYfoaQmjhJhQPasDbXs2cYoWH86Bew=";    };  };}

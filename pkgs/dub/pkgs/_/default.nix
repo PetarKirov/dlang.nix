@@ -1,0 +1,1 @@
+{  url = "https://github.com/wilzbach/d-underscore";  versions = {    "~master" =  {      rev = "c3dfff1c665955b24ed5bfa60ab9617b2f19bd6d";      sha256 = "sha256-Tqwh2DIRg8PKb+9JldlINh9eWaVlDhxTmgYWGEseY/0=";    };    "0.0.1" =  {      rev = "47ef94f79253f140640d0c1f568b1c9c88538757";      sha256 = "sha256-ukD1cXzNp88I5+iE4V75DwepklFAHTzvytebXurgmRA=";    };  };}

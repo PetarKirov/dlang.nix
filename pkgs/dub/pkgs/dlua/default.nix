@@ -1,0 +1,1 @@
+{  url = "https://github.com/theoldmoon0602/dlua";  versions = {    "~master" =  {      rev = "fb34ad7ff815dfcf1b1f1fe60fbd50d2b3b028c0";      sha256 = "sha256-POClV5Jvk49UbdonBTKMH2Y7QF1Zp8z4Q1zoflLvK/c=";    };    "0.0.1" =  {      rev = "fb34ad7ff815dfcf1b1f1fe60fbd50d2b3b028c0";      sha256 = "sha256-POClV5Jvk49UbdonBTKMH2Y7QF1Zp8z4Q1zoflLvK/c=";    };  };}

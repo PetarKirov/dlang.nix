@@ -1,0 +1,1 @@
+{  url = "https://github.com/turkeyman/dmidifile";  versions = {    "~master" =  {      rev = "be60a6e4dd8ac99f65b55227f55bdb7b5dec1d2f";      sha256 = "sha256-MwoBqQMXucqmk4KOODoS11Aore0alRHmQQLcAlTc+bU=";    };    "0.0.1" =  {      rev = "be60a6e4dd8ac99f65b55227f55bdb7b5dec1d2f";      sha256 = "sha256-MwoBqQMXucqmk4KOODoS11Aore0alRHmQQLcAlTc+bU=";    };  };}

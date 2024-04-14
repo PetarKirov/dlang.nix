@@ -1,0 +1,1 @@
+{  url = "https://github.com/Mihail-K/polo";  versions = {    "~master" =  {      rev = "938db46192609867aa2779ff71acee3fad14354a";      sha256 = "sha256-vuCBHJC2951KEjdI+AVN/aC0ieXKPb/jsTuChnCf8QA=";    };    "1.0.0" =  {      rev = "68ebf582a63c21cda852e8d47bf269ca3697586c";      sha256 = "sha256-AJPd16x8zsLAXKR8t4j3znb2jh78PvtDxvvoe2qnAE8=";    };  };}

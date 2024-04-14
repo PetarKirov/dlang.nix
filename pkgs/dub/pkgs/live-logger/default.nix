@@ -1,0 +1,1 @@
+{  url = "https://github.com/Shriken/live-logger";  versions = {    "~master" =  {      rev = "808b21696b63898f917d306dcc07adac5d497748";      sha256 = "sha256-9N5JHSS6BmfxNx/E/+4aDT5hkLW4jdYnBzkUyHuq2wM=";    };  };}

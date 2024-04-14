@@ -1,0 +1,1 @@
+{  url = "https://github.com/w2ptr/midi-di";  versions = {    "0.0.1" =  {      rev = "f2d504f84eea99a9767b3c93cfb7fc671443410c";      sha256 = "sha256-sMgUurP4LwWaaDVSSFskDpS87I1WDlFA0pLIWmaAT+o=";    };    "~main" =  {      rev = "3d99087f1af2a775eda66511c236b9840d4eca34";      sha256 = "sha256-U0NLdV4/8Vem+ZQIzmOKvA6CkEkw7HwsSV8mwhIj2o0=";    };  };}

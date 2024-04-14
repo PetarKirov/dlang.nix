@@ -1,0 +1,1 @@
+{  url = "https://github.com/ip2location/ip2location-io-d";  versions = {    "1.0.0" =  {      rev = "6fd759b21a79354a4a93b410802645fadafc9718";      sha256 = "sha256-xV1jGXTTwju6kUIPnAWbf63xVWuWVB7mJW+MM/REByk=";    };    "~main" =  {      rev = "a66cd72177d27ab4c9b4aea44dd047a44b317d02";      sha256 = "sha256-NOUBiD3P6Xcu3DUHYQZ8jlQrxV5VXAcAR01ttnUmqM4=";    };  };}

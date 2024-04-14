@@ -1,0 +1,1 @@
+{  url = "https://github.com/gedaiu/selenium.d";  versions = {    "0.1.0" =  {      rev = "af265c1541df9de1294f36e3a9c3ab2ab7bad5c5";      sha256 = "sha256-6El/QzDmec0MxxqbcAJ/WVol7qgVpQG/bxz1t1y+h10=";    };    "~master" =  {      rev = "6719bb4337cdb6da910049abdf501bee97b09abf";      sha256 = "sha256-fXXkXiZctDgQzFC/xR1o2YZpIP1KrsbY8uZge6AGlNo=";    };  };}

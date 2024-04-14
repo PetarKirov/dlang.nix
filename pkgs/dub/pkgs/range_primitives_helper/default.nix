@@ -1,0 +1,1 @@
+{  url = "https://github.com/burner/range_primitives_helper";  versions = {    "~master" =  {      rev = "147f775d3f5ae859e7729609f3d27ce1a270db7b";      sha256 = "sha256-kQMgnfOln5g4x7k8ARH2/Xn77anWnicpanndq6bpSP0=";    };    "1.0.0" =  {      rev = "147f775d3f5ae859e7729609f3d27ce1a270db7b";      sha256 = "sha256-kQMgnfOln5g4x7k8ARH2/Xn77anWnicpanndq6bpSP0=";    };  };}

@@ -1,0 +1,1 @@
+{  url = "https://github.com/JonathanILevi/loopnum.d";  versions = {    "~master" =  {      rev = "a55850c5245cf415421fae3a10d367ee0f55e3ac";      sha256 = "sha256-aIOdihemXgxmNsXKPgpkjjngJreSNtvQ98E954oXr/w=";    };    "1.0.0-beta.1" =  {      rev = "f78dcdfc5947687fe07eccb8cbfd04685cf4c00e";      sha256 = "sha256-piKepfMjfv1e70v1k84RBl/XEoJZheS2Ii4kBuNj9mw=";    };  };}

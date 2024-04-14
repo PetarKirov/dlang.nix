@@ -1,0 +1,1 @@
+{  url = "https://github.com/aneas/ddmd-experimental";  versions = {    "~master" =  {      rev = "b02b902bc0bd4bb27d3557c2f4931c2a3f9aec8f";      sha256 = "sha256-MC/tAZWDS6KvS5NTxi9A2Z23Yn3RkSvN33q20dA/mXo=";    };    "2.71.2-b2dub" =  {      rev = "b02b902bc0bd4bb27d3557c2f4931c2a3f9aec8f";      sha256 = "sha256-MC/tAZWDS6KvS5NTxi9A2Z23Yn3RkSvN33q20dA/mXo=";    };  };}

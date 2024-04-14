@@ -1,0 +1,1 @@
+{  url = "https://github.com/WebFreak001/earcut-ctfe";  versions = {    "0.1.0" =  {      rev = "af160ef8fa7e6fa6004725278d2a0d9b2e7c89a4";      sha256 = "sha256-AvzjMWUu0HL1s2DoYFWl+Hg5wZi7DLQO4O2mRag4Klc=";    };    "~master" =  {      rev = "af160ef8fa7e6fa6004725278d2a0d9b2e7c89a4";      sha256 = "sha256-AvzjMWUu0HL1s2DoYFWl+Hg5wZi7DLQO4O2mRag4Klc=";    };  };}

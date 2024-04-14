@@ -1,0 +1,1 @@
+{  url = "https://github.com/UI-Manufaktur/model-services";  versions = {    "~master" =  {      rev = "86d763bffeaa04dcd020fd8a4d26c173170defe2";      sha256 = "sha256-z7/XX5sUBluil8g3kp+J/imJfNSvfbhVerdcZFw3eRs=";    };    "0.0.1" =  {      rev = "e809970a20e844556e74be78ce96aeb71752e87d";      sha256 = "sha256-X3+OmuK1j1GuhyT6lFmAs2PzA8cF+/8rV053/peMs/E=";    };  };}

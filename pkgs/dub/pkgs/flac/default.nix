@@ -1,0 +1,1 @@
+{  url = "https://github.com/D-Programming-Deimos/flac";  versions = {    "~1.2.1" =  {      rev = "5e18db9a2a00bea3fcb1e4fdd3f45973b90a4b9c";      sha256 = "sha256-g7VAtBxNOEhXhKueQ+lSGqLz6fSaQa1Cfonj97t2qdg=";    };    "~master" =  {      rev = "6f4bf8e84287d2535b4e0aad36a9de8253777a4f";      sha256 = "sha256-WQs8TYGu6UjG1ILWDxP1kTG+RkhM/szf+u7ywrYHXLY=";    };  };}

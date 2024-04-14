@@ -1,0 +1,1 @@
+{  url = "https://github.com/jairov4/coverd";  versions = {    "~master" =  {      rev = "6cd6ca14b6c9ecce7d783a8a406b67c31b69ccb7";      sha256 = "sha256-UqqvdG1GuskR5XgZJFBBSJQZiqqGrMvKrk48RNmcbkM=";    };    "1.0.0" =  {      rev = "e605a097bb408e949593668c69016c6b8d9af94b";      sha256 = "sha256-TMnzqTZHNpExX5MnuYjAGjNEloobTYk3EKhcGyElS0U=";    };  };}

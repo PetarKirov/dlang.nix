@@ -1,0 +1,1 @@
+{  url = "https://bitbucket.org/andrewtrotman/d-profile-viewer";  versions = {    "~master" =  {      rev = "fbc02b3795b5447ba4aa6e17a088e9779c8aa1c1";      sha256 = "sha256-pHjMDweOVW525UeUQmSQcl5CaIBnrwGuA2HYbOGQ/0A=";    };  };}

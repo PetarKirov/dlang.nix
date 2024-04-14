@@ -1,0 +1,1 @@
+{  url = "https://github.com/andrewlalis/scrambler";  versions = {    "0.0.1" =  {      rev = "c2e86bd3740901a66a12630a88c7d2dd8196a471";      sha256 = "sha256-1/nWrQ5uQfAJfS6XbJ5+p9eNcKZpXs4NG3cbkzNffNg=";    };    "~main" =  {      rev = "c2e86bd3740901a66a12630a88c7d2dd8196a471";      sha256 = "sha256-1/nWrQ5uQfAJfS6XbJ5+p9eNcKZpXs4NG3cbkzNffNg=";    };  };}

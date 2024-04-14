@@ -1,0 +1,1 @@
+{  url = "https://github.com/kfule/shogi-d";  versions = {    "~master" =  {      rev = "c4df0a9adf3763852d43eaf7016d5a58457af536";      sha256 = "sha256-vSq3qsyxxbSA+O4wBtSnSLTy9WdrOZ/YN0c6y+Oku/Y=";    };    "0.0.1" =  {      rev = "c4df0a9adf3763852d43eaf7016d5a58457af536";      sha256 = "sha256-vSq3qsyxxbSA+O4wBtSnSLTy9WdrOZ/YN0c6y+Oku/Y=";    };  };}

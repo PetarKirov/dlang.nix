@@ -1,0 +1,1 @@
+{  url = "https://github.com/TheZipCreator/pushdown";  versions = {    "~master" =  {      rev = "377201e8fb1933e24f405a123e89b04d55accc6b";      sha256 = "sha256-0cr8jyD07+FXGGvnSIQtoXwhW33YCFYsoQ2Q/sSrV9w=";    };    "1.0.0" =  {      rev = "112f49699f2eab782152c54cadd31505a4dd60d5";      sha256 = "sha256-xfxT18D5HxyYtvhzOeghApGwmbv/bR4EtbBH4y6NTFc=";    };  };}

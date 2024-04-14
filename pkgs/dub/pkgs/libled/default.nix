@@ -1,0 +1,1 @@
+{  url = "https://github.com/aki237/libled";  versions = {    "~master" =  {      rev = "a40ad2834dc7b7c9041531c8c4c6404af1ebaa1f";      sha256 = "sha256-/BgsLj74EAJigRIfKRyp8iiwVwyma3xZQyDDAj7txTk=";    };    "0.0.1" =  {      rev = "a40ad2834dc7b7c9041531c8c4c6404af1ebaa1f";      sha256 = "sha256-/BgsLj74EAJigRIfKRyp8iiwVwyma3xZQyDDAj7txTk=";    };  };}

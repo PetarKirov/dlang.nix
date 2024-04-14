@@ -1,0 +1,1 @@
+{  url = "https://github.com/finalpatch/decklink4d";  versions = {    "~master" =  {      rev = "4f26e720ba9ff2dbefb3f7575e595663e6b220da";      sha256 = "sha256-TPW+gvypPmfInvbU+UzhGsevuBjWoPAAqaLEe4lgvvM=";    };  };}

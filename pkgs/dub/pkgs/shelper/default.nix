@@ -1,0 +1,1 @@
+{  url = "https://github.com/ichordev/shelper";  versions = {    "1.0.0" =  {      rev = "7584ec5e876507fe22b9ace005f8704735e52da2";      sha256 = "sha256-KwDX8aU9YK/45BgFBkHOnR7pqdCKuVgAjKj9V+2hdTc=";    };    "~main" =  {      rev = "7584ec5e876507fe22b9ace005f8704735e52da2";      sha256 = "sha256-KwDX8aU9YK/45BgFBkHOnR7pqdCKuVgAjKj9V+2hdTc=";    };  };}

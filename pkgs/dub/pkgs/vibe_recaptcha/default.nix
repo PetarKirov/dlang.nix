@@ -1,0 +1,1 @@
+{  url = "https://github.com/IsaacBell/vibe_recaptcha";  versions = {    "~master" =  {      rev = "9ee1777d62da5b9940854f79ffaf0dd21159e6ea";      sha256 = "sha256-PvzV/s0GYczI2loF5iEvotQIpIUtw78VWafhm2uO5nY=";    };    "1.0.0" =  {      rev = "e2f7751a7b8030212726dbd846ace843e5dae2f5";      sha256 = "sha256-dGTJK8QsmsVe5D7Qnt5ECrrxSnCvV31yZsZY4ptMiwI=";    };  };}

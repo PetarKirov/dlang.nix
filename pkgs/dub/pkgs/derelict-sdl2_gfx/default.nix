@@ -1,0 +1,1 @@
+{  url = "https://github.com/Kyle873/DerelictSDL2Gfx";  versions = {    "~master" =  {      rev = "169d61fbfc245128ddc4c3d2f48db443872121f8";      sha256 = "sha256-fCVnGLkrvInXB6DAb+IBgifSVZBVeoRrVDpRSHJ6Q+c=";    };    "1.0.0" =  {      rev = "169d61fbfc245128ddc4c3d2f48db443872121f8";      sha256 = "sha256-fCVnGLkrvInXB6DAb+IBgifSVZBVeoRrVDpRSHJ6Q+c=";    };  };}

@@ -1,0 +1,1 @@
+{  url = "https://github.com/DannyArends/bindbc-gles";  versions = {    "~master" =  {      rev = "1e4e548f1b81b0e1ccf3df1005e0504d359a5dac";      sha256 = "sha256-ujX5mqx6wW2B04WBLk3s7QfBpxm/dhQnRfsbQItn+8U=";    };    "0.0.1" =  {      rev = "1e4e548f1b81b0e1ccf3df1005e0504d359a5dac";      sha256 = "sha256-ujX5mqx6wW2B04WBLk3s7QfBpxm/dhQnRfsbQItn+8U=";    };  };}

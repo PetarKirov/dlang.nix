@@ -1,0 +1,1 @@
+{  url = "https://github.com/mintyfresh/kdtree";  versions = {    "0.1.0" =  {      rev = "bbdcc178db9a0c9e822a8299f096f19b6044df1d";      sha256 = "sha256-AXUM3vqGgLVqbsCP23Rf2MMkryLuf8if7GOTVnS8jtg=";    };    "~master" =  {      rev = "bbdcc178db9a0c9e822a8299f096f19b6044df1d";      sha256 = "sha256-AXUM3vqGgLVqbsCP23Rf2MMkryLuf8if7GOTVnS8jtg=";    };  };}

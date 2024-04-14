@@ -1,0 +1,1 @@
+{  url = "https://github.com/JordanFitz/atomized";  versions = {    "1.0.0" =  {      rev = "ea08085d397f9b0dd815689fc06d441b52db6ae9";      sha256 = "sha256-jKgbarIe92pRK9IvuZXEZ55qDDhC7YWK9lFfEBxgxLQ=";    };  };}

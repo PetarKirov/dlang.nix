@@ -1,0 +1,1 @@
+{  url = "https://github.com/thechampagne/zip-d";  versions = {    "0.1.0" =  {      rev = "584ee65d89f9f6fc646f3ca39463889ba71d69de";      sha256 = "sha256-0I/8/zFGWSoIdDPB81uTXXrbnnfrmqtZTVHPHJINOcs=";    };    "~main" =  {      rev = "73b0c9176dbf3505d8eb7d1d027e5eb24ba892da";      sha256 = "sha256-x3rkRiQP/UdLTmcnP62Z7UTBGY2MCr6vAJq7/7Rd4xg=";    };  };}

@@ -1,0 +1,1 @@
+{  url = "https://github.com/aquaratixc/dinclusion";  versions = {    "~master" =  {      rev = "d54167745cadbb1d377921214ad12397519ff7bb";      sha256 = "sha256-J1sh8Alywt4HPJSPKpzBXHulXnsdGe/cagKAnXqGsYY=";    };    "1.0.0" =  {      rev = "d54167745cadbb1d377921214ad12397519ff7bb";      sha256 = "sha256-J1sh8Alywt4HPJSPKpzBXHulXnsdGe/cagKAnXqGsYY=";    };  };}

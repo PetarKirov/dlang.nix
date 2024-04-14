@@ -1,0 +1,1 @@
+{  url = "https://github.com/boolangery/d-duktape";  versions = {    "~master" =  {      rev = "f07c46744ef0655167b14bc28491c5c79ab232c8";      sha256 = "sha256-ADuBLGUf4kR+PkqXr4xGDawK7g7N4TeSt5d4fC4dMiI=";    };    "1.0.0" =  {      rev = "a7603abc4c988da75a2fc7b36af20a33395946e5";      sha256 = "sha256-MA5L9LpIspbUX+bfMgVSVvfvxewdES2d4MToXkPV+BE=";    };  };}

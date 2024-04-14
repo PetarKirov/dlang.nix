@@ -1,0 +1,1 @@
+{  url = "https://github.com/heapsource/router.d";  versions = {    "~master" =  {      rev = "cac2f13cc9276c31265d18edb8df4af7257527b1";      sha256 = "sha256-4nXnHkdOtpMTHVTYaXpXZXzA09tTIKN7aT++cgxFzNc=";    };  };}

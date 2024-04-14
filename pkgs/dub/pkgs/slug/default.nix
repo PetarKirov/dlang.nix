@@ -1,0 +1,1 @@
+{  url = "https://bitbucket.org/yamadapc/d-slug";  versions = {    "~master" =  {      rev = "724b776bc038c406bd3da2b022c4aeda23c45cfe";      sha256 = "sha256-Qidnu8BRBeZbtkabDxH7iRpQg5N3P3fug0YZUEusGLg=";    };    "1.0.0" =  {      rev = "117219a9c2f83448de8994bf8355fd09eed34583";      sha256 = "sha256-I9LC28Fd3x3GBGOFg0CFS485AMVC0VRhFlfZMe8ihpI=";    };  };}

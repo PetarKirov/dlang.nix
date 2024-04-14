@@ -1,0 +1,1 @@
+{  url = "https://github.com/deviator/dcl";  versions = {    "~master" =  {      rev = "dbd72b90d464445cbb21f91d23899615dd67d612";      sha256 = "sha256-ToKAmuKDRImRcGQvoQCQpb0TykGtDWylAzpS8T+KjII=";    };    "0.6.0" =  {      rev = "2b0315facea83d6536c7589e8fb3c45143cc5d0d";      sha256 = "sha256-PHWZ9C0L/hgDn3mUheTjhAoWqNrrO+aUlKaYvW8Gvm4=";    };  };}

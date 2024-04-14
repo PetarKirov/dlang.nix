@@ -1,0 +1,1 @@
+{  url = "https://github.com/trade-d/bitfinex-d";  versions = {    "0.1.0" =  {      rev = "b2425ed8b449d64e7af4d7f8dbf5001a9accf277";      sha256 = "sha256-1VVem0h2Tlx6hVJHtzGnKc57xDYyoMNoEVsXXpL1vsc=";    };    "~master" =  {      rev = "88a955fbd479e6539e15bc67386e0f97a294ee58";      sha256 = "sha256-8aBuK/oDhJKj3MljdHiOT00PP8/FUAbixL5RKaWIcC4=";    };  };}

@@ -1,0 +1,1 @@
+{  url = "https://github.com/jordan4ibanez/stb_vorbis";  versions = {    "1.0.0" =  {      rev = "7e713499c799f921f7368eb991b5b91787b08497";      sha256 = "sha256-vpwRGnuqrsMPdfbbrpnC0M0U7CW4iRWjPzZ4p/amuFg=";    };    "~main" =  {      rev = "7e713499c799f921f7368eb991b5b91787b08497";      sha256 = "sha256-vpwRGnuqrsMPdfbbrpnC0M0U7CW4iRWjPzZ4p/amuFg=";    };  };}

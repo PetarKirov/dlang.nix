@@ -1,0 +1,1 @@
+{  url = "https://github.com/cmays90/datetimeformat";  versions = {    "0.1.0" =  {      rev = "d10e64ba45b58b54a532d0771091230986d0018e";      sha256 = "sha256-LDw/e17F+xHJv7t3GX7hDguqMHfBu/x84z53s2j93gQ=";    };    "~master" =  {      rev = "d10e64ba45b58b54a532d0771091230986d0018e";      sha256 = "sha256-LDw/e17F+xHJv7t3GX7hDguqMHfBu/x84z53s2j93gQ=";    };  };}

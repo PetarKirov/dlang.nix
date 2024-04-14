@@ -1,0 +1,1 @@
+{  url = "https://github.com/axiom-a/ashd";  versions = {    "~master" =  {      rev = "a488f23e9e1a159a917d38c91b21053403f25cb1";      sha256 = "sha256-s8vHoxDA8BHtZVsr2g+0BHcLzWuj+dmZBrsoATwE4BA=";    };    "0.8.0" =  {      rev = "a488f23e9e1a159a917d38c91b21053403f25cb1";      sha256 = "sha256-s8vHoxDA8BHtZVsr2g+0BHcLzWuj+dmZBrsoATwE4BA=";    };  };}

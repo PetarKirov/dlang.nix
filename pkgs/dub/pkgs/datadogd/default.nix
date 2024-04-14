@@ -1,0 +1,1 @@
+{  url = "https://github.com/infinityplusb/datadogd";  versions = {    "0.1.0" =  {      rev = "0a345d662961a954bccb4e384f20398cf0fcbd34";      sha256 = "sha256-YdU7/6JkYTOFWBIBqtpKZEvcvwEFZ/T91MwyssEkSmg=";    };  };}

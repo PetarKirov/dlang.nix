@@ -1,0 +1,1 @@
+{  url = "https://github.com/m-ou-se/marray";  versions = {    "~master" =  {      rev = "dc131d8f281ec12339e62d84fd2f2e754c0573a5";      sha256 = "sha256-WxTOmMA/wI7xkpoWTurvM3YD1bsexK0GXBaaAumni4g=";    };    "1.0.0" =  {      rev = "dc131d8f281ec12339e62d84fd2f2e754c0573a5";      sha256 = "sha256-WxTOmMA/wI7xkpoWTurvM3YD1bsexK0GXBaaAumni4g=";    };  };}

@@ -1,0 +1,1 @@
+{  url = "https://github.com/symmetryinvestments/juliad";  versions = {    "~master" =  {      rev = "eedb03c49ae44f16814c94068053f7030e2dfc56";      sha256 = "sha256-uZa4g5tJ0SYbmOHe1uAiy6I9K5iBoM7+bheWD8XmFWQ=";    };    "0.0.1" =  {      rev = "eedb03c49ae44f16814c94068053f7030e2dfc56";      sha256 = "sha256-uZa4g5tJ0SYbmOHe1uAiy6I9K5iBoM7+bheWD8XmFWQ=";    };  };}

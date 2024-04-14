@@ -1,0 +1,1 @@
+{  url = "https://github.com/huntlabs/neton-client";  versions = {    "~master" =  {      rev = "a1e3568eab3a64f5ee7dbb0db97511d07d8359a2";      sha256 = "sha256-mNhDR80eu/4HTyXZUer1MuoPcY2DgrESYcaV8uppEWE=";    };    "0.0.1" =  {      rev = "ac755950c1c5e0869c220fee3e901337dc793517";      sha256 = "sha256-hz8mRHtWcxWEGREgP1x1LzW5Ruhw0Gpepa5w9801aqs=";    };  };}

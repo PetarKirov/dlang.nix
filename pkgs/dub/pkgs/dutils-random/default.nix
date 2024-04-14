@@ -1,0 +1,1 @@
+{  url = "https://github.com/d-utils/random";  versions = {    "1.1.0" =  {      rev = "47dd2b9881db75100b5a687c37a4cd0d666c611a";      sha256 = "sha256-AFVKvUdXwv9p4aXb8gG3vTkMYhKOhrvxHt2FAAPXOVI=";    };    "~master" =  {      rev = "47dd2b9881db75100b5a687c37a4cd0d666c611a";      sha256 = "sha256-AFVKvUdXwv9p4aXb8gG3vTkMYhKOhrvxHt2FAAPXOVI=";    };  };}

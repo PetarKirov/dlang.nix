@@ -1,0 +1,1 @@
+{  url = "https://github.com/rikkimax/phidget_binding";  versions = {    "0.1.0" =  {      rev = "3ab7d92340efa0d9666a81fe831c37127bf8dbfa";      sha256 = "sha256-L51bKpUFFC+qGZRLwnCML3LuVXA07qApyoq3oI99s+Y=";    };    "~master" =  {      rev = "3ab7d92340efa0d9666a81fe831c37127bf8dbfa";      sha256 = "sha256-L51bKpUFFC+qGZRLwnCML3LuVXA07qApyoq3oI99s+Y=";    };  };}

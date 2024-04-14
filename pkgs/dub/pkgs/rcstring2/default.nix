@@ -1,0 +1,1 @@
+{  url = "https://github.com/burner/rcstring2";  versions = {    "1.0.0" =  {      rev = "94f5ee4c18f8ff7c87c9ccc339bb2e23fcd7138d";      sha256 = "sha256-3kgGNqTG354SaI8S4VbZnojVUGtxNfxgI8lhqtpjBlk=";    };    "~main" =  {      rev = "94f5ee4c18f8ff7c87c9ccc339bb2e23fcd7138d";      sha256 = "sha256-3kgGNqTG354SaI8S4VbZnojVUGtxNfxgI8lhqtpjBlk=";    };  };}

@@ -1,0 +1,1 @@
+{  url = "https://github.com/katafrakt/minibus";  versions = {    "0.0.1" =  {      rev = "76241037d7783f6de8412f23e6c67606d7fd8a3d";      sha256 = "sha256-zJubWmxUQjELilpKFOQpl7+4wLnOcdp6/nEf/OjXdzg=";    };    "~main" =  {      rev = "76241037d7783f6de8412f23e6c67606d7fd8a3d";      sha256 = "sha256-zJubWmxUQjELilpKFOQpl7+4wLnOcdp6/nEf/OjXdzg=";    };  };}

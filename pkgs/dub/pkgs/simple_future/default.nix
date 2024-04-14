@@ -1,0 +1,1 @@
+{  url = "https://github.com/evenex/simple_future";  versions = {    "~master" =  {      rev = "5a3c4ca5657a7456a28969450d9c9c3b69d11994";      sha256 = "sha256-WHP7rfJ6zdOwmf2DFhsYqDyjB/B44f0u/8r2s6Jl7ts=";    };    "0.0.1" =  {      rev = "992ccf5c88920e0a92d5a2e0541e7dec1d11bfec";      sha256 = "sha256-dmjF2qV+TyycMo/lSaaA5Qp7sP4i4Iu6/wQuPZe6sr0=";    };  };}

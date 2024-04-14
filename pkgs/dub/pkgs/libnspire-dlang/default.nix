@@ -1,0 +1,1 @@
+{  url = "https://github.com/ErnyTech/libnspire-dlang";  versions = {    "~master" =  {      rev = "b1a8c3630483000ae6331dc7976f35841f35900c";      sha256 = "sha256-GcvV2KEVC0iM1DZgCKGepIRYemvRAx6uWH476c+aq+4=";    };    "0.0.1" =  {      rev = "b1a8c3630483000ae6331dc7976f35841f35900c";      sha256 = "sha256-GcvV2KEVC0iM1DZgCKGepIRYemvRAx6uWH476c+aq+4=";    };  };}

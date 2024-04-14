@@ -1,0 +1,1 @@
+{  url = "https://github.com/redthing1/microrm2";  versions = {    "0.8.3" =  {      rev = "91b35cf8518d6be63f3a0e13dffaff5d16702dc5";      sha256 = "sha256-FMtaFvIuoXvez0zSEj5Y/gIcRPqrCaMSBTMrXkJOjH8=";    };    "~master" =  {      rev = "91b35cf8518d6be63f3a0e13dffaff5d16702dc5";      sha256 = "sha256-FMtaFvIuoXvez0zSEj5Y/gIcRPqrCaMSBTMrXkJOjH8=";    };  };}

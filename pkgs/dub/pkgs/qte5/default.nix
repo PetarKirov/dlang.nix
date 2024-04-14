@@ -1,0 +1,1 @@
+{  url = "https://github.com/MGWL/QtE5";  versions = {    "0.0.7" =  {      rev = "d3638abd475700299646347f43241c8a25cff584";      sha256 = "sha256-dfiKlFjG4Osm1hE/DBKydH1qBMK8pBDd1fuwTtApn4g=";    };  };}

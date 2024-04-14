@@ -1,0 +1,1 @@
+{  url = "https://github.com/PxlBuzzard/Analytics4Games";  versions = {    "0.1.0" =  {      rev = "a1578b0e3e50b74209b0c348a8e7f79a607ac257";      sha256 = "sha256-+WnkDIR8Bd1hSh+gQh1VSkIR5PRzARJPBGCXA3jkymc=";    };    "~master" =  {      rev = "a1578b0e3e50b74209b0c348a8e7f79a607ac257";      sha256 = "sha256-+WnkDIR8Bd1hSh+gQh1VSkIR5PRzARJPBGCXA3jkymc=";    };  };}

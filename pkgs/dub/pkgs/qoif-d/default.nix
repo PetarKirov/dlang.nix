@@ -1,0 +1,1 @@
+{  url = "https://github.com/Morozov-5F/qoif-d";  versions = {    "~master" =  {      rev = "2d3d35e5f57653e0738eb50aeaffb051d10b00a6";      sha256 = "sha256-P6sJe9cke6jsiA0FCU/YXfIjSKQy1zqdkkk9y07NbNA=";    };    "1.0.0" =  {      rev = "2d3d35e5f57653e0738eb50aeaffb051d10b00a6";      sha256 = "sha256-P6sJe9cke6jsiA0FCU/YXfIjSKQy1zqdkkk9y07NbNA=";    };  };}

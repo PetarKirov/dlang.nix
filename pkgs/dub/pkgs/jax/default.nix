@@ -1,0 +1,1 @@
+{  url = "https://github.com/eBookingServices/jax";  versions = {    "0.1.0" =  {      rev = "69d74bc741f8853eefca13085e2d8867f3ac67c1";      sha256 = "sha256-hjgdJXWmnRjMapzF8hWVPy7t3sjkXiiIHwilGH/dVsw=";    };    "~master" =  {      rev = "89cb695f93ff4f419cd95888f3868c78870f93b9";      sha256 = "sha256-fDi2gUGJysZJhfowJaPtWHFy6tbJwTek2Du7XNNYOYc=";    };  };}

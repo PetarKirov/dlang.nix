@@ -1,0 +1,1 @@
+{  url = "https://github.com/denizzzka/dlangui_bearlibterminal";  versions = {    "~master" =  {      rev = "e378019d60f885fd5b9856a5a330f823febcfb39";      sha256 = "sha256-pOuVQXh8Ig5KylRV3z9eaKbj6zSKrXCvE0LEk4WTO+c=";    };    "0.0.1" =  {      rev = "6238dffb9e8f8d3fc3bbc5c1f8889adf1c519f0c";      sha256 = "sha256-ubcXp6xdWqNxIkAcWJXGeI8lqDZ3SDaX0L+Gs3zeotc=";    };  };}

@@ -1,0 +1,1 @@
+{  url = "https://github.com/1100110/LZ4-D";  versions = {    "~master" =  {      rev = "3c90b5c91e7b27d3c5c0a374180daf6daa0a8ac6";      sha256 = "sha256-A4NePU819puF/LIOIMmxmEi9dpHsP/WYjJYpZ7latUk=";    };  };}

@@ -1,0 +1,1 @@
+{  url = "https://github.com/kaja47/radixsort.d";  versions = {    "~master" =  {      rev = "e4ef50a470e51b2fbf0a7381fa33bc3839b06724";      sha256 = "sha256-a5k8tIHzMtsqxfWshsDIj9aD+DJd53BKg9DqNh2XT4M=";    };    "1.0.0" =  {      rev = "e4ef50a470e51b2fbf0a7381fa33bc3839b06724";      sha256 = "sha256-a5k8tIHzMtsqxfWshsDIj9aD+DJd53BKg9DqNh2XT4M=";    };  };}

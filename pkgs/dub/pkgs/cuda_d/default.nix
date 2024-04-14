@@ -1,0 +1,1 @@
+{  url = "https://github.com/prasunanand/cuda_d";  versions = {    "0.1.0" =  {      rev = "9ffd2d9d226915414368d7074afe4c9b8a93bf30";      sha256 = "sha256-4t0bmhvVu7X1tm8vlnyI0ct+hRTkxLmrfgQ1vFyRZ44=";    };    "~master" =  {      rev = "9ffd2d9d226915414368d7074afe4c9b8a93bf30";      sha256 = "sha256-4t0bmhvVu7X1tm8vlnyI0ct+hRTkxLmrfgQ1vFyRZ44=";    };  };}

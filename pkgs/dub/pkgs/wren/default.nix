@@ -1,0 +1,1 @@
+{  url = "https://github.com/thechampagne/wren-d";  versions = {    "1.0.0" =  {      rev = "6925c756cfc6d0e7018095acf22e946717b4fed8";      sha256 = "sha256-k/vnAx98XZn9GPlXBxosDFaHNJBknfUs6sbJJJPmua0=";    };    "~main" =  {      rev = "6925c756cfc6d0e7018095acf22e946717b4fed8";      sha256 = "sha256-k/vnAx98XZn9GPlXBxosDFaHNJBknfUs6sbJJJPmua0=";    };  };}

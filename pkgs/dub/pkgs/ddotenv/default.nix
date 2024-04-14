@@ -1,0 +1,1 @@
+{  url = "https://github.com/lcapaldo/ddotenv";  versions = {    "0.1.0" =  {      rev = "415fa7715dfdada5f7393a2af57c9061c37c27ec";      sha256 = "sha256-XN6+dqlWzH9/klVQ3VDV0BX8Pu2CSohgz30CvCFHOZs=";    };  };}

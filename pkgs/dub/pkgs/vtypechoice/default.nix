@@ -1,0 +1,1 @@
+{  url = "https://github.com/ValhallaLib/valhalla_typechoice";  versions = {    "~master" =  {      rev = "4c666301bc407cd4079d9a57ad918afffc1eaf97";      sha256 = "sha256-UlOyw2VSu+tHWa2ZDWItbcW2oa08l8+5vww55YwzeDo=";    };    "0.0.1-alpha" =  {      rev = "4c666301bc407cd4079d9a57ad918afffc1eaf97";      sha256 = "sha256-UlOyw2VSu+tHWa2ZDWItbcW2oa08l8+5vww55YwzeDo=";    };  };}

@@ -1,0 +1,1 @@
+{  url = "https://github.com/SirNickolas/Dython";  versions = {    "0.1.0" =  {      rev = "06b6c6e9493cd1816aba751c988aec23f9b9926d";      sha256 = "sha256-OCquDNI9z36+EKwJRzhrYZiWfV1kDVbISiOdPNOuw8I=";    };    "~master" =  {      rev = "d15ffa228b5a4e3b10037338074134443cdd7a57";      sha256 = "sha256-+TAHHdFMopnyl4lcVsC0OnvVtE/vhyZL419zMVea7XE=";    };  };}

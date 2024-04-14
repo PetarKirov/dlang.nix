@@ -1,0 +1,1 @@
+{  url = "https://github.com/ShigekiKarita/pbd";  versions = {    "~master" =  {      rev = "dceca8d1e5f313bd9fbc6f72795b20c53cc6f590";      sha256 = "sha256-byWQFAv/Sqnh2VH8Y8Oejt88z7q2tKae3pv6B27sOWs=";    };    "0.0.1" =  {      rev = "3b1b2363c5e85d99d38179a80394a2534749e289";      sha256 = "sha256-ppYJlht7MBRCdjWyuD4Sm3ulKceGyCSB3wcvZBfDlkQ=";    };  };}

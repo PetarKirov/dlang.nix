@@ -1,0 +1,1 @@
+{  url = "https://github.com/JakobOvrum/i18n-d";  versions = {    "0.1.0" =  {      rev = "b7d6ee16a16da703ed9e9ea2de26f3e25ab2921c";      sha256 = "sha256-gt1muEn9hcNW4RMVGaZtMxjzvXHn+lxGF1/lN3dsdbI=";    };    "~master" =  {      rev = "b416652242d231e90a97c281bd1ddbe6b1ec1019";      sha256 = "sha256-LnXJlQfpYIuXZI0fF19svZzH/TOhjW/vnpUKRRTTDwc=";    };  };}

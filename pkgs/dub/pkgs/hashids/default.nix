@@ -1,0 +1,1 @@
+{  url = "https://github.com/actimia/hashids-dlang";  versions = {    "~master" =  {      rev = "b9e6d17a695d5c3d799e3df936666c3fd914df8a";      sha256 = "sha256-WyvsAhWNat+6O6RjKfsB0IS6oFiAyEabqLZD0Hd5r04=";    };    "1.0.0" =  {      rev = "8b7b421c0c2cc9e998f74b410c14acca58aed5dd";      sha256 = "sha256-5tszyJSsz5/T7z+b1JUfIEOlxtwBJxKg7O0AyVeV1n4=";    };  };}

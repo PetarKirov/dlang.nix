@@ -1,0 +1,1 @@
+{  url = "https://github.com/JonathanILevi/socket-msg-queue";  versions = {    "~master" =  {      rev = "56de8d48d2a2a0c03cab6af8ce46326e5cf5af6d";      sha256 = "sha256-m+GNgTyqowPzPYMRsksW7mK0jFfOr3WvZTBkLay0y9g=";    };    "1.0.0" =  {      rev = "56de8d48d2a2a0c03cab6af8ce46326e5cf5af6d";      sha256 = "sha256-m+GNgTyqowPzPYMRsksW7mK0jFfOr3WvZTBkLay0y9g=";    };  };}

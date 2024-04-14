@@ -1,0 +1,1 @@
+{  url = "https://github.com/Kozzi11/experimental.xml";  versions = {    "~master" =  {      rev = "08160e6c752c5c56563105f79e2765746989c1e0";      sha256 = "sha256-5E0O1T9ytgDASaS4cNY7QgkrzZ7R1CD/zNfUitm9/EE=";    };    "0.1.4" =  {      rev = "9e71e892374708cf4d9ec075ba6635424ba7157c";      sha256 = "sha256-7X2dZSGvssxlJrXtTXa65eL/YB5DzMZ4q6+lmBX47H0=";    };  };}

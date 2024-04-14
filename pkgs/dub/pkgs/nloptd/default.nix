@@ -1,0 +1,1 @@
+{  url = "https://github.com/jmh530/nloptd";  versions = {    "0.2.1" =  {      rev = "9e60483ecd536694c75a4e8345e2ad333bcdecc7";      sha256 = "sha256-eB6CQ9C4YCNEKdNyeUABRMP5PViJnEUdsax/niQFPd8=";    };  };}

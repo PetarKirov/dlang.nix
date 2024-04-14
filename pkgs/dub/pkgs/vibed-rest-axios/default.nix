@@ -1,0 +1,1 @@
+{  url = "https://github.com/DarkRiDDeR/vibed-rest-axios";  versions = {    "0.1.0" =  {      rev = "bd5b01c5a63c017cf4cc8eeb1c1610a4329e3446";      sha256 = "sha256-cBUH37mLjoeWkC+9Moc5HTOsnFVdBWzbxpAxRsGIo2M=";    };    "~master" =  {      rev = "9533fa48dc90fa81218ea584e73b978777647c86";      sha256 = "sha256-r5ZymQcWxmG+Pjapu6AGRMRUfx8EJ7c1jieCdQ17tZc=";    };  };}

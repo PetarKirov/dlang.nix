@@ -1,0 +1,1 @@
+{  url = "https://github.com/MoritzMaxeiner/i3ipc-d";  versions = {    "~master" =  {      rev = "8d09d70c61b08e9f9a9170d022466a0872154ffc";      sha256 = "sha256-v4oKi3TfwJ73g2WQBJSzH1KmJYBfzD/CxjexRgHfvJE=";    };    "0.0.1" =  {      rev = "9915a785cee11138cd49c501e142f843debb5836";      sha256 = "sha256-jkiEh8QwlfB+WzVepYoFS0iELBq9cmdr9EEJ/SXme8w=";    };  };}

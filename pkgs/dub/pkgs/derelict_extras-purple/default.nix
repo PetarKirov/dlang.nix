@@ -1,0 +1,1 @@
+{  url = "https://github.com/PaulFreund/DerelictPurple";  versions = {    "~master" =  {      rev = "d9fe58b2b1802f4402c819a19d6e57e00d479317";      sha256 = "sha256-adYXlOcn+vecw/WhTiafHHSGZ32t2vsMwYJtpWbG3IM=";    };  };}

@@ -1,0 +1,1 @@
+{  url = "https://github.com/Extrawurst/DerelictCF";  versions = {    "~master" =  {      rev = "d2e8e203edffc0f3adb5d7c4c519e70c2d592d35";      sha256 = "sha256-XEyeIMWlAykuFm3JF1G2pjEwvhBwGmQeaCdJm1EXozM=";    };    "0.0.1" =  {      rev = "802817fa3f4862a9e3ef42bfef47f47384178be7";      sha256 = "sha256-Bo6FnoIy0pcwvWWhKoYBy37+PpSM1riv8En/s8KiXFA=";    };  };}

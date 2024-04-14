@@ -1,0 +1,1 @@
+{  url = "https://github.com/economicmodeling/vibed-elastic-logger";  versions = {    "~master" =  {      rev = "1f13772259a34693d6965871bf56dd00b3c2125a";      sha256 = "sha256-10F79cE8jPjZOs0KH8twuQm8mNwhp0XiQUKsJEZSOuQ=";    };    "1.0.0" =  {      rev = "1f13772259a34693d6965871bf56dd00b3c2125a";      sha256 = "sha256-10F79cE8jPjZOs0KH8twuQm8mNwhp0XiQUKsJEZSOuQ=";    };  };}

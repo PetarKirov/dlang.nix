@@ -1,0 +1,1 @@
+{  url = "https://github.com/agordon/fileslurp";  versions = {    "~master" =  {      rev = "57ab8758da84cf3aa7b499dc79ae44b334788250";      sha256 = "sha256-uONa579vzCeonyouvT31Qx+JNfmIHgnfJ4859rCwal4=";    };  };}

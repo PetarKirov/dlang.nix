@@ -1,0 +1,1 @@
+{  url = "https://github.com/mw66/dlisp";  versions = {    "0.52.0" =  {      rev = "dcf5349c168c981fa349da58ff1971f630ca9de0";      sha256 = "sha256-v8VlvPIrWvSegtZasjz4wflFeiylw+881dJLNAaTHfw=";    };    "~main" =  {      rev = "41a7a238c06b903311a436b9265726e5a2dd98c0";      sha256 = "sha256-3TjC89prGrOSDcUqBAOQZRnbG8D23Ij/vx3vPFeOjIY=";    };  };}

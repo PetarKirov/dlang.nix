@@ -1,0 +1,1 @@
+{  url = "https://github.com/jython234/mango-stl";  versions = {    "~master" =  {      rev = "4aa64e4789e439d2ae6a6712bfb74692ad3f93f8";      sha256 = "sha256-IsdjDsduOquPcq6aIGvKjHdrdWiTJx9l6xLyugW5oDk=";    };    "1.0.0-alpha1" =  {      rev = "8469d03eca3eeb806bc785cc56709fd694f30035";      sha256 = "sha256-jLdAcdFBQMpXkICv1ybCkokQ66YE2OfWy+JgMROFI3U=";    };  };}

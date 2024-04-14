@@ -1,0 +1,1 @@
+{  url = "https://github.com/joakim-brannstrom/mylib";  versions = {    "~master" =  {      rev = "cd0dcb649213c6cb934dd85f8f527480d2b8f1e0";      sha256 = "sha256-ThslV9sNoh+PlA7VAbTS9/0VP6M1bxJueQZzibRHIH0=";    };    "0.0.41" =  {      rev = "cd0dcb649213c6cb934dd85f8f527480d2b8f1e0";      sha256 = "sha256-ThslV9sNoh+PlA7VAbTS9/0VP6M1bxJueQZzibRHIH0=";    };  };}

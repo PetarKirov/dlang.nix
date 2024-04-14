@@ -1,0 +1,1 @@
+{  url = "https://github.com/jmh530/libnlopt";  versions = {    "0.2.0" =  {      rev = "86751b39ea21ee8e7938581f1f84215fc6ca8f59";      sha256 = "sha256-HoMT0cWq5Ya/qDZ+c9O5peICMGy2u9KFkkUom9WAJpA=";    };  };}

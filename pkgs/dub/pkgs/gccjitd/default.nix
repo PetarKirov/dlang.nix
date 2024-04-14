@@ -1,0 +1,1 @@
+{  url = "https://github.com/ibuclaw/gccjitd";  versions = {    "0.1.0" =  {      rev = "039ac7187186432f4926de19cd84cf872c284d49";      sha256 = "sha256-kDavOORqockzRRJQ4hPT0cO9Gv/l9z2ozslL3CUpTto=";    };    "~master" =  {      rev = "1f857380be3beeab9d83ce9c5c1c471b5ad8d623";      sha256 = "sha256-W8dr40weOJNYDvTr1erJ6W0ZWoKC1kmqQa9lirYivhE=";    };  };}

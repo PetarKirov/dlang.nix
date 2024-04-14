@@ -1,0 +1,1 @@
+{  url = "https://gitlab.com/sarneaud/unrobotstxt";  versions = {    "0.1.0" =  {      rev = "3ad717018166eb6590d267e7893555252ba60a6d";      sha256 = "sha256-XZiH6nnQVdnHcjoXfz1FVitqjUMpF4pa9Lpasv1EtVY=";    };    "~master" =  {      rev = "3ad717018166eb6590d267e7893555252ba60a6d";      sha256 = "sha256-XZiH6nnQVdnHcjoXfz1FVitqjUMpF4pa9Lpasv1EtVY=";    };  };}

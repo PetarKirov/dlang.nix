@@ -1,0 +1,1 @@
+{  url = "https://github.com/s-ludwig/bsdiff";  versions = {    "~master" =  {      rev = "18156dbb8e85065b984985495d37c2551c4d01a0";      sha256 = "sha256-1iBC4MoQhGEe1MwLy1rLou0gZXHrbr3KAksN1MVcL9Y=";    };    "1.0.0-alpha.1" =  {      rev = "18156dbb8e85065b984985495d37c2551c4d01a0";      sha256 = "sha256-1iBC4MoQhGEe1MwLy1rLou0gZXHrbr3KAksN1MVcL9Y=";    };  };}

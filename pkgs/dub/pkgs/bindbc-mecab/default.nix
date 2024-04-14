@@ -1,0 +1,1 @@
+{  url = "https://github.com/lempiji/bindbc-mecab";  versions = {    "~master" =  {      rev = "88c7b29434596ef854c3e6b63e42f828ef3fb647";      sha256 = "sha256-o1LHkCc8UdijB/AMPUbkXUkMNBRx8M6ghLktpT8iAsg=";    };    "1.0.0" =  {      rev = "88c7b29434596ef854c3e6b63e42f828ef3fb647";      sha256 = "sha256-o1LHkCc8UdijB/AMPUbkXUkMNBRx8M6ghLktpT8iAsg=";    };  };}

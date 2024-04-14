@@ -1,0 +1,1 @@
+{  url = "https://github.com/agatan/sexp-d";  versions = {    "~master" =  {      rev = "9650535166f94a78a994e2a216d50284cc4f64fc";      sha256 = "sha256-CcOjUUx+1UYVVBSaEdpBt1fyuBa5mMzD4t7kz3uC5S0=";    };    "0.0.1" =  {      rev = "2cb61bf8ac6df790dc5d0b45b50f2e2fdf423321";      sha256 = "sha256-CcOjUUx+1UYVVBSaEdpBt1fyuBa5mMzD4t7kz3uC5S0=";    };  };}

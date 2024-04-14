@@ -1,0 +1,1 @@
+{  url = "https://github.com/yazd/udis86-d";  versions = {    "1.7.2-1" =  {      rev = "dce3c999762634b05985a51ac9128f0aaab87a43";      sha256 = "sha256-Qy1koBM7jy8pVsv0PEpXkOtHA/jJ2CPZTAvcPqmr4oE=";    };    "~master" =  {      rev = "fd4d0e0cd64a7262e5e470969adf19e33b01fe17";      sha256 = "sha256-s15aYZaZqvCAyv3AdZsvNARvPS7nbeu/P86veuQcyHY=";    };  };}

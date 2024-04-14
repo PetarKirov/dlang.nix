@@ -1,0 +1,1 @@
+{  url = "https://github.com/rikkimax/cubf";  versions = {    "0.1.0" =  {      rev = "33e3ad3b71f3da98b27dd00a241b0db9f6ef348f";      sha256 = "sha256-sv56eTi+lWGtStN+MAUSTM8rjg/fX9IC9gfr1H6PMkQ=";    };    "~master" =  {      rev = "33e3ad3b71f3da98b27dd00a241b0db9f6ef348f";      sha256 = "sha256-sv56eTi+lWGtStN+MAUSTM8rjg/fX9IC9gfr1H6PMkQ=";    };  };}

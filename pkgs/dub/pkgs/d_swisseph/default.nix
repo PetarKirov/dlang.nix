@@ -1,0 +1,1 @@
+{  url = "https://github.com/Laeeth/d_swisseph";  versions = {    "~master" =  {      rev = "ace4a4056b22ed2a5b81e6744fff3bb7d13c4607";      sha256 = "sha256-ukoB7DxbAp7ZJtO1k67NoRuRM8Bruu4hYNBqJRqnatA=";    };    "0.0.1" =  {      rev = "ace4a4056b22ed2a5b81e6744fff3bb7d13c4607";      sha256 = "sha256-ukoB7DxbAp7ZJtO1k67NoRuRM8Bruu4hYNBqJRqnatA=";    };  };}

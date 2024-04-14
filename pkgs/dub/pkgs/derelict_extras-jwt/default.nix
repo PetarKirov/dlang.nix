@@ -1,0 +1,1 @@
+{  url = "https://github.com/jython234/DerelictJWT";  versions = {    "~master" =  {      rev = "7eb6cb24e820f3ab35a07b2dec1e7f39483a6cfa";      sha256 = "sha256-L6tp1C4ubPBI+SbZLGLy6SWKwO3rsFTnHmdYNi7/0pE=";    };    "1.0.0" =  {      rev = "64bfb295461d0a02143212d6576dd8f40907ee76";      sha256 = "sha256-WDq47BkaTvuMp3TUBKm3GzZXNTK9hX4M8WsQg53l7PU=";    };  };}

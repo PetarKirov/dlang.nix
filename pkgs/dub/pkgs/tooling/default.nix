@@ -1,0 +1,1 @@
+{  url = "https://github.com/kuettler/tooling";  versions = {    "~master" =  {      rev = "5c3ab8b12e13079d4edc303e91c8ff99692e6c1c";      sha256 = "sha256-6im84iOSmoSEXLcwF7syz02oSxWxWgqtmJiNxeZhicU=";    };    "0.0.1" =  {      rev = "5c3ab8b12e13079d4edc303e91c8ff99692e6c1c";      sha256 = "sha256-6im84iOSmoSEXLcwF7syz02oSxWxWgqtmJiNxeZhicU=";    };  };}

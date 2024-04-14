@@ -1,0 +1,1 @@
+{  url = "https://github.com/aferust/itsdangerous-d";  versions = {    "0.0.2" =  {      rev = "22441828310ce33f3dd1c4a30569040060809401";      sha256 = "sha256-hdHYQvZtss14ORBQBpwYBjk2fDdPTe1NfaRxkyzx7UQ=";    };    "0.0.1" =  {      rev = "e444f24ec4231f1a455b31de625381422a1a35a7";      sha256 = "sha256-M7c3RhopTeNdDeJtMv7WefneDwJi7NzhJRQfgTFkL8E=";    };  };}

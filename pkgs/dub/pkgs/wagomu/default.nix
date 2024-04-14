@@ -1,0 +1,1 @@
+{  url = "https://github.com/WebFreak001/wagomu";  versions = {    "~master" =  {      rev = "2dd8b80ba1cff86f7e8eadae372e95b1cbe0234e";      sha256 = "sha256-2lnSZShy2DyINaVqATjTHn94CGKSyTjh5RzByqBPE1o=";    };    "1.0.0" =  {      rev = "2dd8b80ba1cff86f7e8eadae372e95b1cbe0234e";      sha256 = "sha256-2lnSZShy2DyINaVqATjTHn94CGKSyTjh5RzByqBPE1o=";    };  };}

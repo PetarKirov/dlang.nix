@@ -1,0 +1,1 @@
+{  url = "https://github.com/Orvid/std.event";  versions = {    "~master" =  {      rev = "f6ba997dab9dd8c2f26df0c61840e9fccb5f45ea";      sha256 = "sha256-ZWvUpZsSilF79hIADSi79jCpQKd5KvPTEsGQ5RvCeRA=";    };  };}

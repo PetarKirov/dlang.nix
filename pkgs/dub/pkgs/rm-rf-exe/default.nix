@@ -1,0 +1,1 @@
+{  url = "https://github.com/0xEAB/rm-rf-exe";  versions = {    "~master" =  {      rev = "b2f87051852c000f4e514e908dd1ff7cf03a5480";      sha256 = "sha256-dQMHwIbErhOFl7xOa+Am1PrckALWY+aLFsvpXmiEw7o=";    };    "1.0.0" =  {      rev = "b2f87051852c000f4e514e908dd1ff7cf03a5480";      sha256 = "sha256-dQMHwIbErhOFl7xOa+Am1PrckALWY+aLFsvpXmiEw7o=";    };  };}

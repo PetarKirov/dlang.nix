@@ -1,0 +1,1 @@
+{  url = "https://github.com/evenex/repl";  versions = {    "~master" =  {      rev = "07948f2d3d405fce732c9504c10a1b562fecde40";      sha256 = "sha256-AWvakZap27vfeMPuAWmyD7aq7bo6j+a+yR8RnzyeF7g=";    };    "0.0.1" =  {      rev = "127c1e7129f0e68e07c9d0baaebbe4f70088889a";      sha256 = "sha256-bWukVd8dTPjOiD1dJvU7pusa0Ywkg04oPBzlxtF2u10=";    };  };}

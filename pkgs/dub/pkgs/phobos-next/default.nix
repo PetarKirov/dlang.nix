@@ -1,0 +1,1 @@
+{  url = "https://github.com/nordlow/phobos-next";  versions = {    "0.6.14" =  {      rev = "c8dcf821ead32f558467dd137293688fd5fca032";      sha256 = "sha256-5prpfCuC/Dd9qzNcLse1My3TLhpwTUydZKtfS/zhMfo=";    };    "~main" =  {      rev = "c8dcf821ead32f558467dd137293688fd5fca032";      sha256 = "sha256-5prpfCuC/Dd9qzNcLse1My3TLhpwTUydZKtfS/zhMfo=";    };  };}

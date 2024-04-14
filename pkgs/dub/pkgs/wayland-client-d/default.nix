@@ -1,0 +1,1 @@
+{  url = "https://github.com/rtbo/wayland-client-d";  versions = {    "~master" =  {      rev = "8f39841e412d5931fe3796f7b0436e44d42ab61c";      sha256 = "sha256-y00lZZyzVD43DFLEuLuYD1fuZTtu1CnKmaT7AB+nVio=";    };    "1.8.90" =  {      rev = "369e245c5dc5b62278a3f7ca8f5643d17adbd45a";      sha256 = "sha256-71vpQ5fcPArZ1u/Ee0WFoM9HHlfhGx+sajqwgk3k2cU=";    };  };}

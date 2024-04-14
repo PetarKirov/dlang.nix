@@ -1,0 +1,1 @@
+{  url = "https://github.com/teamhackback/hb-web";  versions = {    "~master" =  {      rev = "f97d88f0f7d9988a1c84f7dbab5719475f6f3e68";      sha256 = "sha256-M7oMOQn+tu2ijOBrU1rdAyrgcajK8wPWcgM+U849s/o=";    };    "0.0.1" =  {      rev = "da0349f144031f357ef725d8de4801443ef9e0c5";      sha256 = "sha256-XpuqmBVqpw4B+iBg6WxnEngPgPv8IJ2DuR7TABTwVDs=";    };  };}

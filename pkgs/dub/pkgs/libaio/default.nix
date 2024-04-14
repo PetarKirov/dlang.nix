@@ -1,0 +1,1 @@
+{  url = "https://github.com/Boris-Barboris/libaio";  versions = {    "0.1.0" =  {      rev = "e8479c72b124bed5874339cf50a222de63a59dec";      sha256 = "sha256-wRthtwiqd1Qd8gXOUYYlK4epZTRNeW0BVpinp9lrAFI=";    };    "~master" =  {      rev = "e8479c72b124bed5874339cf50a222de63a59dec";      sha256 = "sha256-wRthtwiqd1Qd8gXOUYYlK4epZTRNeW0BVpinp9lrAFI=";    };  };}

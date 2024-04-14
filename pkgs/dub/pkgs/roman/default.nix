@@ -1,0 +1,1 @@
+{  url = "https://github.com/Kripth/roman";  versions = {    "~master" =  {      rev = "f287130f345ba968b3e5227dfe7d2e80d76bf71f";      sha256 = "sha256-Px2z+pJj/qjG/G2EJPtDQfneUi8UhoW2+dVxGG0NaQE=";    };    "1.0.0" =  {      rev = "f287130f345ba968b3e5227dfe7d2e80d76bf71f";      sha256 = "sha256-Px2z+pJj/qjG/G2EJPtDQfneUi8UhoW2+dVxGG0NaQE=";    };  };}

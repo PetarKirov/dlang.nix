@@ -1,0 +1,1 @@
+{  url = "https://github.com/adelavais/libintl";  versions = {    "1.0.0" =  {      rev = "fec8a5e3b5d93908d7615f30d3aa38c1cb09e1b5";      sha256 = "sha256-mAbpMljcVqzd8MwTRRWoNcKM11rKc0NKy/YSp58vFa8=";    };    "~main" =  {      rev = "fec8a5e3b5d93908d7615f30d3aa38c1cb09e1b5";      sha256 = "sha256-mAbpMljcVqzd8MwTRRWoNcKM11rKc0NKy/YSp58vFa8=";    };  };}

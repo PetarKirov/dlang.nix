@@ -1,0 +1,1 @@
+{  url = "https://github.com/heapsource/heaploop";  versions = {    "~master" =  {      rev = "7c2af6d375d9a84019e7acc09539f2a68b8fd054";      sha256 = "sha256-H2WcigkwqvIp1JveD/Sp2734aGSPhXJltVFKI37ntQw=";    };  };}

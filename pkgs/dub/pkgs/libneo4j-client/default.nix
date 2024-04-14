@@ -1,0 +1,1 @@
+{  url = "https://github.com/Timoses/libneo4j-client";  versions = {    "~master" =  {      rev = "2ad1a277594a7ac4760e7f1e2d8df2967036a165";      sha256 = "sha256-IcHNZZmKfBzkgoGSNV8Geik/SpeJ4rpFdw1SofqllGE=";    };    "2.2.0" =  {      rev = "3b7cd7fa17788a6d8a1a4620528718b3dfacf4ca";      sha256 = "sha256-FNPGqDEtNRWZDqGfU++JFj/D3tnb95X+eem27iKOtNM=";    };  };}

@@ -1,0 +1,1 @@
+{  url = "https://github.com/extrawurst/file2d";  versions = {    "~master" =  {      rev = "bd1b995513d707f2e91cd68f488b365d115e92f2";      sha256 = "sha256-H5MAfbbeov5koURB/skQ4m37SMZYwOkV5Vq2f9Vzj8M=";    };    "0.0.1" =  {      rev = "d37b94abdd7860d1b8350ba67d5580d22ae656b6";      sha256 = "sha256-Z+QAI0dxd08Zt61QHqg7dvxwS2PAWox9eLbmQ0QCNug=";    };  };}

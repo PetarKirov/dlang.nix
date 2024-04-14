@@ -1,0 +1,1 @@
+{  url = "https://github.com/PolyplexEngine/DerelictAS";  versions = {    "~master" =  {      rev = "11246e6a60af8e02c55befeb77ebe889d1e2d96e";      sha256 = "sha256-HxrBSLqdphCrxfwT55k4M9R0zvSO7MrFSruc0Vb/y30=";    };    "0.0.1" =  {      rev = "11246e6a60af8e02c55befeb77ebe889d1e2d96e";      sha256 = "sha256-HxrBSLqdphCrxfwT55k4M9R0zvSO7MrFSruc0Vb/y30=";    };  };}

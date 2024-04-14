@@ -1,0 +1,1 @@
+{  url = "https://github.com/zkxjzmswkwl/dackson";  versions = {    "~master" =  {      rev = "8d4f73de124e324e24c36b7f00e73949dec6715e";      sha256 = "sha256-cZKNN/zNERdrcdvBlw3vRPQvJhkSDhY/RwPuIl19/dw=";    };    "0.2.1" =  {      rev = "5412be05aadbff7b41735dbc8e6359adbc88b816";      sha256 = "sha256-jLXBotV+qGZ51S/GKaYYZnXauJAiw1q6XCi/NAoDGhk=";    };  };}

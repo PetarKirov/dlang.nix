@@ -1,0 +1,1 @@
+{  url = "https://github.com/BaussProjects/baussini";  versions = {    "~master" =  {      rev = "c61187db1536e0a2f3df0da458d14fd3b6d4d406";      sha256 = "sha256-TovcUBcPqdtCOO0edTfT6m1s/LVk7LNxLpDvxDaxJ2Y=";    };    "0.0.2" =  {      rev = "c61187db1536e0a2f3df0da458d14fd3b6d4d406";      sha256 = "sha256-TovcUBcPqdtCOO0edTfT6m1s/LVk7LNxLpDvxDaxJ2Y=";    };  };}

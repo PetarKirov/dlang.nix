@@ -1,0 +1,1 @@
+{  url = "https://github.com/wolfgang231/libgpiod-dlang";  versions = {    "0.0.3" =  {      rev = "7e219df9e2bed3dd2a6e390c4678ca7b00c1a77c";      sha256 = "sha256-9r1m1NeZZh0dTBEW5m8E8OTx1KCjBPEwb2KLQyxLGiM=";    };  };}

@@ -1,0 +1,1 @@
+{  url = "https://github.com/Herringway/darkersky";  versions = {    "0.0.0" =  {      rev = "7420513cff9b254fb233ef154d823709c7130984";      sha256 = "sha256-WTiIJt+MzpADTwLLNoAiqaQsAyVfVHknTzYbAeB3pqU=";    };    "~main" =  {      rev = "7420513cff9b254fb233ef154d823709c7130984";      sha256 = "sha256-WTiIJt+MzpADTwLLNoAiqaQsAyVfVHknTzYbAeB3pqU=";    };  };}

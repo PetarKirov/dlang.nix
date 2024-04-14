@@ -1,0 +1,1 @@
+{  url = "https://github.com/majiang/mpplus";  versions = {    "~master" =  {      rev = "dfd19f21866828c7a43374d522ebfbbe135b819e";      sha256 = "sha256-9bAsYS3VoCw49N8yczb471U3XSN5OAmY3hiFb0m9kfI=";    };    "0.0.0" =  {      rev = "dfd19f21866828c7a43374d522ebfbbe135b819e";      sha256 = "sha256-9bAsYS3VoCw49N8yczb471U3XSN5OAmY3hiFb0m9kfI=";    };  };}

@@ -1,0 +1,1 @@
+{  url = "https://github.com/tomchipchase/marty";  versions = {    "0.1.0" =  {      rev = "0fd56ebed553937e572d7fecf945a196a08f612b";      sha256 = "sha256-axIPFMhMmC/SkquHNAiceJrg2+HYstnOmZzVWNESvJ8=";    };    "~master" =  {      rev = "5e9ae6c7e16c73f679d2a64f958b8e7a40da03ac";      sha256 = "sha256-ePE3hedFYGdFiBidDHlNDi8ZpP7LxR3EI4YFnXn6A/w=";    };  };}

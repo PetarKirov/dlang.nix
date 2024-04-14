@@ -1,0 +1,1 @@
+{  url = "https://github.com/Member1221/notifd";  versions = {    "0.5.0" =  {      rev = "7dbc262edad52484d296ef9dcd6d94587b76a7d5";      sha256 = "sha256-Z/BAm9f+fRX51/etcILHe3Udv/mUMy8mI5XlT2Dk+D4=";    };    "~main" =  {      rev = "7dbc262edad52484d296ef9dcd6d94587b76a7d5";      sha256 = "sha256-Z/BAm9f+fRX51/etcILHe3Udv/mUMy8mI5XlT2Dk+D4=";    };  };}

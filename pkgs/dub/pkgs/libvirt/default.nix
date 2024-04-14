@@ -1,0 +1,1 @@
+{  url = "https://github.com/kaleidicassociates/libvirt";  versions = {    "~master" =  {      rev = "cc9455616d72e77d93f4a9a4c397f096c2df0248";      sha256 = "sha256-ctcEoRVRA74cC3eL2NqT4KM4J097XzjqpHhi4zKCE/A=";    };    "0.0.1" =  {      rev = "12b6fc83dcf5ad7636b2e80edea59e24d5aec29b";      sha256 = "sha256-PAWvIUxxxJ5koJKoam08JxeylKTPHc8Iq995b+KjiIo=";    };  };}

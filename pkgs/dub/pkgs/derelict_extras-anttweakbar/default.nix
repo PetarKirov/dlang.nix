@@ -1,0 +1,1 @@
+{  url = "https://github.com/Zoadian/DerelictAntTweakBar";  versions = {    "~master" =  {      rev = "9fa276f03ea0118273a1ab20b9ceec8df34f9ee6";      sha256 = "sha256-7uJf3DhhD1BJZwD+kDkkXt10L2RHGX0axbNqXaFFMMI=";    };  };}

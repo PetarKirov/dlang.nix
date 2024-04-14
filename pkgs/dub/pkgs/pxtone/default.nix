@@ -1,0 +1,1 @@
+{  url = "https://github.com/Herringway/pxtone";  versions = {    "0.0.0" =  {      rev = "12c4ca6e012d56d22c40409c102105c0aedcb6a1";      sha256 = "sha256-Ac8QGbGHuhVI1EIVsyp1DgV2pR0JXOU7H64bHiOPLfY=";    };    "~main" =  {      rev = "33b715d7a8a291d437036d50ddae3377a5b970e9";      sha256 = "sha256-azJ+IEAZGmZzDpJpR9MT4SC9sVUs0V1e1sLzEMdjYxw=";    };  };}

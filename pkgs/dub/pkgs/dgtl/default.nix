@@ -1,0 +1,1 @@
+{  url = "https://github.com/AlexanderZhirov/dgtl";  versions = {    "~master" =  {      rev = "78004182c27d40a0340b8b39264c5dbad3c50812";      sha256 = "sha256-0AUWtN5JvJwBaQk+lv//3OF6lrjJ2LZx/+AmPlzdvsQ=";    };    "0.0.1" =  {      rev = "78004182c27d40a0340b8b39264c5dbad3c50812";      sha256 = "sha256-0AUWtN5JvJwBaQk+lv//3OF6lrjJ2LZx/+AmPlzdvsQ=";    };  };}

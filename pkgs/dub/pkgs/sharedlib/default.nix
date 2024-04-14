@@ -1,0 +1,1 @@
+{  url = "https://github.com/kubo39/sharedlib";  versions = {    "0.1.0" =  {      rev = "8d3b1f9c4e3090da582f45a03d9c0f1ade631643";      sha256 = "sha256-GueX6yKsn8iKJFqAidbCBEmoIyyG+Hs3sFo8U/5q6wI=";    };    "~master" =  {      rev = "a59ef8e26c6b562ded0f7101ad9d3f2e36871b18";      sha256 = "sha256-Y02KWviccC2s6ifLfLlFU75xYzFrH9sxPTa3ULFP6Do=";    };  };}

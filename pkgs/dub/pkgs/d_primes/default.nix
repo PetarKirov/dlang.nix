@@ -1,0 +1,1 @@
+{  url = "https://github.com/UplinkCoder/d_primes";  versions = {    "0.1.0" =  {      rev = "0d9f2ea57ca4f48b3c4c6b56223806fa6ecd4b6f";      sha256 = "sha256-LpAr2Qczu7sv8PsbCbcKr23/F7Wv86b1hvIPlkLAXf4=";    };    "~master" =  {      rev = "adf9d6e91dca58ab9e4523f97a2d9291dd9cfc23";      sha256 = "sha256-OpVOT1WjKb9HlOMQM6IB4r/rcNc3ZIJ0EW6CHCvlr2c=";    };  };}

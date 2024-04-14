@@ -1,0 +1,1 @@
+{  url = "https://github.com/CosmoMyst/Dath";  versions = {    "~master" =  {      rev = "a33e4f243d750c631277d8b8a5b9a82b8971b62f";      sha256 = "sha256-JNc9AsUQRzrYFiGKlCWTojmdGpfrw+758ad5tMSWVV4=";    };  };}

@@ -1,0 +1,1 @@
+{  url = "https://github.com/dlang-libs/arsd-clone";  versions = {    "~master" =  {      rev = "31da8a6edf32320e8e874dc3e0289d9307e42a6a";      sha256 = "sha256-8/rPPgUXuEK0+af8bXyPP/e+1qQEaYnsA8kcGV7Znao=";    };    "1.2.2" =  {      rev = "31da8a6edf32320e8e874dc3e0289d9307e42a6a";      sha256 = "sha256-8/rPPgUXuEK0+af8bXyPP/e+1qQEaYnsA8kcGV7Znao=";    };  };}

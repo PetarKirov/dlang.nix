@@ -1,0 +1,1 @@
+{  url = "https://github.com/kiith-sa/D-GameVFS";  versions = {    "0.2.0" =  {      rev = "04c4b96693fae765366af9b6f964908e61c91cc2";      sha256 = "sha256-pSGVbdi3l4BW4ePBG73pzSJdqprQBvQ8leMpanO7/WE=";    };    "~master" =  {      rev = "d8e52a67393c29335a3274d49e766ab20ba567e9";      sha256 = "sha256-PQH9p2cgomPlsBp+RhY04ce7nfKlFBYjDy/LMfc26H0=";    };  };}

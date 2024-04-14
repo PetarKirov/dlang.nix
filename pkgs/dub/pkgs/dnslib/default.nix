@@ -1,0 +1,1 @@
+{  url = "https://github.com/Tusanga/dnslib";  versions = {    "0.1.0" =  {      rev = "22842b71586bbf14d6b53a823166ffb2725b0e9a";      sha256 = "sha256-UgNyaQmI5unigUsyMvnmPW1d6UwbH6tucjpTJf8sWhA=";    };    "~master" =  {      rev = "22842b71586bbf14d6b53a823166ffb2725b0e9a";      sha256 = "sha256-UgNyaQmI5unigUsyMvnmPW1d6UwbH6tucjpTJf8sWhA=";    };  };}
