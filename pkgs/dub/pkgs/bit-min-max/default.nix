@@ -1,0 +1,1 @@
+{  url = "https://github.com/ariovistus/bit-min-max";  versions = {    "~master" =  {      rev = "c57df414d4a1db0ea4a2803ba770313d0613e465";      sha256 = "sha256-XbEv6s1wVQc+l7VAhjxd+AM3Okn/CSs0HR08dK1DY10=";    };    "1.0.0" =  {      rev = "c85052ae1411b80787a852fcc276dbb535226382";      sha256 = "sha256-XZ+4B7ChXY/3dBLKn2G/9xYrRB7LHp09/V+PDrsZqEU=";    };  };}

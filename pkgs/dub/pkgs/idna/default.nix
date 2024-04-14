@@ -1,0 +1,1 @@
+{  url = "https://github.com/ikod/idna";  versions = {    "~master" =  {      rev = "de72c67b5fb403f7cc9b70fb725a3564af9e20ff";      sha256 = "sha256-lw4V2GnRQQJlWNoxdTcqrX9hU2ZBKjxBnvh/1DFehfY=";    };    "0.0.1" =  {      rev = "fd87e82328e074b0e5e236577c665103c797875c";      sha256 = "sha256-7Izn9Yj+vvhIIvUcyQoGwzvPBM1UQ3bLDZKGqWPbpIY=";    };  };}

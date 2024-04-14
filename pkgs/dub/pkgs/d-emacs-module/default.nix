@@ -1,0 +1,1 @@
+{  url = "https://github.com/ShigekiKarita/d-emacs-module";  versions = {    "~master" =  {      rev = "3dc9612e7f3e7279a68cc500b4af49c80370e997";      sha256 = "sha256-5KPH2Ca6tjzQBvy6b4VqOrptyssWXQ3cZkM73pkKNkA=";    };    "0.0.1" =  {      rev = "962f1965bb1ce27567a819672355881f9e40023d";      sha256 = "sha256-nvW1pa/0xPSF2lmhEvVYGP+qHeP1FRqHAO2ekoERlgs=";    };  };}

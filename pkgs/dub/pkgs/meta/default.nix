@@ -1,0 +1,1 @@
+{  url = "https://github.com/evenex/meta";  versions = {    "~master" =  {      rev = "a298a26c2e78b9ad21963d4fa46a4be1462fa23f";      sha256 = "sha256-ky0y3pDDVJ7xVbFn/aAl7GTRbS3eWrP/X2NTRi9htQc=";    };    "0.0.1" =  {      rev = "46f5d15c1790533898c743c61a23b739c395fa2c";      sha256 = "sha256-BD2hpiZqS/vKQpkRmwWb2yKVdag5V3oV/3DXyXrSjys=";    };  };}

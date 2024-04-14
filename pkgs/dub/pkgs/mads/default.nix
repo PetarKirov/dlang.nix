@@ -1,0 +1,1 @@
+{  url = "https://github.com/infinityplusb/mads";  versions = {    "~master" =  {      rev = "077d164adbbf98f496db943838ed6fc7cbbdef4a";      sha256 = "sha256-uwA0jMybiqDuOYiBvSf7zLg814c3Hmhc/4jp3CrZQng=";    };    "0.0.1-alpha" =  {      rev = "e5ed11a9f864c6809c67e731d5777ab98971561f";      sha256 = "sha256-la4nZbG9Q4UPyKklwvCcvCv67LUo2+n01YPEcr32pLc=";    };  };}

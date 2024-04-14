@@ -1,0 +1,1 @@
+{  url = "https://github.com/thechampagne/audiodb-d";  versions = {    "1.0.0" =  {      rev = "ad28934dab2e8f99102f5214d9cbded458ac5316";      sha256 = "sha256-4yjf3l52qUZzJZgLiMxQt+Ov1pbK1LGitpUlJDdgTvg=";    };    "~main" =  {      rev = "ad28934dab2e8f99102f5214d9cbded458ac5316";      sha256 = "sha256-4yjf3l52qUZzJZgLiMxQt+Ov1pbK1LGitpUlJDdgTvg=";    };  };}

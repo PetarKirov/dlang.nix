@@ -1,0 +1,1 @@
+{  url = "https://github.com/heapsource/webcaret";  versions = {    "~master" =  {      rev = "4199998b5c27b3fa7fae1f2a7200dae5ebdc0da5";      sha256 = "sha256-GpAaJpubHsrpoWS8ugdWBngyip9dQnh5GaAFJ9C4VOU=";    };  };}

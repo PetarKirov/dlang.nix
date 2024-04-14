@@ -1,0 +1,1 @@
+{  url = "https://github.com/carlitos7-cloud/exitclean";  versions = {    "~master" =  {      rev = "2d7dfbc1ba03b4ac43fcb3da31452dbb50cbf10b";      sha256 = "sha256-Gy+7EDjDvb2AGSdL8XCTMgioOCmiJCKmVwzcbZwY5jk=";    };  };}

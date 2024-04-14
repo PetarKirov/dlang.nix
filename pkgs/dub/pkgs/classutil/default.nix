@@ -1,0 +1,1 @@
+{  url = "https://github.com/ZILtoid1991/classutil";  versions = {    "1.0.0" =  {      rev = "c4662aff63f573f6952da503a9035c7a941260af";      sha256 = "sha256-eLYS7+yrCiYq5ErmcwU7CIogEM5lUdmtb40qWfDz8Sg=";    };    "~main" =  {      rev = "9e989d0e4e69f2751096642ec6866fb497e97421";      sha256 = "sha256-eS3vdycYDCifO23Yf/U4EZOLGQgJKkS/KARHNLPhryw=";    };  };}

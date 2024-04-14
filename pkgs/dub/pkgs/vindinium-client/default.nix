@@ -1,0 +1,1 @@
+{  url = "https://github.com/dymk/vindinium-client";  versions = {    "~master" =  {      rev = "b70ffac341f84e55b3b3b41b4dd686e6841cdf74";      sha256 = "sha256-ky+Jcz6MTl1lnq+WJ3Ec0vRbgIlIsY32Bb+gs40n690=";    };    "0.0.1" =  {      rev = "b70ffac341f84e55b3b3b41b4dd686e6841cdf74";      sha256 = "sha256-ky+Jcz6MTl1lnq+WJ3Ec0vRbgIlIsY32Bb+gs40n690=";    };  };}

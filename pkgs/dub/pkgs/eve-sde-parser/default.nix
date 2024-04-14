@@ -1,0 +1,1 @@
+{  url = "https://github.com/Erikvv/eve-sde-parser-d";  versions = {    "0.2.0" =  {      rev = "75e336870136192c609e86fe686a422a82a9caa3";      sha256 = "sha256-49Q43N5NTcNsDuZto32A/mzJ1jcJK8drdz9UrBE6w5Q=";    };    "~master" =  {      rev = "518bfbd2efdd261c1bb783e6a012dbacd093a24d";      sha256 = "sha256-hWRkOXwwwSiyvx5+f9OSe5b6P7OqO8URwyN/757pjcc=";    };  };}

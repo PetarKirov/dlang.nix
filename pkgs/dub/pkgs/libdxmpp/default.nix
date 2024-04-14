@@ -1,0 +1,1 @@
+{  url = "https://github.com/opticron/libdxmpp";  versions = {    "0.1.0" =  {      rev = "4573f100864eb5053c6a87715b88ae9619fea644";      sha256 = "sha256-Q3av3VbzOzbzqCttkz5PIb5viJyPPcYC2D6PrkCqHFI=";    };    "~master" =  {      rev = "4573f100864eb5053c6a87715b88ae9619fea644";      sha256 = "sha256-Q3av3VbzOzbzqCttkz5PIb5viJyPPcYC2D6PrkCqHFI=";    };  };}

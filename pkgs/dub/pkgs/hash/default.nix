@@ -1,0 +1,1 @@
+{  url = "https://github.com/mintyfresh/hash";  versions = {    "0.1.0" =  {      rev = "48d378ebdeb2844021cba65e994653dfe0fb0de9";      sha256 = "sha256-em0f7ydv8e+KPc+HYb0pkDDa14C201w9O3PPUdwvSeE=";    };    "~master" =  {      rev = "904c870c3aeede212c2cb17d814857097048e228";      sha256 = "sha256-NflahAVGSIkC/PtSnhgJ4e/dKIuny7UImp/7EzhtHJA=";    };  };}

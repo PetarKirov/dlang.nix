@@ -1,0 +1,1 @@
+{  url = "https://github.com/Hackerpilot/experimental_allocator";  versions = {    "~master" =  {      rev = "3f35361f5ea46f0a3a5cf38523c47838c008dce0";      sha256 = "sha256-wNrV3oLPRv5mDcr30ggm3pMvlBlS0K/2PXNImq9H5MI=";    };    "2.70.0-b1" =  {      rev = "131739dce3038ccd6d762f3dd92d3718fbe5fc5f";      sha256 = "sha256-v+Dwlcpoe1bW90finNfvB+T49XCt3NXxwfzjXCjxgow=";    };  };}

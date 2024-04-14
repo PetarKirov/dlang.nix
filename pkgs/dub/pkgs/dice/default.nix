@@ -1,0 +1,1 @@
+{  url = "https://gitlab.com/hellowelcome/dice";  versions = {    "~master" =  {      rev = "6be08368e3d3dd284a4ca3debe9c7ab08a85e6f3";      sha256 = "sha256-MEyT48pRK+4fNW/0WGBpvaGQJ1IIo+RPu+qFozPG9wU=";    };    "1.0.0" =  {      rev = "36ea5591eaf0806449ef8d02753e94371e9994e1";      sha256 = "sha256-hGvG9Lt5Wj1UknJhaNMxVMLZvzugW8yRt9YjZLuQ0mI=";    };  };}

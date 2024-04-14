@@ -1,0 +1,1 @@
+{  url = "https://github.com/KonstantIMP/libhandy-d";  versions = {    "~master" =  {      rev = "f77e24b7dd4be57dfef6994473fa133331ddcaa3";      sha256 = "sha256-J+SGNmrQeZzUBel4DqBPIr2wP6jMwStn7iMuNL3Z9r4=";    };  };}

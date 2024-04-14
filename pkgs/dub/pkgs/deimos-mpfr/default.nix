@@ -1,0 +1,1 @@
+{  url = "https://github.com/gchatelet/deimos-mpfr";  versions = {    "1.0.0-alpha" =  {      rev = "46af8a68c317a9f2d361cea39482ea5dcd043066";      sha256 = "sha256-5Mt1g4nln5Pkiz9vM/JdJIuvTljVyRkGLKKmVJcxtAs=";    };    "~master" =  {      rev = "bec837720aad667523bb1a029d5b658f578c6636";      sha256 = "sha256-BRP15QBv3CXeXtoMyA4vhomDDsrYek10ZCMyUwbJOC8=";    };  };}

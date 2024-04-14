@@ -1,0 +1,1 @@
+{  url = "https://github.com/thechampagne/jsonnet-d";  versions = {    "0.1.0" =  {      rev = "ca169d2077f7715ba6aa25026f7f3bbd2721b113";      sha256 = "sha256-x8L8kq1Kv+PBp8SzAW/WbaHvt4EoN1mkAqj1uJZBi5U=";    };    "~main" =  {      rev = "ca169d2077f7715ba6aa25026f7f3bbd2721b113";      sha256 = "sha256-x8L8kq1Kv+PBp8SzAW/WbaHvt4EoN1mkAqj1uJZBi5U=";    };  };}

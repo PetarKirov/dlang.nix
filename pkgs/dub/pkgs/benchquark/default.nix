@@ -1,0 +1,1 @@
+{  url = "https://github.com/maxhaton/benchquark";  versions = {    "~master" =  {      rev = "c2f5543ebe297ee4ebcfd2867bce146b76f2bcd5";      sha256 = "sha256-iNSrWlZ7IFsDAl8hTQlBt45iEJCCzsQTbPH5pr5HCSs=";    };    "0.8.0" =  {      rev = "88abb5f9078732c36d732198418a25b1be24bc77";      sha256 = "sha256-JWUjEk/fx/+cSRiyA3Mc6Jd9YNsR/l6ffSVXG0csuSk=";    };  };}

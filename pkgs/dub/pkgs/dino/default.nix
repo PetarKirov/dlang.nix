@@ -1,0 +1,1 @@
+{  url = "https://github.com/KoczurekK/d.ino";  versions = {    "0.1.0" =  {      rev = "985b2bd337001c4b5706143a5352b8e39141fd7d";      sha256 = "sha256-4GF2jfprpRnzYk39djkjUZT2u5uj+/tx8w9wMbuZaiM=";    };    "~master" =  {      rev = "03f9a508047ed189965a4e7d27f30c5b41dce890";      sha256 = "sha256-HB9Tvtz/egWpE31Mx4sIiC8XP5rc3fAOIIaN1H8+ajQ=";    };  };}

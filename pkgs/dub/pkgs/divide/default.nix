@@ -1,0 +1,1 @@
+{  url = "https://github.com/tomerfiliba/d-divide";  versions = {    "0.1.0" =  {      rev = "b63867fedb71f654e1bb83c73479ff2253f201a7";      sha256 = "sha256-Wqehs13ZKo6rEoS0CzOkEsrnI5+txYEmD3dxhoxbTls=";    };    "~master" =  {      rev = "b63867fedb71f654e1bb83c73479ff2253f201a7";      sha256 = "sha256-Wqehs13ZKo6rEoS0CzOkEsrnI5+txYEmD3dxhoxbTls=";    };  };}

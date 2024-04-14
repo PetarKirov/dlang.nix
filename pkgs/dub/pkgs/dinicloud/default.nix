@@ -1,0 +1,1 @@
+{  url = "https://github.com/eresid/DiniCloud";  versions = {    "~master" =  {      rev = "ceaf883e6e5a11c0614f8a91d234306da3cb2438";      sha256 = "sha256-bRXNeUvc2e15xHz66lzHqbJYWMMX6gtyN4Y6nBHUcDM=";    };    "0.0.1" =  {      rev = "ceaf883e6e5a11c0614f8a91d234306da3cb2438";      sha256 = "sha256-bRXNeUvc2e15xHz66lzHqbJYWMMX6gtyN4Y6nBHUcDM=";    };  };}

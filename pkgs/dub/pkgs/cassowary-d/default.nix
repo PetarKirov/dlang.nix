@@ -1,0 +1,1 @@
+{  url = "https://github.com/yglukhov/cassowary.d";  versions = {    "~master" =  {      rev = "0e22b683b8121f8b6f95ecd113a96a8aafc786af";      sha256 = "sha256-KgZcaKswn/p7olzxQJFGSWf0QUJWA8lChzy3YHx3nik=";    };    "0.0.1" =  {      rev = "f59a92c81e23097f7e6d698aa696f5e3063e443f";      sha256 = "sha256-9cUfbv4Wf7+TAUPw3SAL1uZ0g043kTUbLWuWlDlQQ5E=";    };  };}

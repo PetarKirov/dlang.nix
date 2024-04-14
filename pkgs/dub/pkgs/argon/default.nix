@@ -1,0 +1,1 @@
+{  url = "https://github.com/Computermatronic/Argon";  versions = {    "~master" =  {      rev = "e337adeaebab2a3f40fba6d30baede8b81384d72";      sha256 = "sha256-N1+huNfSPA1n28bHcexsyocxq001TUl5ULPQLtp5cSI=";    };    "0.0.1" =  {      rev = "db84a50988d5d7df088d2862488789621088dcc2";      sha256 = "sha256-5LW2bhoEcv9rCqikWK+ZLHKmLBwEpZumqLmQi+yduJY=";    };  };}

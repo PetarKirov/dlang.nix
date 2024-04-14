@@ -1,0 +1,1 @@
+{  url = "https://github.com/symmetryinvestments/symmetry-tika-api";  versions = {    "~master" =  {      rev = "ec640aa8602fcea9d91c72198b308287b63fc5f4";      sha256 = "sha256-XOjO7YGdy8+LqFT38aOwt83loJK3kpM8oytbRB7VLEY=";    };    "0.0.1" =  {      rev = "ec640aa8602fcea9d91c72198b308287b63fc5f4";      sha256 = "sha256-XOjO7YGdy8+LqFT38aOwt83loJK3kpM8oytbRB7VLEY=";    };  };}

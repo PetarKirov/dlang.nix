@@ -1,0 +1,1 @@
+{  url = "https://github.com/symmetryinvestments/kafel";  versions = {    "~master" =  {      rev = "2e3b2a42923babf839cc72c4fa3022f84bc4e596";      sha256 = "sha256-1MXNOQSsSSedtpEIKa70FbWl6TqsyS9A+oFy1McSG7I=";    };    "0.0.0" =  {      rev = "2e3b2a42923babf839cc72c4fa3022f84bc4e596";      sha256 = "sha256-1MXNOQSsSSedtpEIKa70FbWl6TqsyS9A+oFy1McSG7I=";    };  };}

@@ -1,0 +1,1 @@
+{  url = "https://github.com/ilmanzo/fileinput-d";  versions = {    "0.0.1" =  {      rev = "d9f447661bab9b64641311a172ad8a338f2958b0";      sha256 = "sha256-jrcMqV9Y4YWCB0X1/2vfKyli17g8g4UP9D8lADDDoy0=";    };    "~main" =  {      rev = "011a58e7361414566ffe6d9a83453dfbed626a9d";      sha256 = "sha256-WPtRPZ3jOhSkQqBbRJipa8YrPGKBb+jMxmgs2ZFD0Wk=";    };  };}

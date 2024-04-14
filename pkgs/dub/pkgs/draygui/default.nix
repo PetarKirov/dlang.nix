@@ -1,0 +1,1 @@
+{  url = "https://github.com/o3o/draygui";  versions = {    "0.1.0" =  {      rev = "f9c597dbfcc9d876fd55c0c8478d6e53b96aca65";      sha256 = "sha256-9EMne4mtqLbpjlezCJSuFvx6auiNCl1iMl3VLj6e+qE=";    };    "~master" =  {      rev = "6aa475426910272920eabce701c7e4f8fc12e7fa";      sha256 = "sha256-ckVfmGZJB0WwDmFa5O4TpWajTz4+/HFCBvpOfNv8K1E=";    };  };}

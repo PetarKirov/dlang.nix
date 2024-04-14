@@ -1,0 +1,1 @@
+{  url = "https://github.com/aferust/makegtkdclass";  versions = {    "0.0.1" =  {      rev = "26576ca2fc8345d465b5c2b6594698f73b975249";      sha256 = "sha256-sTyGbO5GKFRi/ia8Lg/fzO/jNQIqePEborB0Y1Hq2ww=";    };  };}

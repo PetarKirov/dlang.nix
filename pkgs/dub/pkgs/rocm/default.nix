@@ -1,0 +1,1 @@
+{  url = "https://gitlab.com/GZGavinZhao/rocm.d";  versions = {    "0.0.2" =  {      rev = "b94c23d40279c84381ca7f07fd391540b2625578";      sha256 = "sha256-3VtURd7LwPY+XxIbPtS6Q/YvFl4vo+Qm/1jwURdSRsM=";    };  };}

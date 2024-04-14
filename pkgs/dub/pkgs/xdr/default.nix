@@ -1,0 +1,1 @@
+{  url = "https://github.com/todayman/xdr";  versions = {    "0.1.0" =  {      rev = "75c8f84958d8d1fa1f3f55252d550a23c9258ecc";      sha256 = "sha256-3n9IWMSB/Vtjm03FsqN/87f7PT/H+Xe4u1eQCZsTIek=";    };    "~master" =  {      rev = "eec6eb00f956fa5da5fceba83c4f5e7786ab8d0f";      sha256 = "sha256-bvikUQ4C6PvnsYu5cTCdR8aXLPDDPnwIRsQ0qjoA1j0=";    };  };}

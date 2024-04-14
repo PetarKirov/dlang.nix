@@ -1,0 +1,1 @@
+{  url = "https://github.com/shoo/msgraph";  versions = {    "0.0.1" =  {      rev = "dc2353979803fbac4611e3bd9ba421917990407e";      sha256 = "sha256-eRHWBdXWjrfLlU2QR/QFRpxvI5CVPZuYJsfpn6KdjcI=";    };    "~main" =  {      rev = "68b894c146f9ef5af041319c9d10e1ab506d2b56";      sha256 = "sha256-yl/zekw76WtZmZxpcwPYw8SSR1fnzNj+4KkPyNXz2HM=";    };  };}

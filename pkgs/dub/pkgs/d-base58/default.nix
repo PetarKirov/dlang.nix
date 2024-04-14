@@ -1,0 +1,1 @@
+{  url = "https://github.com/erde74/d-base58";  versions = {    "0.1.0" =  {      rev = "4af769b0ad348f81406c96cbb5ecfac83275a6b5";      sha256 = "sha256-wJNuPIRXFnKyNedjFPJX32XM3s9LqGjY6kVcKUEcRPY=";    };    "~master" =  {      rev = "4af769b0ad348f81406c96cbb5ecfac83275a6b5";      sha256 = "sha256-wJNuPIRXFnKyNedjFPJX32XM3s9LqGjY6kVcKUEcRPY=";    };  };}

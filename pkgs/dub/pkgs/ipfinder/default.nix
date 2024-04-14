@@ -1,0 +1,1 @@
+{  url = "https://github.com/ipfinder-io/ip-finder-dlang";  versions = {    "1.0.0" =  {      rev = "c92a0e16d0af52b676e5e709215590604108c991";      sha256 = "sha256-UyWyhqFNeGpYk+letlrWGgTQ1iWoTwVcnfsP/KYMPtg=";    };  };}

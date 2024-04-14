@@ -1,0 +1,1 @@
+{  url = "https://github.com/prasunanand/gperftools_d";  versions = {    "0.1.0" =  {      rev = "11e6b738220a092bf751c4539db63c682bac0980";      sha256 = "sha256-PIuEnFFWe4oO4Yly6M4uyRy9RxwgH/U5Gj04FXWPdu8=";    };    "~master" =  {      rev = "1caa265b5ec5453ea349010afd052132c745b5fd";      sha256 = "sha256-w/gbGfpk7xVd4k51De2iPrkO4Bh+iZpQMSWVY1UwPTs=";    };  };}

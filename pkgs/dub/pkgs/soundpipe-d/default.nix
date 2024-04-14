@@ -1,0 +1,1 @@
+{  url = "https://github.com/redthing1/soundpipe-d";  versions = {    "1.0.0" =  {      rev = "a346bebe61689f0029f1d75952c0ed3493dfdc45";      sha256 = "sha256-UZfr7tYFYoIvp6cj3q68qaPLPGzXHAD9FRSvfd+ozB8=";    };    "~main" =  {      rev = "2831f84aee888d976c0ebb8d77843bed4ead6d1b";      sha256 = "sha256-ztW+gwY2LK0otUDMk9S+uOSJSCRsyqOZ2WAaj1gg3Aw=";    };  };}

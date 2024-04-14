@@ -1,0 +1,1 @@
+{  url = "https://github.com/viile/view";  versions = {    "~master" =  {      rev = "3b6a43651bd77a978f713da6253443be233ae9e0";      sha256 = "sha256-tW9huxVfNnqeMx0PbK1ZdiK9Rf6KMt+SGnLLhOd8l5I=";    };    "0.0.3" =  {      rev = "3b6a43651bd77a978f713da6253443be233ae9e0";      sha256 = "sha256-tW9huxVfNnqeMx0PbK1ZdiK9Rf6KMt+SGnLLhOd8l5I=";    };  };}

@@ -1,0 +1,1 @@
+{  url = "https://github.com/elementgreen/libasound-d";  versions = {    "2.0.0" =  {      rev = "704ec781ed714b64f50c431de7e5cb80e4f8ca75";      sha256 = "sha256-pJT2dn9acvzxThY7awdo2f22HzFZj61BBfFfGqt7Sqw=";    };  };}

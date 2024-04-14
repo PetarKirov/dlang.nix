@@ -1,0 +1,1 @@
+{  url = "https://github.com/Dav1dde/glamour";  versions = {    "~master" =  {      rev = "14dcad3af9f7d2e3d8b72f585c31e16875e03852";      sha256 = "sha256-gCQFA9docFwKmXm7gmhGRZl5ahqg5oLI4V3EvoGpHV8=";    };    "1.0.1" =  {      rev = "eec98e0f2918d8f11e4a2228091e4fcaf4397007";      sha256 = "sha256-EYr9So7ZSSY5kHR0glYosEFWdlvaOakftfHEsid+MAQ=";    };  };}

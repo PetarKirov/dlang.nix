@@ -1,0 +1,1 @@
+{  url = "https://github.com/aferust/bindbc-sdlgfx";  versions = {    "0.0.1" =  {      rev = "6fb38dfc90284f52b665e1205e6a572e22063dfa";      sha256 = "sha256-laVh6sT79G5EKyI2ntPiOfjKRqwxz6gN94l25UMyshc=";    };  };}

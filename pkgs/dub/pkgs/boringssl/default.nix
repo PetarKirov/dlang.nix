@@ -1,0 +1,1 @@
+{  url = "https://github.com/huntlabs/boringssl";  versions = {    "~master" =  {      rev = "334e54ac1adb23754bc6b8c5ae955c4728253cd6";      sha256 = "sha256-kMLa4sWzsGGepZ0QRVd0oaYOCdzL278cY1j/Ysa1Vwo=";    };    "0.0.1" =  {      rev = "334e54ac1adb23754bc6b8c5ae955c4728253cd6";      sha256 = "sha256-kMLa4sWzsGGepZ0QRVd0oaYOCdzL278cY1j/Ysa1Vwo=";    };  };}

@@ -1,0 +1,1 @@
+{  url = "https://github.com/dhasenan/keybinder";  versions = {    "0.1.0" =  {      rev = "6b47e159362d7c4c9d9bb58292ee9f4c20755290";      sha256 = "sha256-sdoWtdRvuwI+i/Sbc3yxN5JnfhqRoZYW4xTLlyT71/g=";    };    "~master" =  {      rev = "18a7797fb7d85d7681d7abd9e1d8e36b4d4eb4cd";      sha256 = "sha256-LFNlwGOFyabmsZqVQZWrnTzdCGKbyOuc7UObagMOp68=";    };  };}

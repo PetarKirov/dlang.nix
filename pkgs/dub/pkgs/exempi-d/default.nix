@@ -1,0 +1,1 @@
+{  url = "https://github.com/lesderid/exempi-d";  versions = {    "0.1.0" =  {      rev = "d246a2106b1876a58e52f3477cfe310648296831";      sha256 = "sha256-K8XZE99nlzwVQuR3ymB8Jrz9gLaEhF+9FvcIMo5hOzA=";    };    "~master" =  {      rev = "d246a2106b1876a58e52f3477cfe310648296831";      sha256 = "sha256-K8XZE99nlzwVQuR3ymB8Jrz9gLaEhF+9FvcIMo5hOzA=";    };  };}

@@ -1,0 +1,1 @@
+{  url = "https://github.com/aldocd4/terrain-generator-d";  versions = {    "1.1.0" =  {      rev = "aa86a4385532052e40f099d6faf1d5de9c673ca0";      sha256 = "sha256-mciMh2JVJMPDNzbA33gUdLKZrxkhvE7c8qvqBAa3hf4=";    };    "1.0.0" =  {      rev = "6c003eb0d511e7af88b7606a44658babb31fb9ad";      sha256 = "sha256-sz7M2NCRSLovts1Dn5hVsJoWJGP2ZeZ6xS3PnQo4hjM=";    };  };}

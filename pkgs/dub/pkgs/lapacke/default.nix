@@ -1,0 +1,1 @@
+{  url = "https://github.com/dataPulverizer/lapacke";  versions = {    "~master" =  {      rev = "d3481f82157fbcd56cf1ccb8a50f5d611ef6b889";      sha256 = "sha256-rzyJhQhVnDW5hv79IrkYGRlJFt+whkJmPVFCsCwlC4g=";    };  };}

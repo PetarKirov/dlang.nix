@@ -1,0 +1,1 @@
+{  url = "https://github.com/LightHouseSoftware/salsa20";  versions = {    "0.0.1" =  {      rev = "38b2d65b5c0c6985e652675f8af973da92e3a980";      sha256 = "sha256-0OdVzYhVepgc+CozjWqfLqiS2wVnCk2b3L+RozrLKZk=";    };    "~main" =  {      rev = "ef2556ba345cb62bb68e67390ec018776f39631e";      sha256 = "sha256-a5THBUAICX2iLa4b+b7OtPqqvGyAdb4co3pUXfI00jk=";    };  };}

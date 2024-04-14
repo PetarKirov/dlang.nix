@@ -1,0 +1,1 @@
+{  url = "https://github.com/opticron/ProtocolBuffer";  versions = {    "~master" =  {      rev = "1e1fa7ef01b87879e13080c4b48ca857b2e42318";      sha256 = "sha256-MWOeCZlry4vDmCCazRKC2jtT1C3Nt7FkQVF8J4xyBQ8=";    };    "0.0.0" =  {      rev = "41978f6537c79a41672b1ddb978f55558d41121d";      sha256 = "sha256-4JpAFnPk9eJM9DTOnuJJ2hUPaWQlRo4WH3ROa7Ilmj4=";    };  };}

@@ -1,0 +1,1 @@
+{  url = "https://github.com/Enalye/atelier";  versions = {    "~main" =  {      rev = "73009b57d6ffb732f6d621b2f41e9e5b1ed6a365";      sha256 = "sha256-gtWxtNgG76NsUyuucVrFCdkLckt5pvfpKyQx6IfWxvE=";    };  };}

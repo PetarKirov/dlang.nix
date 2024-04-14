@@ -1,0 +1,1 @@
+{  url = "https://github.com/andrew-m-h/libgmp";  versions = {    "~master" =  {      rev = "73b446f4848bb745e0ea3addedf1169e501939c4";      sha256 = "sha256-tg1siqhtjpislKJQe5dzOqSXf4wLEWisyzq7JLoaLJA=";    };    "1.0.0" =  {      rev = "e6924e600bc419cf1c247d5af4c561fe6b9f8687";      sha256 = "sha256-1t8kKhQ7T2QsdWAHLdwXAG9Nf+Y0TBOJoxT0U5d+3Xw=";    };  };}

@@ -1,0 +1,1 @@
+{  url = "https://github.com/ShigekiKarita/d-tree";  versions = {    "~master" =  {      rev = "cf513fde24fa16e4820d169ba2c85e0ac74a9abf";      sha256 = "sha256-X91urSanYFdfPowedLXS8D6WzmPwEmeIi4bPnp/1XUs=";    };    "0.0.1" =  {      rev = "8449d08120bfef7a07eb703a8f959da2aad568eb";      sha256 = "sha256-d0R6KgSHGXv/llzT9usSbQsWaxi1mcVYYjhbdavKVkI=";    };  };}

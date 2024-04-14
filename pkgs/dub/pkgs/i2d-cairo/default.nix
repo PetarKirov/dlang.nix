@@ -1,0 +1,1 @@
+{  url = "https://github.com/Inochi2D/i2d-cairo";  versions = {    "1.0.0" =  {      rev = "96ca3be77f56c3798c6fdfdf3d2ab39bad50fafe";      sha256 = "sha256-Xu2s1ZmKdeV1qtAeXvHwTSMLZjBkUPZzPq4SMkiOVh8=";    };    "~main" =  {      rev = "96ca3be77f56c3798c6fdfdf3d2ab39bad50fafe";      sha256 = "sha256-Xu2s1ZmKdeV1qtAeXvHwTSMLZjBkUPZzPq4SMkiOVh8=";    };  };}

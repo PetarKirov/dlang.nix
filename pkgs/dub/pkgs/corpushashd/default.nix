@@ -1,0 +1,1 @@
+{  url = "https://github.com/fccoelho/corpushashD";  versions = {    "~master" =  {      rev = "adafa1e78d0af66aec708a792a4799000ea43cff";      sha256 = "sha256-8Sld+Zk6FuPfgtOS1R+4IWMMrFffM2RMMbzQPCc9GPs=";    };    "0.3.2" =  {      rev = "adafa1e78d0af66aec708a792a4799000ea43cff";      sha256 = "sha256-8Sld+Zk6FuPfgtOS1R+4IWMMrFffM2RMMbzQPCc9GPs=";    };  };}

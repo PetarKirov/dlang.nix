@@ -1,0 +1,1 @@
+{  url = "https://github.com/redthing1/cmdex";  versions = {    "0.3.0" =  {      rev = "846e3d454996b6f9505ec0773adc486cf52fd4cc";      sha256 = "sha256-YqRcgfuoErBurQGHcjZnsd8WriC0rLEL8kT5QSAd+M0=";    };    "~master" =  {      rev = "846e3d454996b6f9505ec0773adc486cf52fd4cc";      sha256 = "sha256-YqRcgfuoErBurQGHcjZnsd8WriC0rLEL8kT5QSAd+M0=";    };  };}

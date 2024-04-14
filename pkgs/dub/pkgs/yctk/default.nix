@@ -1,0 +1,1 @@
+{  url = "https://github.com/yeti0904/yctk";  versions = {    "0.0.1" =  {      rev = "0c4018d980980b45f973bc45a7c2d95c9875e3c6";      sha256 = "sha256-7CYZGnKqYRJ7jrge4qSZqnxiGzQ0kPNn/dJdpUZWQhI=";    };    "~main" =  {      rev = "0c4018d980980b45f973bc45a7c2d95c9875e3c6";      sha256 = "sha256-7CYZGnKqYRJ7jrge4qSZqnxiGzQ0kPNn/dJdpUZWQhI=";    };  };}

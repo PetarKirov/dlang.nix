@@ -1,0 +1,1 @@
+{  url = "https://github.com/LightHouseSoftware/redobc";  versions = {    "0.0.1" =  {      rev = "04732304f1982e733205358079c69ac883ea1248";      sha256 = "sha256-4cUe66lEPyx+PJ2eptBMCky2VU12wnbvDppSi+nDQR8=";    };    "~main" =  {      rev = "04732304f1982e733205358079c69ac883ea1248";      sha256 = "sha256-4cUe66lEPyx+PJ2eptBMCky2VU12wnbvDppSi+nDQR8=";    };  };}

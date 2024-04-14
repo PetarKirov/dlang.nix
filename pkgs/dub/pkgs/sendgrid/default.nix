@@ -1,0 +1,1 @@
+{  url = "https://github.com/trikko/sendgrid";  versions = {    "0.1.0" =  {      rev = "d67558240979aaa7695bb9528afd0ab1b050c160";      sha256 = "sha256-jyhJyL5Tl3iAYzbp1sGke7jowhIupslbGgYWjOLgdIs=";    };    "~main" =  {      rev = "d67558240979aaa7695bb9528afd0ab1b050c160";      sha256 = "sha256-jyhJyL5Tl3iAYzbp1sGke7jowhIupslbGgYWjOLgdIs=";    };  };}

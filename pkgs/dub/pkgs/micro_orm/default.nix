@@ -1,0 +1,1 @@
+{  url = "https://github.com/Bithero-Agency/micro_orm-d";  versions = {    "0.1.0" =  {      rev = "0944cbb61f492e6d1c5cb11948d3a2b8981e6e98";      sha256 = "sha256-DOCfFdmQzfws00MlTMI1saSrx95V8h438GsWGDfYUwk=";    };    "~master" =  {      rev = "9f8a8d6bce165650965a02fc9908e796f4ce53cd";      sha256 = "sha256-6p+0ManlqUbvK89//Vrhx4lY+ffWxL6Fe0dp3+ShI7o=";    };  };}

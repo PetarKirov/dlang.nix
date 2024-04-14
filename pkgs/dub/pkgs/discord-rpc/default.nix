@@ -1,0 +1,1 @@
+{  url = "https://github.com/analogjupiter/discord-rpc-d";  versions = {    "~master" =  {      rev = "79ccd34701a2738a3e955698f6e0044aa91a693a";      sha256 = "sha256-7ju0VyMOm9O3RtAmWCuTlcd0MK+l1vcpCc9lfZPyQ18=";    };    "3.3.0" =  {      rev = "9096e22a2ab6ae45873d3f1015cebb300aa3cef2";      sha256 = "sha256-GQUfB0t7xQIxz4Xiwbn+hdgNVjrrV4GMQOSVOpSm9bU=";    };  };}

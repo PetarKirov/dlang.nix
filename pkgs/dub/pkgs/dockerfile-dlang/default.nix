@@ -1,0 +1,1 @@
+{  url = "https://github.com/symmetryinvestments/dockerfile-dlang";  versions = {    "~master" =  {      rev = "6ce214a9dea5f2b2b1b3f621b5042d80301e6551";      sha256 = "sha256-PTmvBXVIwAM4GRHH0m7Vtp7r0nHjIi4vo9lVkrnR3ys=";    };    "0.0.1" =  {      rev = "0ee71a2262e9e49c82b207622a1fc70617ec50a2";      sha256 = "sha256-5IIIUoarMb6IQV1voH2KSRoah11GtPySO1P7qCWmh0Q=";    };  };}

@@ -1,0 +1,1 @@
+{  url = "https://github.com/lesderid/ffmpeg4d";  versions = {    "~master" =  {      rev = "537dc7f347d5b823bd06d66f9ca4875c09ef670d";      sha256 = "sha256-RHfXPh3bxnlJP0W0uDSTliYyxpQ0+2Zan9Fx85Uhp5c=";    };    "4.1.0" =  {      rev = "537dc7f347d5b823bd06d66f9ca4875c09ef670d";      sha256 = "sha256-RHfXPh3bxnlJP0W0uDSTliYyxpQ0+2Zan9Fx85Uhp5c=";    };  };}

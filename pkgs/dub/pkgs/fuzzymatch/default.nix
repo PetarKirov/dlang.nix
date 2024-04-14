@@ -1,0 +1,1 @@
+{  url = "https://github.com/WebFreak001/FuzzyMatch";  versions = {    "~master" =  {      rev = "9c3e0ada8c653755c026540348640769adaf2104";      sha256 = "sha256-in+i84KTMYWq8/0b+5nqT3dRb4zRBCTmj6leDTWGs5s=";    };    "1.0.0" =  {      rev = "9c3e0ada8c653755c026540348640769adaf2104";      sha256 = "sha256-in+i84KTMYWq8/0b+5nqT3dRb4zRBCTmj6leDTWGs5s=";    };  };}

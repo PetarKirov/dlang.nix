@@ -1,0 +1,1 @@
+{  url = "https://github.com/schveiguy/newaa";  versions = {    "~master" =  {      rev = "1c9cb4c71335322138a433221200cefe3a3ebf63";      sha256 = "sha256-7nv6CR1qYvWlPOYnY+lKCSgWxAIVZwLDz+RiaE34fEU=";    };    "0.0.1" =  {      rev = "05244385b7118d8279185d9dfeb9725dc6518c9f";      sha256 = "sha256-CtrtGyYeoLtXku6C6QMDqB8zn2SgkJeMIMq4c8U4bjM=";    };  };}

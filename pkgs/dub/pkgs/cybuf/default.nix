@@ -1,0 +1,1 @@
+{  url = "https://github.com/aceawan/cybuf";  versions = {    "~master" =  {      rev = "b19bc97beb6dce7266f3d250b676b596a123d185";      sha256 = "sha256-wOb2h2EInajtMqPSrCANESEE7sD4ae7vigdqQQTMelc=";    };    "1.0.0" =  {      rev = "0fd347852e37152953d377b4d9095ad433591919";      sha256 = "sha256-LQsfhLsHvp9b3ZEs4WWpbOofkKjNBEdEVYPD30t86oM=";    };  };}

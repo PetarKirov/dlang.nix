@@ -1,0 +1,1 @@
+{  url = "https://github.com/mintyfresh/levmar";  versions = {    "2.6.0" =  {      rev = "884941adda8df93356e0b4e206576872d868db27";      sha256 = "sha256-8tZynToqyX4DsiGl7OnDBFHHqtZBtui0Nl0kulZGqOU=";    };    "~master" =  {      rev = "9219b882105fc9f79220f6d50293137fca847a8f";      sha256 = "sha256-QkwSpRz4sL0v6LxcHNo0IgSdVH8efvdSPDoNA+/RIWs=";    };  };}

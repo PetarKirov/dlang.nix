@@ -1,0 +1,1 @@
+{  url = "https://github.com/ShigekiKarita/d-openai-gym";  versions = {    "~master" =  {      rev = "a7fb272e7a08f4780edfd4cd6e655e4fe28dc496";      sha256 = "sha256-OgH2Eyfq/J1fm3K5PXMlGoMaAQ8J9p9zM5s7i/0kcLE=";    };    "0.0.1" =  {      rev = "142ca228027da58c3310f968125ffcd2118a8ddd";      sha256 = "sha256-pwR6Ax28g6NGzHinAgGXQSchdyxuaM/H+WGrqkaPv9U=";    };  };}

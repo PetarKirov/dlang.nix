@@ -1,0 +1,1 @@
+{  url = "https://github.com/ariovistus/vibe.pyd";  versions = {    "~master" =  {      rev = "f23d2972b8041d8de7f00d3333e6c6399206ed67";      sha256 = "sha256-Pptj2DSWYDjUQhENjo9x8o5dh/ZaqJgnS4HpZNQMs20=";    };    "0.0.1" =  {      rev = "19c42f15788c2681b9d807b5f84a1bbbd9597dab";      sha256 = "sha256-DQ3YBR6yJv9DnzyIICCgk4oM9zsZGNUeLERM06J+V1w=";    };  };}

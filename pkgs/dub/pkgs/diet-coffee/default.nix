@@ -1,0 +1,1 @@
+{  url = "https://github.com/MartinNowak/diet-coffee";  versions = {    "0.1.0" =  {      rev = "720094f5bd900df73af8a695a5867b2a1aa34727";      sha256 = "sha256-A9uohVvXaHvdUto/yXRqOipy9ttoM0k4pChsOiKIryw=";    };    "~master" =  {      rev = "720094f5bd900df73af8a695a5867b2a1aa34727";      sha256 = "sha256-A9uohVvXaHvdUto/yXRqOipy9ttoM0k4pChsOiKIryw=";    };  };}

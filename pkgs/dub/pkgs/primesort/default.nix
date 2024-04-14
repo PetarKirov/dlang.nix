@@ -1,0 +1,1 @@
+{  url = "https://github.com/phebert5009/PrimeSort";  versions = {    "~stable" =  {      rev = "345bf7e7a737a0c645a8846c1914c0cabe5b14bd";      sha256 = "sha256-NVvrn+xIFOT70DWGaFNI7YKiqe3BL+lrbKbBAULQo+M=";    };    "1.0.0" =  {      rev = "345bf7e7a737a0c645a8846c1914c0cabe5b14bd";      sha256 = "sha256-NVvrn+xIFOT70DWGaFNI7YKiqe3BL+lrbKbBAULQo+M=";    };  };}

@@ -1,0 +1,1 @@
+{  url = "https://github.com/kaleidicpublic/d_dataframes";  versions = {    "0.0.10" =  {      rev = "f1e059ec61d84494eeee8f2b3ed8e3a3dfd34d12";      sha256 = "sha256-/r+eQ83hrwjajELyBr3BcqfgIE87Dzsu6k/mppE7OVk=";    };    "~master" =  {      rev = "c01a2259624049e6cb1ee5678a21dbbb5de303f3";      sha256 = "sha256-08dimkT8h7Hy41SmwvegzVrtC0A7vPy3z0hSii5mX+M=";    };  };}

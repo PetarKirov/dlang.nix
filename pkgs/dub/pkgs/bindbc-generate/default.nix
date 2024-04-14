@@ -1,0 +1,1 @@
+{  url = "https://github.com/MrcSnm/bindbc-generator";  versions = {    "1.0.0" =  {      rev = "07875fe744ef20de07e7717b0a4040d01b880a33";      sha256 = "sha256-xpkgQU5Fn4ajdmFau3kUoB6VFRl0hD+DS8xh2GIiDR4=";    };    "~main" =  {      rev = "1a68e699b45e685820889af0236825906312e761";      sha256 = "sha256-jJOyyrJO/4trRDwujcT/YqHiMpfr+nfoe+07D9shvfQ=";    };  };}

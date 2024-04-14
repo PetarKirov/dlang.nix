@@ -1,0 +1,1 @@
+{  url = "https://github.com/andersonpd/eris";  versions = {    "~master" =  {      rev = "be25b1c3a406d7b990362d492040f1dbe1933884";      sha256 = "sha256-AHP2Q1sXCSqtg0QPgDspdIszN4uTsxoNHoQd8S7CSPg=";    };    "0.0.1" =  {      rev = "4dd98eadea896fa85e559ebed3463bf7573334d0";      sha256 = "sha256-eNoZjhQhPOEgM92CNdzJNLuaixc9FSS6KVesttIe6XI=";    };  };}

@@ -1,0 +1,1 @@
+{  url = "https://github.com/mattisback/FlexibleMarshal";  versions = {    "~master" =  {      rev = "cf984c34ef7d22d8b6b10e061c7cc551a13d0b9c";      sha256 = "sha256-DaAdyJHEO7UwV/QtJ//jUSn0i0UN4m4dVLBbjNqCCZA=";    };    "0.0.1" =  {      rev = "cf984c34ef7d22d8b6b10e061c7cc551a13d0b9c";      sha256 = "sha256-DaAdyJHEO7UwV/QtJ//jUSn0i0UN4m4dVLBbjNqCCZA=";    };  };}

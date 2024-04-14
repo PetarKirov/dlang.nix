@@ -1,0 +1,1 @@
+{  url = "https://github.com/crimaniak/json-patch";  versions = {    "~master" =  {      rev = "20b25a7ab678f0c793eef04953a17efb03f5cd65";      sha256 = "sha256-stb46rWt/3Jju5h45Qm8qnRxDcNndKOG5a3N2i8hWyM=";    };    "0.0.1" =  {      rev = "0639ab8fe32d05d22e09c385e3cbd3355e105f72";      sha256 = "sha256-rUh1JFv3/eNZ4sE0ukA5JqntN4wT158/1pIb2yWai6M=";    };  };}

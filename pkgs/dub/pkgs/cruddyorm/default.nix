@@ -1,0 +1,1 @@
+{  url = "https://github.com/dhasenan/cruddyorm";  versions = {    "~master" =  {      rev = "8df3966a0abc5b68d1a173b0d9d3aadc43aca36a";      sha256 = "sha256-IZZQoe7SvbPblkZ6C5+T2+QmPL5u8X65N3wxrELrENg=";    };    "0.0.1" =  {      rev = "8df3966a0abc5b68d1a173b0d9d3aadc43aca36a";      sha256 = "sha256-IZZQoe7SvbPblkZ6C5+T2+QmPL5u8X65N3wxrELrENg=";    };  };}

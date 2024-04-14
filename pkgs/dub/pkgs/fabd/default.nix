@@ -1,0 +1,1 @@
+{  url = "https://github.com/msoucy/libfabd";  versions = {    "0.1.0" =  {      rev = "7268edae9c2f91aa44f7ffa941772ba82b1bd6c3";      sha256 = "sha256-jeinsr0g0ytQGEDHBFYrOzYxV7isilcVIBaHpXEstmI=";    };    "~master" =  {      rev = "77f9ba28f408fad26138d4eded1e0765d319f81f";      sha256 = "sha256-YO6t1hB3I3jD5oy247nA63eOwqKUZqTJK6sp8ctLC3g=";    };  };}

@@ -1,0 +1,1 @@
+{  url = "https://github.com/sel-project/sel-level";  versions = {    "0.1.0" =  {      rev = "0ccd73fbcaeb5fddf2d057da8d10fa8db173f5fb";      sha256 = "sha256-d28dH1o8dBYWdxv+f7w4JDajvrV1Wc+FXA/uHK3ySTs=";    };    "~master" =  {      rev = "b846982b9d1475bd9209c4a36b33ea14c86c0310";      sha256 = "sha256-rGXPME9pyQwx4r/8sPHS9TnE36D2q40CCE+MiX7D6o4=";    };  };}

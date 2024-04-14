@@ -1,0 +1,1 @@
+{  url = "https://github.com/John-Colvin/exitclean";  versions = {    "~master" =  {      rev = "c42d6e91c8069b60ad6687b7bc451af654dcf9cd";      sha256 = "sha256-uHFL6zxWOdEN6EX7b5Y22vB+wQpiEwwwOcdP2Spe0gQ=";    };    "1.0.0-beta1" =  {      rev = "c42d6e91c8069b60ad6687b7bc451af654dcf9cd";      sha256 = "sha256-uHFL6zxWOdEN6EX7b5Y22vB+wQpiEwwwOcdP2Spe0gQ=";    };  };}

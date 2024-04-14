@@ -1,0 +1,1 @@
+{  url = "https://github.com/mintyfresh/autoloader";  versions = {    "0.1.0" =  {      rev = "f8a52da9f69fcc2b90466ec5edb67a2c0ff2eccf";      sha256 = "sha256-v34Gl2pL/JDwRmhte1LZ4MyYWWRtXIbuKiEMc/ZppSI=";    };    "~master" =  {      rev = "f8a52da9f69fcc2b90466ec5edb67a2c0ff2eccf";      sha256 = "sha256-v34Gl2pL/JDwRmhte1LZ4MyYWWRtXIbuKiEMc/ZppSI=";    };  };}

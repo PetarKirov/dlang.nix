@@ -1,0 +1,1 @@
+{  url = "https://github.com/huntlabs/hunt-gossip";  versions = {    "~master" =  {      rev = "a0acffa3597c995337deed905734788b00f176d1";      sha256 = "sha256-d7RsuryOgyPYnYH4Y101UqfJobiaLd3/gS7u5qTHnIE=";    };    "1.0.0" =  {      rev = "a0acffa3597c995337deed905734788b00f176d1";      sha256 = "sha256-d7RsuryOgyPYnYH4Y101UqfJobiaLd3/gS7u5qTHnIE=";    };  };}

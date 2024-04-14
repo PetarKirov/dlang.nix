@@ -1,0 +1,1 @@
+{  url = "https://github.com/huntlabs/neton";  versions = {    "~master" =  {      rev = "08ce5fec5dac11de72d10ade72516e4ed51d700f";      sha256 = "sha256-r4nuwBH+AKy2R68gNkYR0B14zBlRyyIa41ezoFEKmas=";    };  };}

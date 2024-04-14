@@ -1,0 +1,1 @@
+{  url = "https://github.com/sinisa-susnjar/nova-d";  versions = {    "0.16.0" =  {      rev = "195e30386ff1f4714b6b1f12d63ecce2fa5a920b";      sha256 = "sha256-bemBU5khfXzRpbb4p2sMBlZtkYaVhpIOfjFE5yj2pxE=";    };    "~main" =  {      rev = "195e30386ff1f4714b6b1f12d63ecce2fa5a920b";      sha256 = "sha256-bemBU5khfXzRpbb4p2sMBlZtkYaVhpIOfjFE5yj2pxE=";    };  };}

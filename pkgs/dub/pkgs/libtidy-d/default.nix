@@ -1,0 +1,1 @@
+{  url = "https://github.com/lionello/libtidy-d";  versions = {    "~master" =  {      rev = "ca448131e8fabe4143c076594571a0ccc1b964f2";      sha256 = "sha256-LpeGyffvVSwdMAMreomEZvrd5dgiY1rMUtzcvNtkCQM=";    };    "1.22.0" =  {      rev = "b25a0105b3c28e1a9a1a28cd406c3a1be80c2e90";      sha256 = "sha256-nWyivUHRQ+wOIcFcdiFcMDZAMon5lgj8It00V+2cn9E=";    };  };}

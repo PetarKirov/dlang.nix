@@ -1,0 +1,1 @@
+{  url = "https://github.com/blachlylab/gff3d";  versions = {    "~master" =  {      rev = "316ed872f7db7d7aaade633c90148edfb8f93eb0";      sha256 = "sha256-263Qx1Eu4G5qoY9nGbAaoepLVxYmtKQPnSmON3NvTyc=";    };    "1.0.0" =  {      rev = "15bd3a67c4cb8819261dc7a61f14dc701316abe3";      sha256 = "sha256-BLq3+TuCNNpWvKc92/h9W5Z/3DQo2JziUS44HIwqdv8=";    };  };}

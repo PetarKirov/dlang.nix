@@ -1,0 +1,1 @@
+{  url = "https://github.com/WebFreak001/lxcd";  versions = {    "~master" =  {      rev = "079082b0e11dc5568987fa4ed0a5fc821da0dcd3";      sha256 = "sha256-d+EvN9fgrt99Q8IRJyJSRYmt8r7KRNAtKZvyZN3LKBY=";    };    "1.0.0" =  {      rev = "079082b0e11dc5568987fa4ed0a5fc821da0dcd3";      sha256 = "sha256-d+EvN9fgrt99Q8IRJyJSRYmt8r7KRNAtKZvyZN3LKBY=";    };  };}

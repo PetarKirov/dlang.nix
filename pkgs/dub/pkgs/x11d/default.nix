@@ -1,0 +1,1 @@
+{  url = "https://github.com/ZILtoid1991/x11d";  versions = {    "~master" =  {      rev = "4420e0f685127ac236a38ee65eb22a142c121e29";      sha256 = "sha256-Hcgxs4vRgj3gFxeXq+wjBOw/nNq/3MbQfKpLNJZRB9o=";    };    "1.0.23" =  {      rev = "4420e0f685127ac236a38ee65eb22a142c121e29";      sha256 = "sha256-Hcgxs4vRgj3gFxeXq+wjBOw/nNq/3MbQfKpLNJZRB9o=";    };  };}

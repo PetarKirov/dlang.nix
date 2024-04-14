@@ -1,0 +1,1 @@
+{  url = "https://github.com/Yevano/dfuck";  versions = {    "~master" =  {      rev = "f80255d543e123b5b783455e4976cef380bd736e";      sha256 = "sha256-TlNoRpuU//fzUUTywthxur0X1sIQHiC/BXAZ85aysAU=";    };    "1.0.0" =  {      rev = "6527d2360537002f63b8e08257ccc163f4166bea";      sha256 = "sha256-2CEY9n0iNLJZGrK8fS05BaZFB2aTFcb8A9gwpcQMBkM=";    };  };}

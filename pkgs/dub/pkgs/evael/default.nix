@@ -1,0 +1,1 @@
+{  url = "https://github.com/evael-dev/evael";  versions = {    "0.0.2" =  {      rev = "1f66e496374cb6b395623a35a770a227b5316d59";      sha256 = "sha256-dubeFe7Qb6A07I+LzJ3mLmLXlYoa5KLYJoN1a1yOlHU=";    };    "0.0.1" =  {      rev = "29dd10551c9e694793aecb72d5226a188e2527c7";      sha256 = "sha256-SbeeGxjkX0UJUYNxhC6iXubsNzC0ADB8MutKNLr912k=";    };  };}

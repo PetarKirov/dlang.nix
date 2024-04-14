@@ -1,0 +1,1 @@
+{  url = "https://github.com/theoldmoon0602/editline-d";  versions = {    "~master" =  {      rev = "7c2682820c26e875363adf5da9b1f54de87b7a25";      sha256 = "sha256-ffZ+h3hqUlxuJYmWq4zS8d1DAqDmbrNsKA+Kc5bdxSE=";    };    "0.0.1" =  {      rev = "7c2682820c26e875363adf5da9b1f54de87b7a25";      sha256 = "sha256-ffZ+h3hqUlxuJYmWq4zS8d1DAqDmbrNsKA+Kc5bdxSE=";    };  };}

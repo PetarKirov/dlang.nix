@@ -1,0 +1,1 @@
+{  url = "https://github.com/NCrashed/DCheck";  versions = {    "0.1.0" =  {      rev = "16bd3086c765c394d229b540cda040759f2726a2";      sha256 = "sha256-gVZgo5mTzA6D/ySz//o17niRRXDHhDU8SE34uPgTM30=";    };    "~master" =  {      rev = "9bf1246e5c6504718a83e06a98e034d7930a671f";      sha256 = "sha256-dY1dJ3oltHZ6pE9YvMukmIdnWBSL6LVV8Kq3ntT2oZE=";    };  };}

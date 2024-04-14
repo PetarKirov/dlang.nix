@@ -1,0 +1,1 @@
+{  url = "https://github.com/ColonelThirtyTwo/d-pcg";  versions = {    "0.1.0" =  {      rev = "a13f2c7087398cc9a9e256afb16a71ee9ed98e33";      sha256 = "sha256-CeowNJ+o1k+K8mcCXNygOdNW/bJLmVOdjB+3bigjC6E=";    };    "~master" =  {      rev = "a13f2c7087398cc9a9e256afb16a71ee9ed98e33";      sha256 = "sha256-CeowNJ+o1k+K8mcCXNygOdNW/bJLmVOdjB+3bigjC6E=";    };  };}

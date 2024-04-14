@@ -1,0 +1,1 @@
+{  url = "https://github.com/aferust/drawee";  versions = {    "0.0.1" =  {      rev = "7f96836b4e5fe24129bae6b9ba020c2d94e1fd41";      sha256 = "sha256-ttyt1SEA2WiboVFbohNwAbbJSqJ3aWx6BZpARWj5QXE=";    };  };}

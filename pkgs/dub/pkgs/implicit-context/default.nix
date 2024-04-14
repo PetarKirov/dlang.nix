@@ -1,0 +1,1 @@
+{  url = "https://github.com/p0nce/implicit-context";  versions = {    "~master" =  {      rev = "fbf29e513c24c41b8f0f49acc7d36c31e95d3398";      sha256 = "sha256-x1lSNga99drpepRelYaeegfzImTBaYIOHhw/R5OjM48=";    };    "0.0.1" =  {      rev = "69b0fd10aa5dc2837c209ae245cd2006db55960a";      sha256 = "sha256-DC7FnJtW7NkgcKSxHGfq9urOrBhflFfj4UbFCDls0Kg=";    };  };}

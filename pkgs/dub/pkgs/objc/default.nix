@@ -1,0 +1,1 @@
+{  url = "https://github.com/ichordev/objc";  versions = {    "0.0.1" =  {      rev = "e76924e28ba2c73f1450b243c5e7f57f313f15f6";      sha256 = "sha256-fcvQOOk1Zq+wQiSFIxo/9f/OltRCBrMdhFl5KSw5PD0=";    };    "~main" =  {      rev = "3b966d3b5c204654ff0a2627d20536c9a71ebaa0";      sha256 = "sha256-JBIHToEFb0etzp6rozAI18Xlhw5EoR/9w0TNyBrmyyA=";    };  };}

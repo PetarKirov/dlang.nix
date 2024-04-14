@@ -1,0 +1,1 @@
+{  url = "https://github.com/huntlabs/rapidxml";  versions = {    "~master" =  {      rev = "c62e8f967b082057443daa333f818355b52db596";      sha256 = "sha256-b3hOzNIikxsSvyUmOgjktSSyYMpYNMsHJy9UpcOcRvg=";    };    "1.0.0" =  {      rev = "c62e8f967b082057443daa333f818355b52db596";      sha256 = "sha256-b3hOzNIikxsSvyUmOgjktSSyYMpYNMsHJy9UpcOcRvg=";    };  };}

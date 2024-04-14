@@ -1,0 +1,1 @@
+{  url = "https://github.com/WebFreak001/ics_parse";  versions = {    "~master" =  {      rev = "ab6288f3148eaea86278391ae694968197e37ec6";      sha256 = "sha256-2YioE6oAa6SSP78qOGLXWUIutBNqvjAr3rgbaCGmcOg=";    };    "0.0.1" =  {      rev = "ab6288f3148eaea86278391ae694968197e37ec6";      sha256 = "sha256-2YioE6oAa6SSP78qOGLXWUIutBNqvjAr3rgbaCGmcOg=";    };  };}

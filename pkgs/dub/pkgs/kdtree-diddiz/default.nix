@@ -1,0 +1,1 @@
+{  url = "https://github.com/diddiz/kdtree";  versions = {    "~master" =  {      rev = "96f8ce0a2aec692701e2557219983628f2898135";      sha256 = "sha256-1LGSeioWRD83UeGxAKA+UvVQbPAmQSvoKkCQNeTASpY=";    };    "0.2.0-alpha" =  {      rev = "96f8ce0a2aec692701e2557219983628f2898135";      sha256 = "sha256-1LGSeioWRD83UeGxAKA+UvVQbPAmQSvoKkCQNeTASpY=";    };  };}

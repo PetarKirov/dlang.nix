@@ -1,0 +1,1 @@
+{  url = "https://github.com/kirsybuu/mergearray";  versions = {    "0.1.0" =  {      rev = "a576f74289c14f2e166118f8724630369fe93f2b";      sha256 = "sha256-x+23WKaBhYXU2/YDeh1HursbixOWWiMweiwxofl4Sa0=";    };    "~master" =  {      rev = "a576f74289c14f2e166118f8724630369fe93f2b";      sha256 = "sha256-x+23WKaBhYXU2/YDeh1HursbixOWWiMweiwxofl4Sa0=";    };  };}

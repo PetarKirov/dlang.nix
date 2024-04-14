@@ -1,0 +1,1 @@
+{  url = "https://github.com/Zardoz89/nBodySim";  versions = {    "0.2.0" =  {      rev = "a35b20e57732ddad92ec7de5735cb2666f578244";      sha256 = "sha256-Q33lzBaF3BGlLJEbeucbfxpf1YNlylGgWa9y4lpRqRo=";    };    "~master" =  {      rev = "7da5aa679c7a2292bbbeff783c2c37cca55cf5c7";      sha256 = "sha256-sLV9XKPJZ/VimKX1e1s5av0c+CtRav4dcvfZDatoSKE=";    };  };}

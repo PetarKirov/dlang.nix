@@ -1,0 +1,1 @@
+{  url = "https://github.com/gecko0307/bindbc-opencl";  versions = {    "0.1.0" =  {      rev = "cb1399732abf65ce332bdb5dc150cc2b815015bd";      sha256 = "sha256-TsUWSJMkkCmjXpI/XPgoY7Br7SjcGVz9Rm0bIjEUOlM=";    };    "~main" =  {      rev = "cb1399732abf65ce332bdb5dc150cc2b815015bd";      sha256 = "sha256-TsUWSJMkkCmjXpI/XPgoY7Br7SjcGVz9Rm0bIjEUOlM=";    };  };}

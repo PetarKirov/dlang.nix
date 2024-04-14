@@ -1,0 +1,1 @@
+{  url = "https://github.com/klickverbot/process-stats";  versions = {    "~master" =  {      rev = "1640e5e2c5cac7c192b75aa72d1d199914b62f1e";      sha256 = "sha256-ZcwPNT9Ezk7WQxaGFN5N/zfCSwKWZJCXAkbpzZlTT3U=";    };  };}

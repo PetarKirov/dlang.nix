@@ -1,0 +1,1 @@
+{  url = "https://gitlab.com/EllipticBit-BuildGrid/client-dlang";  versions = {    "0.1.0" =  {      rev = "208f076a8ed7b17d92f34aa2b0187556846251ae";      sha256 = "sha256-6NZdHST9rQYIEkLLdfVHOSotG8X/j1woCF6KuI5ECTY=";    };    "~master" =  {      rev = "92d772fcb94ccbc7914e23c9d56a7960f9699225";      sha256 = "sha256-AQb0Qd1whfwyOlEPcWXLrT3OWUfWX1WGg1GnyvkMKD8=";    };  };}

@@ -1,0 +1,1 @@
+{  url = "https://github.com/heapsource/http-parser.d";  versions = {    "~master" =  {      rev = "97cb79f35b1fb3a231976c0092615f372c501bfc";      sha256 = "sha256-V3lkLMyFl2i5eGEwkUiXK6XzTvn4dvIENlbGd7pxugU=";    };  };}

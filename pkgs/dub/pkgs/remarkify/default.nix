@@ -1,0 +1,1 @@
+{  url = "https://github.com/jacob-carlborg/remarkify";  versions = {    "~master" =  {      rev = "b8d5e9101d666d202175ed36fce4fc9a21b2e606";      sha256 = "sha256-U1fOLKIbApxTerAcOnVEjY6Ckw4ZzgKiOm/xs+wDWLE=";    };    "0.0.1" =  {      rev = "d1baafac23da7111056b970f56166c584a763a14";      sha256 = "sha256-Hkgi5yWYXYtLz6qPc+qRorYTos3wlItV4jri7l0lsQ0=";    };  };}

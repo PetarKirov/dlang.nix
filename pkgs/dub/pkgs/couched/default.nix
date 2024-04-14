@@ -1,0 +1,1 @@
+{  url = "https://github.com/heapsource/couche.d";  versions = {    "~master" =  {      rev = "43616599eebbe6ea2f77851f06e7e09d8639461f";      sha256 = "sha256-Lg4NWkbOBBwxnnlVbDrfqL9NXmWeyDvdNLrcp3UqRGM=";    };  };}

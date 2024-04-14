@@ -1,0 +1,1 @@
+{  url = "https://github.com/deviator/numparse";  versions = {    "0.1.0" =  {      rev = "c9872ae76498401a8902d67888ec56071120893f";      sha256 = "sha256-++hK3l1qMCzLwHK9NWjcaEGT0Nt6wzNns9EyWlPRSWU=";    };    "~master" =  {      rev = "d9e6e199c9fd165682cf2fa324abec1584ea6034";      sha256 = "sha256-kvRqtRhHPyH/Ux99FMbKaHcpDvcx/n1LMNUlQDoQ9tQ=";    };  };}

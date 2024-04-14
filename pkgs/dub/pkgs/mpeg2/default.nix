@@ -1,0 +1,1 @@
+{  url = "https://github.com/theambient/mpeg2";  versions = {    "0.1.0" =  {      rev = "2653e0ebdd8561c04e39809652889ce1b8a0dae9";      sha256 = "sha256-xw4Rw5UYY39Rv6NF5Htv356czDD/V8nkMcvtjCoAJ3c=";    };    "~master" =  {      rev = "2653e0ebdd8561c04e39809652889ce1b8a0dae9";      sha256 = "sha256-xw4Rw5UYY39Rv6NF5Htv356czDD/V8nkMcvtjCoAJ3c=";    };  };}

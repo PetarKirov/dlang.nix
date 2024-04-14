@@ -1,0 +1,1 @@
+{  url = "https://github.com/linkrope/uncovered";  versions = {    "0.1.0" =  {      rev = "3534d55fef93fdc329f544cdc6881366edf27e0e";      sha256 = "sha256-n9VULXhuWBw1rrPIK6iwpoNmYXjYZDri14ptSltljTc=";    };    "~master" =  {      rev = "3265e9ff97e226a9eb1e8af02e9b205e8507c3a3";      sha256 = "sha256-lSp7D/a9/Zl02FLNRzWOzofp4IyZrQgbhR7SHBxL8sU=";    };  };}

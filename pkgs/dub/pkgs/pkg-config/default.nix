@@ -1,0 +1,1 @@
+{  url = "https://github.com/rtbo/pkg-config-d";  versions = {    "~master" =  {      rev = "f045d3ae3678214138eef30f6dd79cb411834ac8";      sha256 = "sha256-SA1lFFUbcMAOn4R03KaP1Qqkc8OJDDjI4NEuIzXiM/M=";    };    "0.0.1" =  {      rev = "f045d3ae3678214138eef30f6dd79cb411834ac8";      sha256 = "sha256-SA1lFFUbcMAOn4R03KaP1Qqkc8OJDDjI4NEuIzXiM/M=";    };  };}

@@ -1,0 +1,1 @@
+{  url = "https://github.com/andrewbenton/derelict-hdfs";  versions = {    "2.4.1" =  {      rev = "2d0699629eec27e4218bc0f3a1c6810885add7de";      sha256 = "sha256-RRhIGxo4huhSFqFyEO9+8y50dX9J/bgv44HK3QP2MVQ=";    };    "~master" =  {      rev = "2d0699629eec27e4218bc0f3a1c6810885add7de";      sha256 = "sha256-RRhIGxo4huhSFqFyEO9+8y50dX9J/bgv44HK3QP2MVQ=";    };  };}

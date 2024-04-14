@@ -1,0 +1,1 @@
+{  url = "https://github.com/mpoquet/dintervalset";  versions = {    "0.1.0" =  {      rev = "27d1d51aec0242bbb1dcf27b3374eb4a9b27b0da";      sha256 = "sha256-3nC5oS7haNlsL79+zgq17s9GxtHaw5E3vjXZ9QiiuGg=";    };    "~master" =  {      rev = "dd5ec44c99e5505a22c56465d58d0f3679687b90";      sha256 = "sha256-HQHCSW63WWz2MPfItDEZmhUPru0WHTHZTQ49nHFmxmM=";    };  };}

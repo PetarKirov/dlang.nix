@@ -1,0 +1,1 @@
+{  url = "https://github.com/tomchipchase/d_mruby";  versions = {    "~master" =  {      rev = "0ea2794703cb4e1a1d8e50608f1763cee8a69d84";      sha256 = "sha256-b1rS3jiclgBPV2VhwY/ulEg+JcHBalKTSfFJCJ9Elo8=";    };    "0.0.2" =  {      rev = "0ea2794703cb4e1a1d8e50608f1763cee8a69d84";      sha256 = "sha256-b1rS3jiclgBPV2VhwY/ulEg+JcHBalKTSfFJCJ9Elo8=";    };  };}

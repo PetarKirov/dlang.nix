@@ -1,0 +1,1 @@
+{  url = "https://github.com/dlang-community/configy";  versions = {    "~v1.x.x" =  {      rev = "2e9eae6d531348787a7fcbcca5225a47e3091fa1";      sha256 = "sha256-Cjr2cYwJ+S4I7htL3ArBrkLqofIf2Y3RnRd8zJceXts=";    };    "1.0.0" =  {      rev = "110cc0600324f091773d979284d2948a9ddbb975";      sha256 = "sha256-wlG0E9LPN8fS1x4KLB5eB/kQTf1AY7LP+ggo8XexFBY=";    };  };}

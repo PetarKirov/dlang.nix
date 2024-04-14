@@ -1,0 +1,1 @@
+{  url = "https://github.com/Zoadian/three.d";  versions = {    "~master" =  {      rev = "f1f10b27120721da81bc24add72567988bc69a95";      sha256 = "sha256-1tnnWpQ9nvrKdfeFmJWFs9eTao3quiOxyTNXmdGuCiI=";    };  };}

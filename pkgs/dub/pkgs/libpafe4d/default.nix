@@ -1,0 +1,1 @@
+{  url = "https://github.com/alphakai/libpafe4d";  versions = {    "~master" =  {      rev = "950ea8aaeb86c9bf6eb96fdd38c469cb7a097d95";      sha256 = "sha256-zVP9gsliLArVEneyWuzBt5Ge3wYmB+xsjhD9hWF5t2I=";    };    "0.0.1" =  {      rev = "950ea8aaeb86c9bf6eb96fdd38c469cb7a097d95";      sha256 = "sha256-zVP9gsliLArVEneyWuzBt5Ge3wYmB+xsjhD9hWF5t2I=";    };  };}

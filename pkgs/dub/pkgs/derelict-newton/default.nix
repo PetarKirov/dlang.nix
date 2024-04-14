@@ -1,0 +1,1 @@
+{  url = "https://github.com/Sycam0inc/derelictnewton";  versions = {    "1.0.0" =  {      rev = "5eed0b1b5bb2e65bb1169827ef098e2fd0f3f0b4";      sha256 = "sha256-wP4e3hdcjLrevWjgRMdwHfIaTXyPJtBIFtVk2gsSeq0=";    };  };}

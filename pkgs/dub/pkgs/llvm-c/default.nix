@@ -1,0 +1,1 @@
+{  url = "https://github.com/jkm/deimos-llvm";  versions = {    "~master" =  {      rev = "25b58cec1c5a053e44a7ad8e1167d1515032ae2f";      sha256 = "sha256-heZ26VWm3gMD/haY0rqZJcVWkQAEbromLEZUAAyqRMQ=";    };  };}

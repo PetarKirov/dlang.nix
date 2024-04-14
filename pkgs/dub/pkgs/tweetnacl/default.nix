@@ -1,0 +1,1 @@
+{  url = "https://github.com/yannick/tweetnacl.d";  versions = {    "~master" =  {      rev = "f18f3f64451f190a1d8aa92faa2120acf646a730";      sha256 = "sha256-n9XMLgl1r37Rfmq5PAljhhZ64V8QpGDuu2a00Xqbg9Y=";    };    "0.0.1" =  {      rev = "f18f3f64451f190a1d8aa92faa2120acf646a730";      sha256 = "sha256-n9XMLgl1r37Rfmq5PAljhhZ64V8QpGDuu2a00Xqbg9Y=";    };  };}

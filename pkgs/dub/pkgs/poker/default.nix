@@ -1,0 +1,1 @@
+{  url = "https://github.com/schveiguy/poker";  versions = {    "~master" =  {      rev = "6f70cf7ca74e19e78b470f81640a3ce34a95d0d3";      sha256 = "sha256-ycyvXbp9pa7O04QC+8J/z1LXgttpRaWUcgw51YxqIO8=";    };    "0.0.1" =  {      rev = "6f70cf7ca74e19e78b470f81640a3ce34a95d0d3";      sha256 = "sha256-ycyvXbp9pa7O04QC+8J/z1LXgttpRaWUcgw51YxqIO8=";    };  };}

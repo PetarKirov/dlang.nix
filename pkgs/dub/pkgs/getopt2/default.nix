@@ -1,0 +1,1 @@
+{  url = "https://github.com/schveiguy/getopt2";  versions = {    "~master" =  {      rev = "6fcc2d2829733cf6cfa7668a306c86a14b103174";      sha256 = "sha256-MXfBcHt+ejF5i9W7jHAlLvtkcp+5u3NjmFjmyG20plw=";    };    "0.0.1" =  {      rev = "6fcc2d2829733cf6cfa7668a306c86a14b103174";      sha256 = "sha256-MXfBcHt+ejF5i9W7jHAlLvtkcp+5u3NjmFjmyG20plw=";    };  };}

@@ -1,0 +1,1 @@
+{  url = "https://github.com/Herringway/simplesoftmix";  versions = {    "0.0.0" =  {      rev = "947853f9f9d00b696dbaf8ce761c842d4da0e243";      sha256 = "sha256-J5/v9NppDf2a3U7THV4n15EU1lpSm/ctWUJQ9uW/wlc=";    };    "~main" =  {      rev = "947853f9f9d00b696dbaf8ce761c842d4da0e243";      sha256 = "sha256-J5/v9NppDf2a3U7THV4n15EU1lpSm/ctWUJQ9uW/wlc=";    };  };}

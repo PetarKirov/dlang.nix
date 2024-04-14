@@ -1,0 +1,1 @@
+{  url = "https://github.com/iK4tsu/decorated";  versions = {    "~master" =  {      rev = "fe107332177480ae174923da0e758a2fe3482d91";      sha256 = "sha256-QVuZhWDj0vITkLvvCmiBwCpbd4FT5gSgOyXmpn0zsDA=";    };    "0.0.1-alpha" =  {      rev = "fe107332177480ae174923da0e758a2fe3482d91";      sha256 = "sha256-QVuZhWDj0vITkLvvCmiBwCpbd4FT5gSgOyXmpn0zsDA=";    };  };}

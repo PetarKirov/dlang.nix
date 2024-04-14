@@ -1,0 +1,1 @@
+{  url = "https://github.com/WebFreak001/URITemplate";  versions = {    "~master" =  {      rev = "e189e63b39b20452196989671b7effd031170267";      sha256 = "sha256-6YtV6rr4pdzZnBQlJg52ZGLXOUTrKOAp7gxTZd8k5Rk=";    };    "1.0.0" =  {      rev = "e189e63b39b20452196989671b7effd031170267";      sha256 = "sha256-6YtV6rr4pdzZnBQlJg52ZGLXOUTrKOAp7gxTZd8k5Rk=";    };  };}

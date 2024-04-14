@@ -1,0 +1,1 @@
+{  url = "https://github.com/weskerfoot/Maze";  versions = {    "~master" =  {      rev = "826a193575b2b231b97aa4f5de654183fb93963d";      sha256 = "sha256-nqG77CK05oxaDSdBZbX/WPiWA6KT0qlP+c+jEHMzm00=";    };    "1.0.0" =  {      rev = "826a193575b2b231b97aa4f5de654183fb93963d";      sha256 = "sha256-nqG77CK05oxaDSdBZbX/WPiWA6KT0qlP+c+jEHMzm00=";    };  };}

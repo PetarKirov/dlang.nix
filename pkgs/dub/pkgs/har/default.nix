@@ -1,0 +1,1 @@
+{  url = "https://github.com/marler8997/har";  versions = {    "0.1.0" =  {      rev = "3f096d61682d4e1d1be7b73f80b65ea98e47b5c7";      sha256 = "sha256-5XBeQ//TfY+H8qbsbgT/cRCcOcyiQxIrWPwTOVx0Az8=";    };    "~next" =  {      rev = "1cf6a2205aaa026bb9611c7da3b2108b41d0c115";      sha256 = "sha256-wJkIHowp+RbllJhgrVs6tz1CcXMXyI/geQLATxxAeHU=";    };  };}

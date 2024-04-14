@@ -1,0 +1,1 @@
+{  url = "https://github.com/TheBotBlog/thebotbloglib";  versions = {    "~master" =  {      rev = "ac487e10854cefc3bf55a40e6b3fd2f68684f6da";      sha256 = "sha256-eqnUkYWTohOv66AeMdVwKxNVnWANtFDzfdq6n3BGsBk=";    };    "0.0.1" =  {      rev = "ac487e10854cefc3bf55a40e6b3fd2f68684f6da";      sha256 = "sha256-eqnUkYWTohOv66AeMdVwKxNVnWANtFDzfdq6n3BGsBk=";    };  };}

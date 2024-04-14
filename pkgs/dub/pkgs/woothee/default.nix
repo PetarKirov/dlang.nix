@@ -1,0 +1,1 @@
+{  url = "https://gitlab.com/sarneaud/woothee-d";  versions = {    "1.11.1" =  {      rev = "ce488cefd1fa382ab164cf1301f68fc14726f47c";      sha256 = "sha256-tEnJ6C41lQz6ilb3VSwOUjHSl6o/Djj7TZneVz5JbLI=";    };    "~master" =  {      rev = "ce488cefd1fa382ab164cf1301f68fc14726f47c";      sha256 = "sha256-tEnJ6C41lQz6ilb3VSwOUjHSl6o/Djj7TZneVz5JbLI=";    };  };}

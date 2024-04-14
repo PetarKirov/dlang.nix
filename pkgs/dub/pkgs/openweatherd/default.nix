@@ -1,0 +1,1 @@
+{  url = "https://github.com/brokenprogrammer/OpenWeatherD";  versions = {    "~master" =  {      rev = "a3a0e303d87c3c4820ad6fa2a521705c72a57cc3";      sha256 = "sha256-ssptJ/VsvhOZ+b93yjZ6Nh/pVyVcDeLJX1RsfzZBwrc=";    };    "1.0.0" =  {      rev = "67d84aaaa9224f26698ec25f19ede3ab726aaa34";      sha256 = "sha256-Snb+yTWjt9PawjioSCJ39GVxdn2rUdCntEVEh7MRheY=";    };  };}

@@ -1,0 +1,1 @@
+{  url = "https://github.com/theoldmoon0602/d-capstone";  versions = {    "~master" =  {      rev = "a2a0dcdc1c47c5e6f0b6152c337e060688e3d292";      sha256 = "sha256-0xDqqwBabJXv8VFZo4FkXmy7Qr8Z1xtu1kAy4PWqJEA=";    };    "0.0.2" =  {      rev = "a2a0dcdc1c47c5e6f0b6152c337e060688e3d292";      sha256 = "sha256-0xDqqwBabJXv8VFZo4FkXmy7Qr8Z1xtu1kAy4PWqJEA=";    };  };}

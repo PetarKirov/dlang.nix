@@ -1,0 +1,1 @@
+{  url = "https://github.com/Geod24/libsodium-crypto";  versions = {    "0.1.0" =  {      rev = "ee9fd80fecd0340c8e7d5536b34abb14c66bbaa9";      sha256 = "sha256-eL3+egVj+qDSDr0WAPnoBjaovHfE6nd2GcnRXgwOE1Q=";    };    "~v0.x.x" =  {      rev = "ee9fd80fecd0340c8e7d5536b34abb14c66bbaa9";      sha256 = "sha256-eL3+egVj+qDSDr0WAPnoBjaovHfE6nd2GcnRXgwOE1Q=";    };  };}

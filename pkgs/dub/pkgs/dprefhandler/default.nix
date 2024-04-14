@@ -1,0 +1,1 @@
+{  url = "https://github.com/zkrolllock/DPrefHandler";  versions = {    "~master" =  {      rev = "ecd44f9c6cca3f2e881f427e74c7ed68fc266448";      sha256 = "sha256-exP9l+XNNFZNq7qnKRU+AtLBpMaz3w+pQKoQqRUYvUE=";    };    "0.0.1" =  {      rev = "0f4188c0927cfe4d6312f8fedcffc2e536bf8f51";      sha256 = "sha256-6mDgW553QTTxH/PTRRsOgcwzEjV0eOT0hj3BPAn6Dp4=";    };  };}

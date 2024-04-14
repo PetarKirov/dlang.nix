@@ -1,0 +1,1 @@
+{  url = "https://github.com/boolangery/d-rpc";  versions = {    "1.1.0" =  {      rev = "d1b7bab574bf675fcbb9df52bf2346cb2e8fe31a";      sha256 = "sha256-A7OR2ktxf02Ff9RORepw6JtgBIa5DQ43dTxLPwLcwqI=";    };    "~master" =  {      rev = "76364128574c8a7225a3a852b16125b53c28a13d";      sha256 = "sha256-7slDGQLXuwHrygwKtEJSbrqTh38h8bnKT+P4qbR2gnM=";    };  };}

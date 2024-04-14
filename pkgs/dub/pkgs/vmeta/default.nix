@@ -1,0 +1,1 @@
+{  url = "https://github.com/qqiangwu/vmeta";  versions = {    "~master" =  {      rev = "a00d5de010e15a04d4d6c549139c9f7734e52c99";      sha256 = "sha256-ugFUKfJmRkEk3Fa+ezm70KPp4xmc9uCDjhisoMHM/44=";    };    "0.0.1" =  {      rev = "a00d5de010e15a04d4d6c549139c9f7734e52c99";      sha256 = "sha256-ugFUKfJmRkEk3Fa+ezm70KPp4xmc9uCDjhisoMHM/44=";    };  };}
