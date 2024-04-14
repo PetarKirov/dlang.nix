@@ -25,7 +25,13 @@ in {
       // (genPkgVersions "dub").hierarchical;
 
     packages =
-      {
+      rec {
+        buildDubPackage = pkgs.callPackage ./build-dub-package {
+          dub = self'.packages.dub;
+          dmd = self'.packages.dmd;
+        };
+      }
+      // rec {
         ldc-binary = self'.packages."ldc-binary-1_34_0";
         ldc = self'.packages."ldc-1_30_0";
 
