@@ -33,6 +33,9 @@ in {
         dscanner = pkgs.callPackage ./dscanner {
           inherit buildDubPackage;
         };
+        serve-d = pkgs.callPackage ./serve-d {
+          inherit buildDubPackage;
+        };
       }
       // rec {
         ldc-binary = self'.packages."ldc-binary-1_34_0";
