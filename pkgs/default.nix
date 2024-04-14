@@ -16,6 +16,10 @@ in {
       (import ../lib/version-catalog.nix {inherit lib pkgs;})
       genPkgVersions
       ;
+    buildDubPackage = pkgs.callPackage ./build-dub-package {
+      dub = self'.packages.dub;
+      ldc = self'.packages.ldc;
+    };
   in {
     overlayAttrs = self'.packages;
     legacyPackages =
@@ -25,11 +29,7 @@ in {
       // (genPkgVersions "dub").hierarchical;
 
     packages =
-      rec {
-        buildDubPackage = pkgs.callPackage ./build-dub-package {
-          dub = self'.packages.dub;
-          dmd = self'.packages.dmd;
-        };
+      optionalAttrs pkgs.stdenv.isLinux rec {
         dscanner = pkgs.callPackage ./dscanner {
           inherit buildDubPackage;
         };
