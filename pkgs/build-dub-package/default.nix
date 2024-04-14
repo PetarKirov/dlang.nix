@@ -147,4 +147,9 @@ in
       strictDeps = true;
 
       meta = (args.meta or {}) // {platforms = args.meta.platforms or dub.meta.platforms;};
+      passthru =
+        {
+          buildStatus = {};
+        }
+        // (args.passthru or {});
     })
