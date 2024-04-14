@@ -46,6 +46,9 @@ in {
         inochi2d = pkgs.callPackage ./examples/inochi2d {
           inherit buildDubPackage;
         };
+        graphqld = pkgs.callPackage ./examples/graphqld {
+          inherit buildDubPackage;
+        };
       }
       // rec {
         ldc-binary = self'.packages."ldc-binary-1_34_0";
