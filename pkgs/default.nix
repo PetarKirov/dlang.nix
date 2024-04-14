@@ -76,6 +76,9 @@ in {
         dpp = pkgs.callPackage ./examples/dpp {
           inherit buildDubPackage;
         };
+        lubeck = pkgs.callPackage ./examples/lubeck {
+          inherit buildDubPackage;
+        };
       }
       // rec {
         ldc-binary = self'.packages."ldc-binary-1_34_0";
