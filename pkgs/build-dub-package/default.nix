@@ -48,7 +48,7 @@
 
       export HOME="/build"
       mkdir -p $HOME/.dub
-      if ${gnugrep}/bin/grep "dependencies" ${src}/dub.* &> /dev/null; then
+      if ${gnugrep}/bin/grep "dependenc" ${src}/dub.* &> /dev/null; then
         if [ -f ${src}/dub.selections.json ]; then
             echo "dub.selections.json exists"
         else
