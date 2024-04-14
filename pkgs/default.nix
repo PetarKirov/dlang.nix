@@ -79,6 +79,9 @@ in {
         lubeck = pkgs.callPackage ./examples/lubeck {
           inherit buildDubPackage;
         };
+        dust-mite = pkgs.callPackage ./examples/dust-mite {
+          inherit buildDubPackage;
+        };
       }
       // rec {
         ldc-binary = self'.packages."ldc-binary-1_34_0";
