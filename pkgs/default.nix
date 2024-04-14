@@ -49,6 +49,9 @@ in {
         graphqld = pkgs.callPackage ./examples/graphqld {
           inherit buildDubPackage;
         };
+        dubproxy = pkgs.callPackage ./examples/dubproxy {
+          inherit buildDubPackage;
+        };
       }
       // rec {
         ldc-binary = self'.packages."ldc-binary-1_34_0";
