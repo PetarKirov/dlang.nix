@@ -61,6 +61,9 @@ in {
         libbetterc = pkgs.callPackage ./examples/libbetterc {
           inherit buildDubPackage;
         };
+        symmetry-gelf = pkgs.callPackage ./examples/symmetry-gelf {
+          inherit buildDubPackage;
+        };
       }
       // rec {
         ldc-binary = self'.packages."ldc-binary-1_34_0";
