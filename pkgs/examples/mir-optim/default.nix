@@ -16,7 +16,7 @@ buildDubPackage rec {
 
   dubSelections = ./dub.selections.json;
 
-  dontdubTest = true;
+  dontDubTest = true;
 
   meta = with lib; {
     description = "BetterC Nonlinear Optimization Framework";

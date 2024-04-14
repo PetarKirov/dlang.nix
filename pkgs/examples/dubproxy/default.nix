@@ -26,7 +26,7 @@ in
     dubBuildFlags = [
       "--config=cli"
     ];
-    dontdubTest = true;
+    dontDubTest = true;
     nativeBuildInputs = [fakeGit];
 
     meta = with lib; {

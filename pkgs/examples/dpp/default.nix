@@ -16,7 +16,7 @@ buildDubPackage rec {
   };
 
   buildInputs = with pkgs; [libclang];
-  dontdubTest = true;
+  dontDubTest = true;
 
   meta = with lib; {
     description = "Directly include C headers in D source code";

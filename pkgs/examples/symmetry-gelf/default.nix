@@ -14,7 +14,7 @@ buildDubPackage rec {
     hash = "sha256-7sPD1QIYPsSLogZNS/UMxWdwxtVwecViG2DC4V2NPI4=";
   };
 
-  dontdubTest = true;
+  dontDubTest = true;
 
   meta = with lib; {
     description = "Gelf (graylog) plugin for std.experimental.logg";
