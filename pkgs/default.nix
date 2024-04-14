@@ -73,6 +73,9 @@ in {
         mir-optim = pkgs.callPackage ./examples/mir-optim {
           inherit buildDubPackage;
         };
+        dpp = pkgs.callPackage ./examples/dpp {
+          inherit buildDubPackage;
+        };
       }
       // rec {
         ldc-binary = self'.packages."ldc-binary-1_34_0";
