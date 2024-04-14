@@ -35,7 +35,7 @@ in {
         ldc-binary = self'.packages."ldc-binary-1_34_0";
         ldc = self'.packages."ldc-1_30_0";
 
-        dub = self'.packages."dub-1_30_0";
+        dub = self'.packages."dub-1_31_0";
       }
       // (genPkgVersions "ldc").flattened "binary"
       // (genPkgVersions "ldc").flattened "source"
