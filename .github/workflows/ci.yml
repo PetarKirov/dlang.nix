@@ -48,7 +48,7 @@ jobs:
 
     name: ${{ matrix.package }} | ${{ matrix.system }}
     runs-on: ${{ matrix.os }}
-    continue-on-error: ${{ matrix.allowedToFail }}
+    continue-on-error: ${{ matrix.allowedToFail == '' && false || matrix.allowedToFail }}
 
     steps:
       - uses: actions/checkout@v4
