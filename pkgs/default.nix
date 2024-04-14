@@ -52,6 +52,9 @@ in {
         dubproxy = pkgs.callPackage ./examples/dubproxy {
           inherit buildDubPackage;
         };
+        faked = pkgs.callPackage ./examples/faked {
+          inherit buildDubPackage;
+        };
       }
       // rec {
         ldc-binary = self'.packages."ldc-binary-1_34_0";
