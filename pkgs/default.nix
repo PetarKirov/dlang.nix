@@ -67,6 +67,9 @@ in {
         xlsxreader = pkgs.callPackage ./examples/xlsxreader {
           inherit buildDubPackage;
         };
+        mir-algorithm = pkgs.callPackage ./examples/mir-algorithm {
+          inherit buildDubPackage;
+        };
       }
       // rec {
         ldc-binary = self'.packages."ldc-binary-1_34_0";
