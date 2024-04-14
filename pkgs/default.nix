@@ -36,6 +36,10 @@ in {
         serve-d = pkgs.callPackage ./serve-d {
           inherit buildDubPackage;
         };
+        tsv-utils = pkgs.callPackage ./examples/tsv-utils {
+          dub = self'.packages.dub;
+          dmd = self'.packages.dmd;
+        };
       }
       // rec {
         ldc-binary = self'.packages."ldc-binary-1_34_0";
