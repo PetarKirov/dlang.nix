@@ -82,6 +82,9 @@ in {
         dust-mite = pkgs.callPackage ./examples/dust-mite {
           inherit buildDubPackage;
         };
+        concurrency = pkgs.callPackage ./examples/concurrency {
+          inherit buildDubPackage;
+        };
       }
       // rec {
         ldc-binary = self'.packages."ldc-binary-1_34_0";
