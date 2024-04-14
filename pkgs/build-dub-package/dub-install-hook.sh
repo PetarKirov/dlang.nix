@@ -17,8 +17,11 @@ dubInstallHook() {
     elif [ -e "$pname/bin/$pname" ]; then
         bin="$pname/bin/$pname"
     else
-        if [ -z "${extraFiles-}" ]; then
-            echo "EROOR: Could not find the binary to install, and no additional files were specified"
+        if ls *.a *.so *.so.* *.dylib 1>/dev/null 2>&1; then
+            echo "INFO: Could not find the binary to install, but found some libraries"
+        elif [ -z "${extraFiles-}"  ]; then
+            echo "ERROR: Could not find the binary to install, or any libraries, and no additional files were specified"
+            exit 1
         else
             echo "WARNING: Could not find the binary to install, but additional files were specified"
         fi
