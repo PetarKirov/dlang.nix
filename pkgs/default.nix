@@ -30,6 +30,9 @@ in {
           dub = self'.packages.dub;
           dmd = self'.packages.dmd;
         };
+        dscanner = pkgs.callPackage ./dscanner {
+          inherit buildDubPackage;
+        };
       }
       // rec {
         ldc-binary = self'.packages."ldc-binary-1_34_0";
