@@ -14,7 +14,7 @@ buildDubPackage rec {
     hash = "sha256-uZa4g5tJ0SYbmOHe1uAiy6I9K5iBoM7+bheWD8XmFWQ=";
   };
 
-  dontdubTest = true;
+  dontDubTest = true;
 
   meta = with lib; {
     description = "Embed Julia in Dlang";

@@ -16,7 +16,7 @@ buildDubPackage rec {
   };
 
   dubSelections = ./dub.selections.json;
-  dontdubTest = true;
+  dontDubTest = true;
   buildInputs = with pkgs; [openblas];
 
   meta = with lib; {

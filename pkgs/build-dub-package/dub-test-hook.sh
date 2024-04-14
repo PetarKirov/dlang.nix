@@ -21,7 +21,7 @@ dubTestHook() {
     echo "Finished dubTestHook"
 }
 
-if [ -z "${dontdubTest-}" ] && [ -z "${checkPhase-}" ]; then
+if [ -z "${dontDubTest-}" ] && [ -z "${checkPhase-}" ]; then
     checkPhase=dubTestHook
     doCheck=true
 fi
