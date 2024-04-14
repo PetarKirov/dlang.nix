@@ -15,7 +15,7 @@
   inherit (stdenv) hostPlatform;
 
   inherit (import ../../lib/build-status.nix {inherit lib;}) getBuildStatus;
-  buildStatus = getBuildStatus "dmd" version stdenv.system;
+  buildStatus = "dmd" version stdenv.system;
 
   OS =
     if hostPlatform.isDarwin

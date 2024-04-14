@@ -30,6 +30,7 @@
   dubSelections ? "/notexist/dub.selections.json",
   ...
 } @ args: let
+  inherit (import ../../lib/build-status.nix {inherit lib;}) getBuildStatus;
   dubConfigHook =
     makeSetupHook
     {
@@ -149,7 +150,7 @@ in
       meta = (args.meta or {}) // {platforms = args.meta.platforms or dub.meta.platforms;};
       passthru =
         {
-          buildStatus = {};
+          buildStatus = getBuildStatus args.pname args.version stdenv.system;
         }
         // (args.passthru or {});
     })
