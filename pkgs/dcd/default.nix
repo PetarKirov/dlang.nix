@@ -28,6 +28,9 @@ in
 
     dontDubInstall = true;
     dontDubBuild = true;
+    preBuildPhase = ''
+      sed -i 's/git describe --tags/echo v${version}/' makefile
+    '';
     installPhase = ''
       mkdir -p $out/bin
       cp bin/dcd-{client,server} $out/bin
