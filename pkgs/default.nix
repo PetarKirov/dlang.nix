@@ -34,6 +34,9 @@ in {
         dscanner = pkgs.callPackage ./dscanner {
           inherit buildDubPackage;
         };
+        dcd = pkgs.callPackage ./dcd {
+          inherit buildDubPackage;
+        };
         serve-d = pkgs.callPackage ./serve-d {
           inherit buildDubPackage;
         };
