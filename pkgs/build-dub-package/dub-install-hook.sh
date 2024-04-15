@@ -46,6 +46,6 @@ dubInstallHook() {
     echo "Finished dubInstallHook"
 }
 
-if [ -z "${dontdubInstall-}" ] && [ -z "${installPhase-}" ]; then
+if [ -z "${dontDubInstall-}" ] && [ -z "${installPhase-}" ]; then
     installPhase=dubInstallHook
 fi
