@@ -18,6 +18,7 @@ in {
       ;
     buildDubPackage = pkgs.callPackage ./build-dub-package {
       dub = self'.packages.dub;
+      dmd = self'.packages.dmd;
       ldc = self'.packages.ldc;
     };
   in {

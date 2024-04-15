@@ -2,6 +2,7 @@
   lib,
   stdenv,
   dub,
+  dmd,
   ldc,
   makeSetupHook,
   jq,
@@ -117,6 +118,7 @@
       name = "dub-build-hook";
       substitutions = {
         "dub" = "${dub}/bin/dub";
+        "dmd" = "${dmd}/bin/dmd";
         "ldc" = "${ldc}/bin/ldc";
       };
     }
@@ -128,6 +130,7 @@
       name = "dub-test-hook";
       substitutions = {
         "dub" = "${dub}/bin/dub";
+        "dmd" = "${dmd}/bin/dmd";
         "ldc" = "${ldc}/bin/ldc";
       };
     }
