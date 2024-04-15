@@ -21,6 +21,6 @@ dubBuildHook() {
     echo "Finished dubBuildHook"
 }
 
-if [ -z "${dontdubBuild-}" ] && [ -z "${buildPhase-}" ]; then
+if [ -z "${dontDubBuild-}" ] && [ -z "${buildPhase-}" ]; then
     buildPhase=dubBuildHook
 fi
