@@ -145,8 +145,8 @@
 in
   stdenv.mkDerivation (args
     // {
-      nativeBuildInputs = nativeBuildInputs ++ [dub ldc dubConfigHook dubBuildHook dubInstallHook dubTestHook];
-      buildInputs = buildInputs ++ [dub ldc];
+      nativeBuildInputs = nativeBuildInputs ++ [dub ldc dmd dubConfigHook dubBuildHook dubInstallHook dubTestHook];
+      buildInputs = buildInputs ++ [dub ldc dmd];
 
       strictDeps = true;
 
