@@ -28,7 +28,7 @@ in
 
     dontDubInstall = true;
     dontDubBuild = true;
-    preBuildPhase = ''
+    preBuild = ''
       sed -i 's/git describe --tags/echo v${version}/' makefile
     '';
     installPhase = ''
