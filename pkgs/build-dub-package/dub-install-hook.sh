@@ -6,16 +6,18 @@ dubInstallHook() {
     runHook preInstall
 
     mkdir -p "$out/bin"
-    if [ -e "$pname" ]; then
+    if [ -f "$pname" ]; then
         bin=$pname
-    elif [ -e "bin/$pname" ]; then
+    elif [ -f "bin/$pname" ]; then
         bin="bin/$pname"
-    elif [ -e "$pname/$pname" ]; then
+    elif [ -f "$pname/$pname" ]; then
         bin="$pname/$pname"
-    elif [ -e "bin/$pname/$pname" ]; then
+    elif [ -f "bin/$pname/$pname" ]; then
         bin="bin/$pname/$pname"
-    elif [ -e "$pname/bin/$pname" ]; then
+    elif [ -f "$pname/bin/$pname" ]; then
         bin="$pname/bin/$pname"
+    elif [ -f "build/$pname" ]; then
+        bin="build/$pname"
     else
         if ls *.a *.so *.so.* *.dylib 1>/dev/null 2>&1; then
             echo "INFO: Could not find the binary to install, but found some libraries"
