@@ -8,6 +8,8 @@ dubInstallHook() {
     mkdir -p "$out/bin"
     if [ -f "$pname" ]; then
         bin=$pname
+    elif [ -f "build/$pname" ]; then
+        bin="build/$pname"
     elif [ -f "bin/$pname" ]; then
         bin="bin/$pname"
     elif [ -f "$pname/$pname" ]; then
@@ -16,8 +18,6 @@ dubInstallHook() {
         bin="bin/$pname/$pname"
     elif [ -f "$pname/bin/$pname" ]; then
         bin="$pname/bin/$pname"
-    elif [ -f "build/$pname" ]; then
-        bin="build/$pname"
     else
         if ls *.a *.so *.so.* *.dylib 1>/dev/null 2>&1; then
             echo "INFO: Could not find the binary to install, but found some libraries"
