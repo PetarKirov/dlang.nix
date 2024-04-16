@@ -16,15 +16,16 @@ in {
       (import ../lib/version-catalog.nix {inherit lib pkgs;})
       genPkgVersions
       ;
-    buildDubPackage = pkgs.callPackage ./build-dub-package {
-      dub = self'.packages.dub;
-      dmd = self'.packages.dmd;
-      ldc = self'.packages.ldc;
-    };
-  in {
+  in rec {
     overlayAttrs = self'.packages;
     legacyPackages =
-      {}
+      {
+        buildDubPackage = pkgs.callPackage ./build-dub-package {
+          dub = self'.packages.dub;
+          dmd = self'.packages.dmd;
+          ldc = self'.packages.ldc;
+        };
+      }
       // (genPkgVersions "dmd").hierarchical
       // (genPkgVersions "ldc").hierarchical
       // (genPkgVersions "dub").hierarchical;
@@ -32,19 +33,22 @@ in {
     packages =
       optionalAttrs pkgs.stdenv.isLinux rec {
         dscanner = pkgs.callPackage ./dscanner {
-          inherit buildDubPackage;
+          inherit (legacyPackages) buildDubPackage;
         };
         dcd = pkgs.callPackage ./dcd {
-          inherit buildDubPackage;
+          inherit (legacyPackages) buildDubPackage;
         };
         serve-d = pkgs.callPackage ./serve-d {
-          inherit buildDubPackage;
+          inherit (legacyPackages) buildDubPackage;
         };
         dlangide = pkgs.callPackage ./dlangide {
-          inherit buildDubPackage;
+          inherit (legacyPackages) buildDubPackage;
         };
       }
-      // optionalAttrs pkgs.stdenv.isLinux (import ../examples/dub-pkgs {inherit buildDubPackage self' pkgs;})
+      // optionalAttrs pkgs.stdenv.isLinux (import ../examples/dub-pkgs {
+        inherit self' pkgs;
+        inherit (legacyPackages) buildDubPackage;
+      })
       // rec {
         ldc-binary = self'.packages."ldc-binary-1_34_0";
         ldc = self'.packages."ldc-1_30_0";
