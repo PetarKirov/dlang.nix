@@ -35,7 +35,7 @@
       ];
       imports = [
         ./pkgs
-        ./lib/mk-gh-actions-matrix.nix
+        ./lib
       ];
 
       perSystem =
