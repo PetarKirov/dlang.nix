@@ -43,13 +43,13 @@ eval_packages_to_json() {
 save_gh_ci_matrix() {
   packages_to_build=$(echo "$packages" | jq -c '. | map(select((.isCached | not) and (.allowedToFail | not)))')
   matrix='{"include":'"$packages_to_build"'}'
-  res_path=''
+  filename=''
   if [ "${IS_INITIAL:-true}" = "true" ]; then
-    res_path='matrix-pre.json'
+    filename='matrix-pre.json'
   else
-    res_path='matrix-post.json'
+    filename='matrix-post.json'
   fi
-  echo "$matrix" > "$res_path"
+  echo "$matrix" > "$result_dir/$filename"
   echo "matrix=$matrix" >> "${GITHUB_OUTPUT:-${result_dir}/gh-output.env}"
 }
 
@@ -107,7 +107,7 @@ printTableForCacheStatus() {
       .[] | "| `\(.package)` | \(.["x86_64-linux"]) | \(.["x86_64-darwin"]) | \(.["aarch64-darwin"]) |"
     '
     echo
-  } > comment.md
+  } > "$result_dir/comment.md"
 }
 
 printTableForCacheStatus "$@"
