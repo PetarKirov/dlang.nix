@@ -37,9 +37,9 @@ runs:
       uses: actions/upload-artifact@v4
       with:
         name: matrix-${{ inputs.is-initial == 'true' && 'pre' || 'post' }}.json
-        path: matrix-${{ inputs.is-initial == 'true' && 'pre' || 'post' }}.json
+        path: .result/matrix-${{ inputs.is-initial == 'true' && 'pre' || 'post' }}.json
 
     - name: Update GitHub Comment
       uses: marocchino/sticky-pull-request-comment@v2.9.0
       with:
-        path: comment.md
+        path: .result/comment.md
