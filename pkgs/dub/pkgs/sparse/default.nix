@@ -1,0 +1,1 @@
+{  url = "https://github.com/ichordev/sparsed";  versions = {    "1.0.0" =  {      rev = "56b3d3ed37df3560363fb0bf1afd0411ba2f1b1d";      sha256 = "sha256-jXkRIE8sDKjF9PPYMnOtPgNMXqmMNP1kg8Ay0s6Ap7Q=";    };    "~main" =  {      rev = "56b3d3ed37df3560363fb0bf1afd0411ba2f1b1d";      sha256 = "sha256-jXkRIE8sDKjF9PPYMnOtPgNMXqmMNP1kg8Ay0s6Ap7Q=";    };  };}
