@@ -1,0 +1,1 @@
+{  url = "https://github.com/Herringway/sjisish";  versions = {    "0.0.0" =  {      rev = "a1c22080e4a9e48794787ef6d6894cc83e655369";      sha256 = "sha256-8w/1zl0+NkHHyF5ahGqOfqn+R5VA3Xr8fQkgOYUAR4M=";    };    "~main" =  {      rev = "6651f37eecb97ac3874a629f4e2aade17bbd9e9f";      sha256 = "sha256-Mmhke8Rj9d+eE65ngYb5uWSE8zsfYL5zRqu7cxEDu70=";    };  };}

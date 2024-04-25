@@ -1,0 +1,1 @@
+{  url = "https://github.com/Laeeth/d_simplex";  versions = {    "~master" =  {      rev = "c977b554494542ec4f49cf77c43f11e12cd04aef";      sha256 = "sha256-drGntspaqWiYcCt3qeoLPuyX+qOrXA/fk7GQrr0HOAQ=";    };    "0.0.1" =  {      rev = "c977b554494542ec4f49cf77c43f11e12cd04aef";      sha256 = "sha256-drGntspaqWiYcCt3qeoLPuyX+qOrXA/fk7GQrr0HOAQ=";    };  };}

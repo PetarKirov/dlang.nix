@@ -1,0 +1,1 @@
+{  url = "https://github.com/aferust/bindbc-kiwi";  versions = {    "0.0.2" =  {      rev = "6134141c566d0131e7ad548cf3f11762785da213";      sha256 = "sha256-eybkPsuXdOGZZGiodK7dKpJaF+x+mpT3BcQJhvSwuvc=";    };  };}

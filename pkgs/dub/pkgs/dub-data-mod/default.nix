@@ -1,0 +1,1 @@
+{  url = "https://github.com/Abscissa/dub-data-mod";  versions = {    "~master" =  {      rev = "d1ae9368e757c300c46a35328262aa62e3874fbc";      sha256 = "sha256-Mj+7UjOno03m2RvZOrM0qbUG236u3Ui09aMH/va1lvo=";    };    "0.9.23-mod.1" =  {      rev = "d1ae9368e757c300c46a35328262aa62e3874fbc";      sha256 = "sha256-Mj+7UjOno03m2RvZOrM0qbUG236u3Ui09aMH/va1lvo=";    };  };}

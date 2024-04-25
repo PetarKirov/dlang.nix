@@ -1,0 +1,1 @@
+{  url = "https://github.com/sinkuu/punycode-d";  versions = {    "0.1.0" =  {      rev = "70c04dc98c7f504e66fd61f1ec88af526654d08d";      sha256 = "sha256-GPtCYRBMndsNZ3nOJGTJY//7vjhQ6hpj6Uf5vNjMlew=";    };    "~master" =  {      rev = "a8064eb40da0e1761441d7d75091c91f9acc079f";      sha256 = "sha256-G68nQxONV+ZoigSiKcA/Djp8EjMphFRj/nT1yMbxoo4=";    };  };}

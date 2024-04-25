@@ -1,0 +1,1 @@
+{  url = "https://github.com/thechampagne/hyper-d";  versions = {    "0.1.0" =  {      rev = "1ab7f261eca048a42e64fc5bf5c7806342f6cbd4";      sha256 = "sha256-XQC1vQsbxOD18t1uJX1pnRAHeDolfqKSyedfFekXgBc=";    };    "~main" =  {      rev = "500ca1484ff906059fc918bfea645f5b117d29dc";      sha256 = "sha256-CirrQKSz9NIflwG7LKPLY9R4MFk+uXozwpFkYkgZw7c=";    };  };}

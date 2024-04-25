@@ -1,0 +1,1 @@
+{  url = "https://github.com/Ryhon0/nethost";  versions = {    "~master" =  {      rev = "be043939674a157d0af85380db198a209129bd74";      sha256 = "sha256-mkWn0q/qfo9u6bI9IxYrzwio160MsDYVeToAbU3g3Qs=";    };    "1.0.0" =  {      rev = "be043939674a157d0af85380db198a209129bd74";      sha256 = "sha256-mkWn0q/qfo9u6bI9IxYrzwio160MsDYVeToAbU3g3Qs=";    };  };}

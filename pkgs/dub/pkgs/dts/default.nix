@@ -1,0 +1,1 @@
+{  url = "https://github.com/wilzbach/dts";  versions = {    "~master" =  {      rev = "9b3c1e3e3b2b5ea49d1dcb360980705cd9bf5ad1";      sha256 = "sha256-aaIM8gkiYhnVjmKQjASQF5b3LRFOgFPsPdUbGHwOpQw=";    };    "0.0.1" =  {      rev = "60c44d04b8945ba35bc492a808cce158d9b2b735";      sha256 = "sha256-xSaGVFRahrytny53+CP6ZKwYoLloboHy3ybkWVGhSHQ=";    };  };}

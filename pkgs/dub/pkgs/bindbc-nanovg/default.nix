@@ -1,0 +1,1 @@
+{  url = "https://github.com/aferust/bindbc-nanovg";  versions = {    "0.0.1" =  {      rev = "bc1702a94a13c0b608716cad1e191a5055e1bed1";      sha256 = "sha256-unZJyG1u2/EXFwAhySIa3/DQveRvmZeUGj+MesIX8ls=";    };  };}

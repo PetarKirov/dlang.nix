@@ -1,0 +1,1 @@
+{  url = "https://github.com/ilmanzo/DLangKoans";  versions = {    "~master" =  {      rev = "dfbaedffaf2d360497f13afc5423d738a6954bd4";      sha256 = "sha256-3esSGT6ju0m+WHO+Jm+hCP4f4PYB6Gx/Tx+55ucMcMY=";    };    "0.0.17" =  {      rev = "a5af36357c668a0fd4747c8a86101981194fc40d";      sha256 = "sha256-IaXgKGFG2FjSRXNLOOCQuomtaCufqaIIWCHuatTNWLw=";    };  };}

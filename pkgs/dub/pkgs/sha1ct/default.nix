@@ -1,0 +1,1 @@
+{  url = "https://github.com/WebFreak001/sha1ct";  versions = {    "~master" =  {      rev = "db139b78b5af871900d1d08465c8b753a1a98d46";      sha256 = "sha256-UG+RFLcLFNj/958UGmz+OluG4aLjzQ6eIp4rAW1iY08=";    };    "1.0.0" =  {      rev = "db139b78b5af871900d1d08465c8b753a1a98d46";      sha256 = "sha256-UG+RFLcLFNj/958UGmz+OluG4aLjzQ6eIp4rAW1iY08=";    };  };}

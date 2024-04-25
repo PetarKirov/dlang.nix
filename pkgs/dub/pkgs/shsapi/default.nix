@@ -1,0 +1,1 @@
+{  url = "https://gitlab.com/SHSProject/SHS-API";  versions = {    "~master" =  {      rev = "ff2f8427cf0720e7fcc82154e943b0247cbc577b";      sha256 = "sha256-qXu0u7XwLxYl2lkV2W/LYOnonNdGZBluEhxwX09xtZI=";    };    "1.0.0" =  {      rev = "b184979699562905c28f0ec74c822c1b454ab60a";      sha256 = "sha256-IrkZid6gkWP3wsZg73ZhZvgENshQUKZEgu0tOD3jkkk=";    };  };}

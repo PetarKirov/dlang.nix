@@ -1,0 +1,1 @@
+{  url = "https://github.com/gearui/skiad";  versions = {    "0.0.1" =  {      rev = "b72a50b1c7aa3d37c80ecc001d0fb1f1d0a619e7";      sha256 = "sha256-rMEU9Kq5SJPUeY/vToEnOB1w4Oh2IjOqnyE8hC/9/mo=";    };    "~main" =  {      rev = "b72a50b1c7aa3d37c80ecc001d0fb1f1d0a619e7";      sha256 = "sha256-rMEU9Kq5SJPUeY/vToEnOB1w4Oh2IjOqnyE8hC/9/mo=";    };  };}

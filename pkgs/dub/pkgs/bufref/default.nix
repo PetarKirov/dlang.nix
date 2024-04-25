@@ -1,0 +1,1 @@
+{  url = "https://github.com/schveiguy/bufref";  versions = {    "0.0.1-b1" =  {      rev = "2c9278870f35b840936778af0bcfeeb864eeafa4";      sha256 = "sha256-TH+nu/9xmLyJqH+kgNpQPTCUPF5yl8zdF67YS2GflHU=";    };    "~master" =  {      rev = "2c9278870f35b840936778af0bcfeeb864eeafa4";      sha256 = "sha256-TH+nu/9xmLyJqH+kgNpQPTCUPF5yl8zdF67YS2GflHU=";    };  };}

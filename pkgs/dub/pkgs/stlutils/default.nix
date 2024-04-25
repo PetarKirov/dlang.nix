@@ -1,0 +1,1 @@
+{  url = "https://github.com/aferust/stlutils";  versions = {    "0.0.2" =  {      rev = "8a16172a2491d8718d3bd89c3ff8585aa13049e6";      sha256 = "sha256-cNZQ/9kzi7q8eB31BxVAPPikBgdx1u+oZ3H288e78qA=";    };    "0.0.1" =  {      rev = "369932e34b8cc62113c56a138126de6cd10465ad";      sha256 = "sha256-qiLSG1mwtC6m8tiZBPjT+gM38Mvf1aymPDKTZYxGvbo=";    };  };}

@@ -1,0 +1,1 @@
+{  url = "https://github.com/naetherm/DerelictCuBLAS";  versions = {    "~master" =  {      rev = "1250511706c73b58d6640ff2c729e452a6a0af7b";      sha256 = "sha256-Ue30Z1v+TGnnBW6S34TRo2kUCnxJFvbNcZNAHFbqTdY=";    };    "0.0.1" =  {      rev = "1250511706c73b58d6640ff2c729e452a6a0af7b";      sha256 = "sha256-Ue30Z1v+TGnnBW6S34TRo2kUCnxJFvbNcZNAHFbqTdY=";    };  };}

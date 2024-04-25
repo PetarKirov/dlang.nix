@@ -1,0 +1,1 @@
+{  url = "https://github.com/1100110/libtcc-d";  versions = {    "~master" =  {      rev = "7c16356f0768fee6cb51b4573c9b094c54f4e85d";      sha256 = "sha256-Ra3qI8ScNA/dtioHQOD1b8Qz9X0AEhptOtjjrEqjPgw=";    };    "0.0.1" =  {      rev = "7c16356f0768fee6cb51b4573c9b094c54f4e85d";      sha256 = "sha256-Ra3qI8ScNA/dtioHQOD1b8Qz9X0AEhptOtjjrEqjPgw=";    };  };}

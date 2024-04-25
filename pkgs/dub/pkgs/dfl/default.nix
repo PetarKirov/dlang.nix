@@ -1,0 +1,1 @@
+{  url = "https://github.com/Imperatorn/dfl";  versions = {    "~master" =  {      rev = "5a3cba4d13d4d962b707d713be6d77c2ccc52a42";      sha256 = "sha256-cdonHfsQIa5RY/PRI4OsTGlMdvKnaAqHZwh1f6SLD7s=";    };    "0.0.1" =  {      rev = "5a3cba4d13d4d962b707d713be6d77c2ccc52a42";      sha256 = "sha256-cdonHfsQIa5RY/PRI4OsTGlMdvKnaAqHZwh1f6SLD7s=";    };  };}

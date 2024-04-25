@@ -1,0 +1,1 @@
+{  url = "https://github.com/DmetriWolf/versioning";  versions = {    "~master" =  {      rev = "a30611714dbc4189fc46356af27bd61f26ce1aad";      sha256 = "sha256-gXqD3q2PE3Erh3CjAq1VhHTiunkHi73Qzjdns9gF4sg=";    };    "0.1.1" =  {      rev = "7b095d91c50479715d7c37e835ac8ae068f151e5";      sha256 = "sha256-PbA01wfCRv8a0UZNLb0ZdT7OCKe3J+2rnOjuQC5PEaM=";    };  };}

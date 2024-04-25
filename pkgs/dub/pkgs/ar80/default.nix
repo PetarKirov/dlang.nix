@@ -1,0 +1,1 @@
+{  url = "https://github.com/ibara/ar80";  versions = {    "1.0.0" =  {      rev = "f9e1b99cd5ae7918fb4f225456870247336b1567";      sha256 = "sha256-pCBRqpHq57HyVnJpQee37mvTo5HpIBbVncdoYgvq/pc=";    };    "~main" =  {      rev = "f9e1b99cd5ae7918fb4f225456870247336b1567";      sha256 = "sha256-pCBRqpHq57HyVnJpQee37mvTo5HpIBbVncdoYgvq/pc=";    };  };}

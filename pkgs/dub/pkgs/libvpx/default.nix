@@ -1,0 +1,1 @@
+{  url = "https://github.com/lionello/libvpx-d";  versions = {    "1.3.0" =  {      rev = "de067523e148ad417a9d135a2c6a55cbf77a8209";      sha256 = "sha256-RFd1fqKmshAu7ngopp0j7NiNruELv6EiE4JleENrf9I=";    };    "~master" =  {      rev = "b7e491217b62bcae9fac927918c06c3a8a27050e";      sha256 = "sha256-H1Luc2mIM88l2oYmTawVo+B6luqU4fAvRaI0kKoCx0o=";    };  };}

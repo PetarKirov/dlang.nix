@@ -1,0 +1,1 @@
+{  url = "https://github.com/jrfondren/isodd";  versions = {    "0.1.0" =  {      rev = "e1c8a829c3efb68cf83b36899a0038b19ff13bd8";      sha256 = "sha256-bxk3pM3KDX2FLySeqGAWOstKhc/m9IH0ZzVWG+1Hfyc=";    };    "~master" =  {      rev = "0e176c99baba0c37d1803b0593ce5bf9c0e0c2e5";      sha256 = "sha256-rlY3h+oC2WNzxBnIIrtZ5kjv7JHXYSCX5SPenpvGSFk=";    };  };}

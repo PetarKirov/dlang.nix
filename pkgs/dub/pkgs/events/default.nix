@@ -1,0 +1,1 @@
+{  url = "https://github.com/heapsource/events.d";  versions = {    "~master" =  {      rev = "575e27a61f12c45a695c4dee5437cc7a7c3ae52b";      sha256 = "sha256-0zJODov7oWGYd5OzRnnwKw7jOYxJD1RqqP1zmdpdFfw=";    };    "0.1.1" =  {      rev = "575e27a61f12c45a695c4dee5437cc7a7c3ae52b";      sha256 = "sha256-0zJODov7oWGYd5OzRnnwKw7jOYxJD1RqqP1zmdpdFfw=";    };  };}

@@ -1,0 +1,1 @@
+{  url = "https://github.com/epi/deimos-ogg";  versions = {    "~master" =  {      rev = "3f8f7fd39c6d3619bbd1e55624f8e5b9860ab7a2";      sha256 = "sha256-/7C7knlXQ7JrVAhNfkJ4o5QPN8m+J/EZTsbCT5pqqgw=";    };    "1.0.0+18044" =  {      rev = "3f8f7fd39c6d3619bbd1e55624f8e5b9860ab7a2";      sha256 = "sha256-/7C7knlXQ7JrVAhNfkJ4o5QPN8m+J/EZTsbCT5pqqgw=";    };  };}

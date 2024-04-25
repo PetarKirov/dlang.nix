@@ -1,0 +1,1 @@
+{  url = "https://github.com/Zoadian/mp3decoder";  versions = {    "~master" =  {      rev = "69f829633e6de47921dbcf111e4af5acc7b1c8dc";      sha256 = "sha256-x+i9/SdEemLgFGAMadfE8tHzdF9hpvXoseGWOa7IqME=";    };    "1.0.0" =  {      rev = "69f829633e6de47921dbcf111e4af5acc7b1c8dc";      sha256 = "sha256-x+i9/SdEemLgFGAMadfE8tHzdF9hpvXoseGWOa7IqME=";    };  };}

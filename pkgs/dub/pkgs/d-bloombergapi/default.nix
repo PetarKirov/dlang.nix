@@ -1,0 +1,1 @@
+{  url = "https://github.com/Laeeth/d-bloombergapi";  versions = {    "~master" =  {      rev = "e1af483a433649f694f2d7fe1a83f0ca803a9f16";      sha256 = "sha256-TrISEjmNK/LALPcuJPIEwnp6sxhK3U0imJqj9iIN/XU=";    };    "0.0.0" =  {      rev = "e1af483a433649f694f2d7fe1a83f0ca803a9f16";      sha256 = "sha256-TrISEjmNK/LALPcuJPIEwnp6sxhK3U0imJqj9iIN/XU=";    };  };}

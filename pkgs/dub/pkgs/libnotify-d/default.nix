@@ -1,0 +1,1 @@
+{  url = "https://github.com/Rorkh/libnotify-d";  versions = {    "1.0.0" =  {      rev = "18b1da531638db0e63ada0bc4fa8e0b53dac0709";      sha256 = "sha256-uXWXpVymyxB1nQytDtYxExyvq/5a2W/LG/UeQkLB/pE=";    };    "~main" =  {      rev = "18b1da531638db0e63ada0bc4fa8e0b53dac0709";      sha256 = "sha256-uXWXpVymyxB1nQytDtYxExyvq/5a2W/LG/UeQkLB/pE=";    };  };}

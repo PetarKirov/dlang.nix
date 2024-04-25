@@ -1,0 +1,1 @@
+{  url = "https://github.com/jstasiak/dejector";  versions = {    "~master" =  {      rev = "ab19c62ca06bfcba3450e70ed9d80cc62d2e52a5";      sha256 = "sha256-+yNehmZKGNo1Yv8DgZtyeMJqsS62M/NfqEOiukDqA8A=";    };    "0.0.1" =  {      rev = "03bae4b0373acea66e8a3a3545108e4bf150dc17";      sha256 = "sha256-Ig1QwKIUiDSKztkcDLXeo9yKIim3rPY7mITONFEn/Qc=";    };  };}

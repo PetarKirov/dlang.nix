@@ -1,0 +1,1 @@
+{  url = "https://bitbucket.org/dgui/dgui";  versions = {    "~master" =  {      rev = "d024c84e98ffecda2159c50bad88e73078dbff30";      sha256 = "sha256-ZY8wJjhFBNt6pqPHxt77K31Ftfzd8VFkXzFPnCCCb28=";    };    "1.0.1" =  {      rev = "7d9c6d1daf1eeedd236926a1e1a57720a70682c9";      sha256 = "sha256-sYVlkNoZoTi6cWEL7lQ0HKYOBR1UewiJw687hUgJ/cM=";    };  };}

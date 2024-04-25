@@ -1,0 +1,1 @@
+{  url = "https://github.com/NCrashed/libtomcrypt";  versions = {    "0.1.0" =  {      rev = "add8a207d3a1db43cc49585b1273d23b49f7bf01";      sha256 = "sha256-6nojc2iHxgv/xCFTj7Z/XgxUIC7kIKnllxs0/+Eoyg4=";    };    "~master" =  {      rev = "56bf83057de331bcc5f838c3e616482832575ed5";      sha256 = "sha256-eL5ujjBG8ra4MSKL8aspykTDPC8dehbgF4+fXusC8rc=";    };  };}

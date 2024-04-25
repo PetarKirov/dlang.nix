@@ -1,0 +1,1 @@
+{  url = "https://github.com/majiang/qmctf";  versions = {    "~master" =  {      rev = "be65b120286f2465c72c11b489db42373334ff91";      sha256 = "sha256-3kXrCUgIq2Hg5mVCr3VxWyfIPlVO2vZfh15pyiwBxsY=";    };    "0.0.0" =  {      rev = "be65b120286f2465c72c11b489db42373334ff91";      sha256 = "sha256-3kXrCUgIq2Hg5mVCr3VxWyfIPlVO2vZfh15pyiwBxsY=";    };  };}

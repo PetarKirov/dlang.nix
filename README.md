@@ -186,6 +186,22 @@ one of the differences how things are usually done with and without flakes,
 even when it's possible to either pin or to not pin the nixpkgs version
 regardless of flake use.
 
+## buildDubPackage
+
+The buildDubPackage function can be used to build software which uses dub for dependency management.
+
+Flags can be supplied to dub using dubFlags, dubTestFlags and dubBuildFlags. dubFlags are added to both build and test.
+
+Unittests are run by default, but can be disabled by `dontDubTest = true;`.
+
+buildDubPackage resolves dependencies using dub.selections.json. If the package repository doesn't contain a dub.selections.json file, it must be supplied through `dubSelections`.
+
+Specific dub/ldc versions can be supplied by using override.
+
+If any files other then the main executable need to installed, they can be supplied through the array `extraFiles`.
+
+
+
 ## Source and binary variants
 
 DMD and LDC packages come in two variants: `binary` and `source`.

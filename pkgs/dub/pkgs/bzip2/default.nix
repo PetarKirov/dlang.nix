@@ -1,0 +1,1 @@
+{  url = "https://github.com/NCrashed/bzip2";  versions = {    "0.1.0" =  {      rev = "193b4af710b2a6dc10a788eb42abb2092343dfd5";      sha256 = "sha256-N3tc40uo6l8DUREeMziDPJQjd6AgYV8LI8zoQT0vHiw=";    };    "~master" =  {      rev = "e22f6f754c2ddb8295d57034d0e6e6d13d54ffdf";      sha256 = "sha256-ggXeMDGJEEoz2/2jHQuL0Ge/wZPBO2IRriHtQYC9CWU=";    };  };}

@@ -14,3 +14,6 @@ bin/
 
 # Dotenv
 .env
+
+# Misc
+pkgs/build-dub-package/packages.json

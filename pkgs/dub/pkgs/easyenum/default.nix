@@ -1,0 +1,1 @@
+{  url = "https://github.com/WebFreak001/EasyEnum";  versions = {    "~master" =  {      rev = "798c9148cfef3f177605d5a4d492f72fbccb9ec2";      sha256 = "sha256-nS9H5dakm+TiEwNvLZSQM50O/kr7vhunV/9vhv3lVCU=";    };    "1.0.0" =  {      rev = "798c9148cfef3f177605d5a4d492f72fbccb9ec2";      sha256 = "sha256-nS9H5dakm+TiEwNvLZSQM50O/kr7vhunV/9vhv3lVCU=";    };  };}

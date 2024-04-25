@@ -1,0 +1,1 @@
+{  url = "https://github.com/mbierlee/retrograde-bootstrap";  versions = {    "0.0.0" =  {      rev = "c539ffa9105d994a79426cb1eaadf6a07f1aebc1";      sha256 = "sha256-eobPwzc5VwhevUcxWiIOgKfb3U8M8PhW9tKqKWCkFDI=";    };    "~main" =  {      rev = "95660ac8486a659c8589850dc3b0941dde2d0a50";      sha256 = "sha256-duQ/SjWgDyrQsGer/8f6aLsXCo47TfiifIPJYhtuUeM=";    };  };}

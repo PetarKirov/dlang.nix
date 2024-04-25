@@ -1,0 +1,1 @@
+{  url = "https://github.com/Inochi2D/dportals";  versions = {    "0.1.0" =  {      rev = "52e805408bc43c2f74a480e16e17d8d58682fd1f";      sha256 = "sha256-4Uel7E2mHOJ6O94qZyKX2TO6d6hRh9z8TxRl9fzZ7yc=";    };    "~main" =  {      rev = "52e805408bc43c2f74a480e16e17d8d58682fd1f";      sha256 = "sha256-4Uel7E2mHOJ6O94qZyKX2TO6d6hRh9z8TxRl9fzZ7yc=";    };  };}

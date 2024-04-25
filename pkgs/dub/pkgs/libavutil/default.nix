@@ -1,0 +1,1 @@
+{  url = "https://github.com/epi/deimos-libavutil";  versions = {    "0.1.0" =  {      rev = "15f7905a59f68591caa9676f6228a76a5922fed7";      sha256 = "sha256-osKDgsFnUgXHd7K2FHeQ2XoAY9Es6D18VJxwcQDSrGo=";    };    "~master" =  {      rev = "15f7905a59f68591caa9676f6228a76a5922fed7";      sha256 = "sha256-osKDgsFnUgXHd7K2FHeQ2XoAY9Es6D18VJxwcQDSrGo=";    };  };}

@@ -1,0 +1,1 @@
+{  url = "https://github.com/JonathanILevi/RwSList";  versions = {    "~master" =  {      rev = "c631366cfd92f5a8ec4a36e84aa330bf24d1e521";      sha256 = "sha256-+B8Idw4+20p2cF6dBFVLdiSTkaHqlzUTX+UazHVqC2Y=";    };    "1.0.0" =  {      rev = "c631366cfd92f5a8ec4a36e84aa330bf24d1e521";      sha256 = "sha256-+B8Idw4+20p2cF6dBFVLdiSTkaHqlzUTX+UazHVqC2Y=";    };  };}

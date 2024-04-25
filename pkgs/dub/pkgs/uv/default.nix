@@ -1,0 +1,1 @@
+{  url = "https://github.com/heapsource/uv.d";  versions = {    "~master" =  {      rev = "764cf219ced60172f8c41ee37b5266c06ffc9aaf";      sha256 = "sha256-0fJVI43Jr2q6XJMsaA+VPhDpumo4WoMJ9vUchuEKT1U=";    };  };}

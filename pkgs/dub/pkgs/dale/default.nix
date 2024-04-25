@@ -1,0 +1,1 @@
+{  url = "https://github.com/mcandre/dale";  versions = {    "0.0.1" =  {      rev = "96d4c1d94a81dea92a0b2b6b2c56d3ab4bb68c05";      sha256 = "sha256-7ayGqeH7XQ1yO8JrdIIwjKdlhBlbsqOSkzGcGPMtopM=";    };  };}

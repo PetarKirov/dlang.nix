@@ -1,0 +1,1 @@
+{  url = "https://github.com/Herringway/spc700";  versions = {    "0.0.0" =  {      rev = "1b67d3f4e1ddaccea520f265b2ef200c4aae9672";      sha256 = "sha256-BXoywhLA+d95BJEudeaSDTfk91+6uxs0pocMnVPS/CY=";    };    "~main" =  {      rev = "1b67d3f4e1ddaccea520f265b2ef200c4aae9672";      sha256 = "sha256-BXoywhLA+d95BJEudeaSDTfk91+6uxs0pocMnVPS/CY=";    };  };}

@@ -1,0 +1,1 @@
+{  url = "https://github.com/evael-dev/evael-ecs";  versions = {    "0.0.1" =  {      rev = "3cef1c8faa59bebb91bb7f2c7653bbb1324b4bb3";      sha256 = "sha256-rYX7utiPY9t8BXBEjToeIlOruCFR5ijzCpLHKwRxy9o=";    };  };}

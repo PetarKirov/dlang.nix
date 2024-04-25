@@ -1,0 +1,1 @@
+{  url = "https://github.com/Inochi2D/i2d-opengl";  versions = {    "1.0.0" =  {      rev = "985ab89dd82aafc7f0733e855096a38b4a612762";      sha256 = "sha256-n4xfDcxBRrEwQg4BFmaexh9sXf1yPp4KNE9PtL66WYQ=";    };    "~main" =  {      rev = "985ab89dd82aafc7f0733e855096a38b4a612762";      sha256 = "sha256-n4xfDcxBRrEwQg4BFmaexh9sXf1yPp4KNE9PtL66WYQ=";    };  };}

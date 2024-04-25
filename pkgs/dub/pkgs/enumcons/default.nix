@@ -1,0 +1,1 @@
+{  url = "https://github.com/SirNickolas/enumcons";  versions = {    "0.1.0" =  {      rev = "dba7708e27595de16f58652d949f9d0a8abc35f9";      sha256 = "sha256-E/+0qi07/u1TUsnI7JK+gkZQb0zwLJBr7Khc4aSNVP0=";    };    "~master" =  {      rev = "dba7708e27595de16f58652d949f9d0a8abc35f9";      sha256 = "sha256-E/+0qi07/u1TUsnI7JK+gkZQb0zwLJBr7Khc4aSNVP0=";    };  };}

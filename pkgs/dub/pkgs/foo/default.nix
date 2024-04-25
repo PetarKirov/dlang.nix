@@ -1,0 +1,1 @@
+{  url = "https://github.com/myOmikron/dub-foo";  versions = {    "0.0.0" =  {      rev = "e455c4779f84647198e9b8a3dc0897a1b35d1a07";      sha256 = "sha256-SNMXtS5RWlG+IxM4aw5Gk8EDWzqrDO6SCJLcSQvuTZM=";    };    "~main" =  {      rev = "e455c4779f84647198e9b8a3dc0897a1b35d1a07";      sha256 = "sha256-SNMXtS5RWlG+IxM4aw5Gk8EDWzqrDO6SCJLcSQvuTZM=";    };  };}

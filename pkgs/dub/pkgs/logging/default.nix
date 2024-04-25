@@ -1,0 +1,1 @@
+{  url = "https://github.com/theambient/logging";  versions = {    "0.3.0" =  {      rev = "8d5a2c740486215ff9059977bad3097b1f4b6437";      sha256 = "sha256-Us6t1zCDitPhtODeNkzsA4CKqm11LKgGtOg7ly0cK78=";    };    "~master" =  {      rev = "8d5a2c740486215ff9059977bad3097b1f4b6437";      sha256 = "sha256-Us6t1zCDitPhtODeNkzsA4CKqm11LKgGtOg7ly0cK78=";    };  };}

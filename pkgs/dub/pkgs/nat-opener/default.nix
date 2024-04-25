@@ -1,0 +1,1 @@
+{  url = "https://github.com/etcimon/nat-opener";  versions = {    "0.2.0" =  {      rev = "32cf7cfc80302c69ac550f5fa89026bb8b231129";      sha256 = "sha256-Si35Triy6Lhit86WdyBWD2tyxvAnYjpPTgA/xmb9SiI=";    };    "~master" =  {      rev = "0873657b886ad8b26b40e5c87ad02da8fa7fd388";      sha256 = "sha256-k7NOGe9LJPh7dIxe/BG6JznWAcd6O4wHk8vjyO7d/BQ=";    };  };}

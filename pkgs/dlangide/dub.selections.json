@@ -1,0 +1,23 @@
+{
+	"fileVersion": 1,
+	"versions": {
+		"arsd-official": "11.1.0",
+		"bindbc-common": "0.1.5",
+		"bindbc-freetype": "1.2.5",
+		"bindbc-loader": "1.1.5",
+		"bindbc-opengl": "1.1.0",
+		"bindbc-sdl": "1.4.7",
+		"dcd": "0.16.0-beta.2",
+		"dlangui": "0.10.7",
+		"dsfml": "2.1.1",
+		"emsi_containers": "0.9.0",
+		"glx-d": "1.1.0",
+		"icontheme": "1.2.3",
+		"inilike": "1.2.2",
+		"isfreedesktop": "0.1.1",
+		"libdparse": "0.23.2",
+		"msgpack-d": "1.0.5",
+		"x11": "1.0.21",
+		"xdgpaths": "0.2.5"
+	}
+}

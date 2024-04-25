@@ -1,0 +1,1 @@
+{  url = "https://github.com/kotet/kbfi";  versions = {    "~master" =  {      rev = "7be6ad9801767d464df1f0d170353eddbac5c03a";      sha256 = "sha256-LZ2nmZBxE8B2J3iozUU+XC6ArV4wgSmHY+D6Hx1ROsU=";    };    "0.0.1" =  {      rev = "f029e29b10d926b094d750bf52ee070feae3cb5e";      sha256 = "sha256-XEoe/fWK0ThuKFuDc3ThqpluDGtkBHjbE2JT270OT3A=";    };  };}

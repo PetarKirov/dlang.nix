@@ -1,0 +1,1 @@
+{  url = "https://github.com/wilzbach/matplotd";  versions = {    "~master" =  {      rev = "1243ce59f81d5c6eee39388743fcdc0044126fbc";      sha256 = "sha256-KeUT9HM55/kT5ypd417KLtPpcw+hzFtbVugAZRHPxK0=";    };    "0.0.1" =  {      rev = "1243ce59f81d5c6eee39388743fcdc0044126fbc";      sha256 = "sha256-KeUT9HM55/kT5ypd417KLtPpcw+hzFtbVugAZRHPxK0=";    };  };}

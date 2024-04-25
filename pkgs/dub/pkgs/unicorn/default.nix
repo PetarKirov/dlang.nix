@@ -1,0 +1,1 @@
+{  url = "https://github.com/D-Programming-Deimos/unicorn";  versions = {    "~master" =  {      rev = "98f54f0d66e998bf51014e71e20f886974109958";      sha256 = "sha256-FrzaNxmN7gRQ889xedEa9lZq1QntyK85xsNawCaPHOM=";    };    "1.0.1" =  {      rev = "98f54f0d66e998bf51014e71e20f886974109958";      sha256 = "sha256-FrzaNxmN7gRQ889xedEa9lZq1QntyK85xsNawCaPHOM=";    };  };}

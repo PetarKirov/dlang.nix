@@ -1,0 +1,1 @@
+{  url = "https://github.com/Zoadian/DerelictEscapi";  versions = {    "~master" =  {      rev = "ee8f271dbd1ec5b0b3cde7d8cf75ce989e28fce8";      sha256 = "sha256-xtg3EycuXG+Kmu9pEjMPRi4dO3+Uf5x9b6pZFt7rgtk=";    };  };}

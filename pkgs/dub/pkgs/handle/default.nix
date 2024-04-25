@@ -1,0 +1,1 @@
+{  url = "https://github.com/mintyfresh/handle";  versions = {    "0.1.0" =  {      rev = "ba020d7750ce67e8a7e4860f327682a87bdd7241";      sha256 = "sha256-pdJDjY18is8ksRKIp1avWs28i5zUTs/OTw3Z5BGXmTY=";    };    "~master" =  {      rev = "ba020d7750ce67e8a7e4860f327682a87bdd7241";      sha256 = "sha256-pdJDjY18is8ksRKIp1avWs28i5zUTs/OTw3Z5BGXmTY=";    };  };}

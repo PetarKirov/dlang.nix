@@ -1,0 +1,1 @@
+{  url = "https://github.com/Extrawurst/apn-d";  versions = {    "~master" =  {      rev = "bebc1306b08778a11c8739c308cb93dfc6d7c76b";      sha256 = "sha256-JYdXG8ICQuayezCRmU89RXBcpwilXycksMQTJvSDWb4=";    };  };}

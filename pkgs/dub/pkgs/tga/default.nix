@@ -1,0 +1,1 @@
+{  url = "https://github.com/emesx/TGA";  versions = {    "0.1.0" =  {      rev = "422400c3d6163e97854e0734035f79f65cafc292";      sha256 = "sha256-C76CJDomQz6HMxfoZGZOSLcZB3sbyC1M8B4VD7QVlAg=";    };    "~develop" =  {      rev = "6143690c4810d9f0fd84eaf78eaf907c87dfe7b8";      sha256 = "sha256-vc8h6znx0XS+1JfIaYA7dahQpjhhxaR3l7ggTcbfuPY=";    };  };}

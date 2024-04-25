@@ -1,0 +1,1 @@
+{  url = "https://github.com/Dechcaudron/dli";  versions = {    "0.1.0" =  {      rev = "b74b8972091d6a27504493839c238b2e5674f335";      sha256 = "sha256-G+SX/0kcoz1W6WFqKKxDRK/37W3yeJ4UC4MAXkOgo1I=";    };    "~master" =  {      rev = "205d2492d098388d174ff8efd979741c232dc5bd";      sha256 = "sha256-p81siqCJKcELiKoC9qi93w1OULMwmoWgVY6S7FSc6es=";    };  };}

@@ -1,0 +1,1 @@
+{  url = "https://github.com/meld-3d/meld";  versions = {    "~master" =  {      rev = "0c6a401d27ad8381514e3d935e5af7ce102b57f4";      sha256 = "sha256-XCsxtvnhMfV/tle47rmkr65cS7ZQqDLCEdx0Cz3jdRc=";    };    "0.0.1" =  {      rev = "733de0dd935d04f19279eb48fdd9e032d7913c28";      sha256 = "sha256-ia2rQf2pC9a66obqkXi787Hy96u+a+SiYxBXcQZagFE=";    };  };}

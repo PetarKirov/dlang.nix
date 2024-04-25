@@ -1,0 +1,1 @@
+{  url = "https://github.com/azizk/dil";  versions = {    "~master" =  {      rev = "b8974d13eb90ceb4ed6db9458dbe444a64abf3d4";      sha256 = "sha256-b5OEm/1qZQwt57Q3DWzZLq5h5x7R5fJWc5q0oBui8RI=";    };  };}

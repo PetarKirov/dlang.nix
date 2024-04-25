@@ -1,0 +1,1 @@
+{  url = "https://github.com/thechampagne/dogapi-d";  versions = {    "1.0.0" =  {      rev = "f78d625d06007d5df848660e9c5b53e542cd31c1";      sha256 = "sha256-nUCPYpr+K0kO/7AKDMERR6lOFyqZUtjHDsxTm0GcL8s=";    };    "~main" =  {      rev = "f78d625d06007d5df848660e9c5b53e542cd31c1";      sha256 = "sha256-nUCPYpr+K0kO/7AKDMERR6lOFyqZUtjHDsxTm0GcL8s=";    };  };}

@@ -1,0 +1,1 @@
+{  url = "https://github.com/lionello/libcelt-d";  versions = {    "~master" =  {      rev = "8e90efe97510273ddc296b63558d626c68d0ee76";      sha256 = "sha256-SJ/SD+9B4IKciI6Zzd+sXjBWlhBsXRZqMAvqOZO3nEM=";    };    "0.8.1" =  {      rev = "8e90efe97510273ddc296b63558d626c68d0ee76";      sha256 = "sha256-SJ/SD+9B4IKciI6Zzd+sXjBWlhBsXRZqMAvqOZO3nEM=";    };  };}

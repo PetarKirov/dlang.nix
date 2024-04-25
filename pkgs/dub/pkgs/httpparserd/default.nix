@@ -1,0 +1,1 @@
+{  url = "https://github.com/dushibaiyu/http_parser.d";  versions = {    "~master" =  {      rev = "4c658be3157f918d4f11bacc7de7df91bb1feaa3";      sha256 = "sha256-1Z7OKOqqUmPzmuVX9b/SsdqBYimA4A2aAKmKE6kJgQg=";    };    "0.0.1" =  {      rev = "73e1424114708f12250c9bde1ce23336bc38fbed";      sha256 = "sha256-jmXT3btMtXbLfzW2kdxMz7t1G1pndvN4061Rsmam/pk=";    };  };}

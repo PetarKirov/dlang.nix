@@ -1,0 +1,1 @@
+{  url = "https://github.com/LightHouseSoftware/bitranged";  versions = {    "0.0.1" =  {      rev = "bdcfddc1a570465fb2069f8099cd28ec642ed12b";      sha256 = "sha256-O7xPor60cdDrrqaVtp82hD4dt0HepnalOEzhFzSwhaM=";    };    "~main" =  {      rev = "bdcfddc1a570465fb2069f8099cd28ec642ed12b";      sha256 = "sha256-O7xPor60cdDrrqaVtp82hD4dt0HepnalOEzhFzSwhaM=";    };  };}

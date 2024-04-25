@@ -1,0 +1,1 @@
+{  url = "https://github.com/m-ou-se/moggled";  versions = {    "~master" =  {      rev = "e534416dcd8be90848fd2d323c0554e0152e2525";      sha256 = "sha256-H+iPBwjvfSOc9PULEjAv9jG/zBWzb+BZY4eD+DLRbKs=";    };    "0.0.1" =  {      rev = "e534416dcd8be90848fd2d323c0554e0152e2525";      sha256 = "sha256-H+iPBwjvfSOc9PULEjAv9jG/zBWzb+BZY4eD+DLRbKs=";    };  };}

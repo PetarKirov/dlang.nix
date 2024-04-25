@@ -1,0 +1,1 @@
+{  url = "https://github.com/QAston/DMocks-revived";  versions = {    "~master" =  {      rev = "785a76298c1943d1b59e55e9c229672a3da24da8";      sha256 = "sha256-/FwRSGwTfzngQPz2HR9tgSBpxfbFFAlIN8o2SyYgAg0=";    };  };}

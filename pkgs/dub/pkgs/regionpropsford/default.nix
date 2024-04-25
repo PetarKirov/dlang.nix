@@ -1,0 +1,1 @@
+{  url = "https://github.com/aferust/regionpropsford";  versions = {    "0.0.1" =  {      rev = "bdaf86ccdcaad3d9bcf06621032e7954c1fa3b5d";      sha256 = "sha256-vroyNmgAze0riuairpNhh99B+7IMVKP2eqMsWkxoY6U=";    };  };}

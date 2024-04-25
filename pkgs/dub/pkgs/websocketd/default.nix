@@ -1,0 +1,1 @@
+{  url = "https://github.com/o3o/websocketd";  versions = {    "0.1.0" =  {      rev = "98cad5f4dadd9ec1f7786365c5d2e2044eaf4ee6";      sha256 = "sha256-e/vg0nCltekYaAAEWjteWo61KGpubQ+yGTMfoVhep9E=";    };    "~main" =  {      rev = "124fca068c8af694a7663fa95ba98fd8f370f808";      sha256 = "sha256-+gzkTJ9NJgd7rW2/CoKpr3yZtCvGYwydKNvUWA5V7L0=";    };  };}

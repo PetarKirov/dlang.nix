@@ -1,0 +1,1 @@
+{  url = "https://github.com/gizmomogwai/treemap";  versions = {    "~master" =  {      rev = "feba560308119c71981afc761970ffdc12be1908";      sha256 = "sha256-VSSztc4TYzL89ZYx/bbQ1W/4/NPfr0vkbJbmkmG+8ck=";    };    "0.0.1" =  {      rev = "6725564725b7a38b51b4f6ea6543e5ac8676ff70";      sha256 = "sha256-612Zcq3vQ09em28hHBU4ql3/0BqTkI9D6dKF599tdjo=";    };  };}

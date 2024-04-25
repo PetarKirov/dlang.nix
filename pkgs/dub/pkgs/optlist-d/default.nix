@@ -1,0 +1,1 @@
+{  url = "https://github.com/dokutoku/optlist-d";  versions = {    "~master" =  {      rev = "662ec7fa43dd43c1cf85ddfed2990f8824743260";      sha256 = "sha256-ZjaRXTTCzJdWprogWqB5jLV6ndm9gJj7qPXKceR1qJg=";    };    "1.0.0" =  {      rev = "662ec7fa43dd43c1cf85ddfed2990f8824743260";      sha256 = "sha256-ZjaRXTTCzJdWprogWqB5jLV6ndm9gJj7qPXKceR1qJg=";    };  };}

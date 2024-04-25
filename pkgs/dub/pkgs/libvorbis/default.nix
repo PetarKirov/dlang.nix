@@ -1,0 +1,1 @@
+{  url = "https://github.com/epi/deimos-libvorbis";  versions = {    "1.0.0+17021" =  {      rev = "980501597f99758b87c982f136e40e99e1846135";      sha256 = "sha256-xFNUVLqkGrK9TeSM2NBHD9N7TTvcva83QU5mCY/U9WA=";    };    "~master" =  {      rev = "980501597f99758b87c982f136e40e99e1846135";      sha256 = "sha256-xFNUVLqkGrK9TeSM2NBHD9N7TTvcva83QU5mCY/U9WA=";    };  };}

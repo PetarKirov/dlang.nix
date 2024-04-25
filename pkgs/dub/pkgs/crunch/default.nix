@@ -1,0 +1,1 @@
+{  url = "https://github.com/WebFreak001/crunch";  versions = {    "0.1.0" =  {      rev = "fe93db6feef978710fee63c1b91b41d766e7218b";      sha256 = "sha256-Uj23NkmsfbI/xxG+DtRgXk/bNwIrMEkzqxA+ilTS2Fk=";    };    "~master" =  {      rev = "fe93db6feef978710fee63c1b91b41d766e7218b";      sha256 = "sha256-Uj23NkmsfbI/xxG+DtRgXk/bNwIrMEkzqxA+ilTS2Fk=";    };  };}

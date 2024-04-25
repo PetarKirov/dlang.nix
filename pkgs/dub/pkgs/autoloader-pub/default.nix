@@ -1,0 +1,1 @@
+{  url = "https://github.com/carlitos7-cloud/autoloader";  versions = {    "~master" =  {      rev = "b4c21f459b0f21d3125e82451284ec9c1425ef62";      sha256 = "sha256-N2WTVVx1oOIl9nN8Oa+7LfxwVyLV/NwS6eDPmM/TKhw=";    };  };}

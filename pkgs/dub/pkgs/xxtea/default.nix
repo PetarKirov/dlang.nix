@@ -1,0 +1,1 @@
+{  url = "https://github.com/xxtea/xxtea-d";  versions = {    "~master" =  {      rev = "074f55f924fa06ed9fbea17e2d5edd319619dc7a";      sha256 = "sha256-dcAHmkCO3QUVAdntMCniLuDbDka9xoNXBVxhdkxcOtg=";    };    "1.0.0" =  {      rev = "074f55f924fa06ed9fbea17e2d5edd319619dc7a";      sha256 = "sha256-dcAHmkCO3QUVAdntMCniLuDbDka9xoNXBVxhdkxcOtg=";    };  };}

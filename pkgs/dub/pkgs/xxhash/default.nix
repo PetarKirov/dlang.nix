@@ -1,0 +1,1 @@
+{  url = "https://github.com/repeatedly/xxhash-d";  versions = {    "~master" =  {      rev = "011d1ed5c23af99d0592f91e3cc91e23876e77dc";      sha256 = "sha256-NVzExpjG13f8GKeT7zaJ7eIr/9oZVtGMna6gJU3Z72k=";    };  };}

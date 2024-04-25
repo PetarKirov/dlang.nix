@@ -1,0 +1,1 @@
+{  url = "https://github.com/truerss/truerss-cli";  versions = {    "~master" =  {      rev = "4c5ebbe181aa6021c5929b64032c66b7988c916e";      sha256 = "sha256-MD9Kz5qqg5VJiY29bU+iUPJbjnyUYeciki9ZXxsIXIA=";    };    "1.0.0" =  {      rev = "bc4def0c2873b577d90b02496dbd21ef4ab59258";      sha256 = "sha256-Z/S36pBWGaLnFzm/E45A6urfTKzU1SInZWUIy9Xj3kU=";    };  };}

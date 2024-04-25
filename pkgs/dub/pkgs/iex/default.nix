@@ -1,0 +1,1 @@
+{  url = "https://github.com/rjframe/iex";  versions = {    "0.1.0" =  {      rev = "7600fec1f2865df14f340916753792ca7b6861e5";      sha256 = "sha256-oZuCfJjxIxHm4rp1QyTqDeqNfxK7sj6p5jdfTcEQDI4=";    };    "~master" =  {      rev = "7600fec1f2865df14f340916753792ca7b6861e5";      sha256 = "sha256-oZuCfJjxIxHm4rp1QyTqDeqNfxK7sj6p5jdfTcEQDI4=";    };  };}

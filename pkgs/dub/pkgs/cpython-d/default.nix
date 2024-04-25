@@ -1,0 +1,1 @@
+{  url = "https://github.com/carlitos7-cloud/CPython";  versions = {    "~master" =  {      rev = "5e82504d889e8264c2a80fbe4b20ad77e0e12a6e";      sha256 = "sha256-2rsLRYxHgm30BPqBcfhHjhjhq2mqcfsIdhNkM9n52pw=";    };  };}

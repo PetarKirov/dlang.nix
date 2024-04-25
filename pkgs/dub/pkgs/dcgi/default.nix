@@ -1,0 +1,1 @@
+{  url = "https://github.com/2night/dcgi";  versions = {    "0.1.0" =  {      rev = "be33a2b4ca2b0f8fe17a59c6d36aef0bdf7062f6";      sha256 = "sha256-JkUObTuq78tJ9Fxx82YhZgwH2L8Cku2dHOOBwMdOnys=";    };    "~master" =  {      rev = "618f0eb619d179c07ebce446bd07753aedf77768";      sha256 = "sha256-em+Nm2g8hnXmGBvQ11Zr+xZcsrMhO3kEaGSmTo31yWc=";    };  };}

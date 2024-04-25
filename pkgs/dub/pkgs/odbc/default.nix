@@ -1,0 +1,1 @@
+{  url = "https://github.com/singingbush/odbc";  versions = {    "1.0.0" =  {      rev = "94c190782d1e5dfb04f4e919ec09ff5c4e47e034";      sha256 = "sha256-s7U7r/njuhKIhLGW3Tw2EZZyn678vwcSAcHR0hCKf/w=";    };    "~main" =  {      rev = "8193aeaad6c113e43fd5e2388a78657a2b6756ab";      sha256 = "sha256-KXhP/KPiz3ZvYJmD4Ao57jENRt3srCvt88JAAFRlveY=";    };  };}

@@ -1,0 +1,1 @@
+{  url = "https://github.com/JesseKPhillips/spellchecker";  versions = {    "~master" =  {      rev = "bf13309aed11ef99ae4793b8ee0f2fd0e1eb528d";      sha256 = "sha256-Qy5OhdAB/fU+crgg4OVSvnlqhP8E28cco4o43RFDfxw=";    };    "1.0.0" =  {      rev = "bf13309aed11ef99ae4793b8ee0f2fd0e1eb528d";      sha256 = "sha256-Qy5OhdAB/fU+crgg4OVSvnlqhP8E28cco4o43RFDfxw=";    };  };}

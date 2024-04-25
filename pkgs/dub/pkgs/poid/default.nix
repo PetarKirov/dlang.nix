@@ -1,0 +1,1 @@
+{  url = "https://github.com/poi-templates/poi-d";  versions = {    "~master" =  {      rev = "862d0769786a11f49b15ce9d8277bf06214a288b";      sha256 = "sha256-D4moiG8utSamxYtNo8F/rhv6ksMbdNiifWPYLqQ5xFs=";    };    "0.0.1" =  {      rev = "9fd27a6e4eb34531e5e4572ab69c67844697000a";      sha256 = "sha256-TQJg6liK+6GrS3XoIvmN2oJjbCGacPGmPMuyzBMuedo=";    };  };}

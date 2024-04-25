@@ -1,0 +1,1 @@
+{  url = "https://github.com/jordan4ibanez/j_init";  versions = {    "1.0.0" =  {      rev = "417e93c7efdbef276a8ae28a3a5b561afb237f8f";      sha256 = "sha256-jpjCk7o/L//8RWWeVcEyuTxBoBmrNytjUxgOaPvTIME=";    };    "~main" =  {      rev = "417e93c7efdbef276a8ae28a3a5b561afb237f8f";      sha256 = "sha256-jpjCk7o/L//8RWWeVcEyuTxBoBmrNytjUxgOaPvTIME=";    };  };}

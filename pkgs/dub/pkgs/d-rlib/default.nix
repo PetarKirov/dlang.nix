@@ -1,0 +1,1 @@
+{  url = "https://github.com/htfy96/d-rlib";  versions = {    "~master" =  {      rev = "66167667d9d7f0ba8fb39b77c3df27b2cd7a0595";      sha256 = "sha256-kKcbnWi7UJdX9Q2hUwcIiGvIlZ9iYXIQjYy6Nl9XR8g=";    };    "0.0.1" =  {      rev = "c4a956a167946b294f2e80e2d6a6baca3a6a5ca3";      sha256 = "sha256-tqNziw2mp/text+ii53AVYkFoFHnXKFZvWkKiYEPvBM=";    };  };}

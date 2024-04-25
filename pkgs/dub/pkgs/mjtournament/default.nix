@@ -1,0 +1,1 @@
+{  url = "https://github.com/majiang/mjtournament";  versions = {    "~master" =  {      rev = "95d5195e786223648b6de5e24b1b4ac0e37bc559";      sha256 = "sha256-FyDIeAw3jVlQpPW62fxTWHwOOEAcB7H+MjsfWetX4KM=";    };    "0.0.0" =  {      rev = "95d5195e786223648b6de5e24b1b4ac0e37bc559";      sha256 = "sha256-FyDIeAw3jVlQpPW62fxTWHwOOEAcB7H+MjsfWetX4KM=";    };  };}

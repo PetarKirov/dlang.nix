@@ -1,0 +1,1 @@
+{  url = "https://github.com/symmetryinvestments/d-cobertura";  versions = {    "~master" =  {      rev = "1d19b598400b117a28f39e7cd566b9ee7d6b18dc";      sha256 = "sha256-LQ//diCCc7LUYkFyQr5fFNjCDv92jjk3PtK7Dq0Z1j8=";    };    "1.0.0" =  {      rev = "1d19b598400b117a28f39e7cd566b9ee7d6b18dc";      sha256 = "sha256-LQ//diCCc7LUYkFyQr5fFNjCDv92jjk3PtK7Dq0Z1j8=";    };  };}

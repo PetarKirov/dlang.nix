@@ -1,0 +1,1 @@
+{  url = "https://github.com/chrisbare/belleglade";  versions = {    "1.0.0" =  {      rev = "d3e6be1c4839f70b6c74ff7aa910758f08dca33c";      sha256 = "sha256-dLEtlMd9eBC1Kgezlg7af9wJbS7hUibewHLqDDcJU7A=";    };    "~main" =  {      rev = "d3e6be1c4839f70b6c74ff7aa910758f08dca33c";      sha256 = "sha256-dLEtlMd9eBC1Kgezlg7af9wJbS7hUibewHLqDDcJU7A=";    };  };}

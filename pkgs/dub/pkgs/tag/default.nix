@@ -1,0 +1,1 @@
+{  url = "https://github.com/Tosuke/tag";  versions = {    "~master" =  {      rev = "996e315b08671e81b2479eb54974674f93153dec";      sha256 = "sha256-ehLrnyG4GxObmLIbYbEvEeQnHzzT/TAiQRo1eESqZ5o=";    };    "1.0.0" =  {      rev = "996e315b08671e81b2479eb54974674f93153dec";      sha256 = "sha256-ehLrnyG4GxObmLIbYbEvEeQnHzzT/TAiQRo1eESqZ5o=";    };  };}

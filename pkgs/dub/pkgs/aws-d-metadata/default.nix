@@ -1,0 +1,1 @@
+{  url = "https://github.com/Extrawurst/aws-d-metadata";  versions = {    "~master" =  {      rev = "5563bbb573fd6eb787412f215ad4e08a43a300ec";      sha256 = "sha256-bvcc1G5A9Kxm3V0spkHc30Y4iiwmv0BfNLY+vmjGLd4=";    };    "0.0.1" =  {      rev = "625975c4a3a6dca72da472a0cc35a94a7eaa79bf";      sha256 = "sha256-3QnazzWY/2w+3fUkApLLyskf8SVPesEVOsWYRoWm6Dg=";    };  };}

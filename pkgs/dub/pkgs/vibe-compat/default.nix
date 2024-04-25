@@ -1,0 +1,1 @@
+{  url = "https://github.com/vibe-d/vibe-compat";  versions = {    "~master" =  {      rev = "be67e2007e14e2f4648e16d4799c97e70a87f4c8";      sha256 = "sha256-FbQYCzFH73sCm35IjIMcCGNTL5rDq+0tmwaiWy+pR78=";    };    "1.0.0" =  {      rev = "bb72c379f2a54ce0fd233b1e3486db84357af867";      sha256 = "sha256-GCpG4sn1GoS/lDL3YWyT7+cJjBtv8TNwWAir3UAJKSY=";    };  };}

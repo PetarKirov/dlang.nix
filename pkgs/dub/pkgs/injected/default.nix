@@ -1,0 +1,1 @@
+{  url = "https://github.com/bytecurry/injected";  versions = {    "0.1.0" =  {      rev = "9956b6463ead15c232eba626735c2a77fe6bc53b";      sha256 = "sha256-6x1sTYn+FthjXeGoG3BKv6M/22Keev0Foqy5nUytnjU=";    };    "~master" =  {      rev = "6a3e372c5af2ff40d9379e3ad756d04e65399b22";      sha256 = "sha256-N0z1beWunCCiGJpcn4TC/g49b+/lu2jA9NtG6lSFYeY=";    };  };}

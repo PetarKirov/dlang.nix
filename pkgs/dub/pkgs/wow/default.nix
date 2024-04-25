@@ -1,0 +1,1 @@
+{  url = "https://github.com/thechampagne/wow-d";  versions = {    "1.0.0" =  {      rev = "c156ffa1d8429aa9a4c6db0c29e9290921dd9b53";      sha256 = "sha256-ttp9zNpJYRDTTdI+H90yL/dP3BcSzap0ZoVrWZrcF3I=";    };    "~main" =  {      rev = "c156ffa1d8429aa9a4c6db0c29e9290921dd9b53";      sha256 = "sha256-ttp9zNpJYRDTTdI+H90yL/dP3BcSzap0ZoVrWZrcF3I=";    };  };}

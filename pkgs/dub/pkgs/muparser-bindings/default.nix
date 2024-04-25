@@ -1,0 +1,1 @@
+{  url = "https://github.com/JonathanILevi/muparser-bindings";  versions = {    "1.0.0" =  {      rev = "4fd45eaa2815b7182ff8e00b1a134936f1114470";      sha256 = "sha256-9AQxOABn7ps2TdfT5qV9A5/kVhUL4be7pURbnwUueGc=";    };    "~main" =  {      rev = "4fd45eaa2815b7182ff8e00b1a134936f1114470";      sha256 = "sha256-9AQxOABn7ps2TdfT5qV9A5/kVhUL4be7pURbnwUueGc=";    };  };}

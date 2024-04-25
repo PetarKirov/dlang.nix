@@ -1,0 +1,1 @@
+{  url = "https://github.com/joakim-brannstrom/dsrcgen";  versions = {    "0.1.0" =  {      rev = "b993d4fc9b4b372b92853cdf6be11df6c2f04491";      sha256 = "sha256-mTVAi5q9g9pAC00RpyytAWhjJCym5IVOKYgkrXTO/o8=";    };    "~master" =  {      rev = "0147ffc3fa902ba5e96172348e7be56a0fea3369";      sha256 = "sha256-0LR+RSmwZh/Yc1lRZngPJKQxF1DU0YDkfipi4sK/upE=";    };  };}

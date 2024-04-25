@@ -1,0 +1,1 @@
+{  url = "https://github.com/rtbo/wayland-scanner-d";  versions = {    "~master" =  {      rev = "a3caad2eed170cbcbadecaf739bd9985e0dfb35f";      sha256 = "sha256-+WzvVhmwcQzK2o2JjoreU9Q+Bb0uK/q8KIvShubV14Q=";    };    "1.0.0" =  {      rev = "da6d4253c09d9827c8b9c085580634cf5150c37e";      sha256 = "sha256-/GdU8qReQQD7KRoTCxVJe45ALjxoqGpgzKl1C5Y+bJQ=";    };  };}

@@ -1,0 +1,1 @@
+{  url = "https://github.com/kubo39/vcr.d";  versions = {    "0.1.0" =  {      rev = "0464ffbf6f5a045b21ccf011400e2f306e5f7031";      sha256 = "sha256-LeXlz0GHiIJt2K27ZAdEBjC7gPyZsqWQLRJ7NO35SxA=";    };    "~master" =  {      rev = "e8c3f2a778ad65c3bb44e5da96c0330f106af34e";      sha256 = "sha256-Jft9zd/eSFrwHi2ZZ7yuKFMA1SzIZHapxAvot9uKDJ8=";    };  };}

@@ -1,0 +1,1 @@
+{  url = "https://github.com/KitsunebiGames/km-engine";  versions = {    "0.5.0" =  {      rev = "3d6bcf973514e6ffcd9495e6623b053ed5ef35ce";      sha256 = "sha256-6rNXa46avVLl7N3kr0ESk3UBPtmUFcRE0WQkcmDYVAc=";    };    "~main" =  {      rev = "aed20ab650df71773df72a4b57fad43400e6b0f8";      sha256 = "sha256-M86s6jTw1CyFObmGA3+L8UYyaQDgU4Ii1JTSe/dosPA=";    };  };}

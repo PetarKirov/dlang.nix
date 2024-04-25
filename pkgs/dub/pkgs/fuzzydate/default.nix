@@ -1,0 +1,1 @@
+{  url = "https://github.com/s-ludwig/fuzzydate";  versions = {    "~master" =  {      rev = "8c6087dd4395c019b25fa8c8a44fae6d4b111f2d";      sha256 = "sha256-u+2df+vs4863KrPCUdzmVA44CGYnOqKwVUriHD/vJFQ=";    };    "1.0.0" =  {      rev = "2f0821f87cc0195dabaf1683df19ce3a78d3837e";      sha256 = "sha256-CK83KgedLNe5zhqLT7NWOEx5UFuyJVWqK/wfq9ZRvsU=";    };  };}

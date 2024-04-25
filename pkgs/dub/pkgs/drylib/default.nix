@@ -1,0 +1,1 @@
+{  url = "https://github.com/dryproject/drylib.d";  versions = {    "~master" =  {      rev = "a751ba1d69ea9214bf302cfef05dc8e378bb6e51";      sha256 = "sha256-EsbLOx8OLOh98qKe8dqG+/xY5XGLMyL6YXOihfGKHFU=";    };    "0.0.1" =  {      rev = "2c20ad96d95f4c16d8138f72cc38fd7e5f2edc8f";      sha256 = "sha256-pcL02dIHH6+at2sHP1u1tC1yzABey2yR1iVU7F1YPys=";    };  };}

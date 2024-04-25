@@ -1,0 +1,1 @@
+{  url = "https://github.com/ShigekiKarita/d-nv";  versions = {    "~master" =  {      rev = "7946c12c5657d0a9e73167792d1565f2f1474e86";      sha256 = "sha256-DBR8dCrbDpRICojxdulJZAwJA1L1ntU46NeQlUPeyjs=";    };    "0.0.1" =  {      rev = "4631dc142a2cb626dee7f44d6fb2c5037712da6a";      sha256 = "sha256-DHgSPckORMkNoS6H338LEPJ7DAVe5qNyjmjE9s/Ki1Q=";    };  };}

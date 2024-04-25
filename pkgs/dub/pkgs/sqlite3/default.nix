@@ -1,0 +1,1 @@
+{  url = "https://github.com/sasq64/sqlite3-d";  versions = {    "~master" =  {      rev = "db32d4d9b3e405b04d0b75fae6261b40652d4350";      sha256 = "sha256-i/06c7jrmwMNCfD+W8s8HywD+y0e+bjRe0iWifAPFgI=";    };    "1.0.0" =  {      rev = "75a053f07fdc66282e1a37062e8825f797fbb21a";      sha256 = "sha256-X7yzKmMIOadfHv6X1lX1VSTZ5p/dbumQrwjIDGg5WzY=";    };  };}

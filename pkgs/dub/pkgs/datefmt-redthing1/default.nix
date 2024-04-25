@@ -1,0 +1,1 @@
+{  url = "https://github.com/redthing1/datefmt-redthing1";  versions = {    "1.0.6" =  {      rev = "2388b5f2a0467c6d35d6e6329f5ebae28f8b8ab1";      sha256 = "sha256-M52TtHDPe4ASorMsqmUAtHd+S/gOqxmjO3aAAEFvsY4=";    };    "~master" =  {      rev = "2388b5f2a0467c6d35d6e6329f5ebae28f8b8ab1";      sha256 = "sha256-M52TtHDPe4ASorMsqmUAtHd+S/gOqxmjO3aAAEFvsY4=";    };  };}

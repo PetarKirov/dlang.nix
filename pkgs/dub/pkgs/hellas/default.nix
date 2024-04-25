@@ -1,0 +1,1 @@
+{  url = "https://github.com/wilzbach/hellas2";  versions = {    "~master" =  {      rev = "b25e3c96af78472f5294f249e0b410961b0c0761";      sha256 = "sha256-A7RuUulul/WwKOyPQGuSO7uutViKYJCixoMP0lEuhtY=";    };  };}

@@ -1,0 +1,1 @@
+{  url = "https://github.com/jrfondren/pwcheck";  versions = {    "0.1.0" =  {      rev = "ec53d08a3f1db111463b9aa177ca34fd4f723f2a";      sha256 = "sha256-Ns9yQTb4duUU7ocnjJDDYDmcQgIjDJGAn6LNvTQC45c=";    };    "~master" =  {      rev = "97c94aa116a25f3b4958c8831a48bea28c3b636d";      sha256 = "sha256-Id3kSXEixIq7dtLn0KNyJ/Vaua8oXuPW/pWo9c11fLQ=";    };  };}

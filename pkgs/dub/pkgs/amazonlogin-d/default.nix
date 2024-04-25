@@ -1,0 +1,1 @@
+{  url = "https://github.com/alexa-d/amazonlogin-d";  versions = {    "0.1.0" =  {      rev = "9afabdfe219b47e9f0005c0f830aa58a3049cf88";      sha256 = "sha256-2pl4k7N8L0b5sC/KFqL0KzSAGhu2jyG3umPTQBdY8jY=";    };    "~master" =  {      rev = "e51f48ec07230f8156ad33104a526ee2aa2c20bc";      sha256 = "sha256-Z1gzeQ+RtlMi0gBn0w+f8OMmKawywPy4qsWZuoLVar4=";    };  };}

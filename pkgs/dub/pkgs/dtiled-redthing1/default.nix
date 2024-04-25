@@ -1,0 +1,1 @@
+{  url = "https://github.com/redthing1/dtiled-redthing1";  versions = {    "~master" =  {      rev = "846244724812b46eaa7fc9a26ae9bc3f3f83dfe3";      sha256 = "sha256-+fqO9d63CWSZd2ctVX7CqzH7XQs/Schbi2YbeEO0PR4=";    };    "0.4.1" =  {      rev = "846244724812b46eaa7fc9a26ae9bc3f3f83dfe3";      sha256 = "sha256-+fqO9d63CWSZd2ctVX7CqzH7XQs/Schbi2YbeEO0PR4=";    };  };}

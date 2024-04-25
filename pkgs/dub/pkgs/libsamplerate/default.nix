@@ -1,0 +1,1 @@
+{  url = "https://github.com/epi/deimos-libsamplerate";  versions = {    "1.0.0+0.1.8" =  {      rev = "4a93464b81d496c61d23e7b2a53994eeb146fcf1";      sha256 = "sha256-hJWlsVCKZR7nY2NMJExV6HAhrcbFSP6ui+dmiOLH8gc=";    };    "~master" =  {      rev = "4a93464b81d496c61d23e7b2a53994eeb146fcf1";      sha256 = "sha256-hJWlsVCKZR7nY2NMJExV6HAhrcbFSP6ui+dmiOLH8gc=";    };  };}

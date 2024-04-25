@@ -1,0 +1,1 @@
+{  url = "https://github.com/Azbukagh/WhammyDoc";  versions = {    "~master" =  {      rev = "ff8d94d9bb08af892b6acd8a7879c6a8a50c8d93";      sha256 = "sha256-vISaZbFGBhUOldrVdUspdBvaWT/rBvqNVYo+FR39AdE=";    };    "0.0.1" =  {      rev = "ff8d94d9bb08af892b6acd8a7879c6a8a50c8d93";      sha256 = "sha256-vISaZbFGBhUOldrVdUspdBvaWT/rBvqNVYo+FR39AdE=";    };  };}

@@ -1,0 +1,1 @@
+{  url = "https://github.com/Member1221/xd";  versions = {    "~master" =  {      rev = "d420e320dcb8e5301af591756d556200ff92c245";      sha256 = "sha256-8qqXMbxKh7nAfD4S4eVZOvVAuuA63GggtY+jVd9cu1E=";    };    "1.0.0" =  {      rev = "d420e320dcb8e5301af591756d556200ff92c245";      sha256 = "sha256-8qqXMbxKh7nAfD4S4eVZOvVAuuA63GggtY+jVd9cu1E=";    };  };}

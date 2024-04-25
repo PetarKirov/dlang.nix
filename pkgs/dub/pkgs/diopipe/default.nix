@@ -1,0 +1,1 @@
+{  url = "https://github.com/thrimbor/dIOpipe";  versions = {    "~master" =  {      rev = "ea93e264d82fae71a4c9cfbfb6fd259a0ad1ad41";      sha256 = "sha256-oHprXFTGECBFAXfN27WliVO993zs+wOleA/Y2EytrnE=";    };    "0.0.1" =  {      rev = "ea93e264d82fae71a4c9cfbfb6fd259a0ad1ad41";      sha256 = "sha256-oHprXFTGECBFAXfN27WliVO993zs+wOleA/Y2EytrnE=";    };  };}

@@ -1,0 +1,1 @@
+{  url = "https://github.com/itiu/xapian-d";  versions = {    "~master" =  {      rev = "f3959fd73880a585c48dffec903a8ef8fab338b3";      sha256 = "sha256-TUHrQRxbW6dPqJgd9zPRsLjBVqiLaIuNJG0a2VorUc0=";    };    "1.0.0" =  {      rev = "f3959fd73880a585c48dffec903a8ef8fab338b3";      sha256 = "sha256-TUHrQRxbW6dPqJgd9zPRsLjBVqiLaIuNJG0a2VorUc0=";    };  };}

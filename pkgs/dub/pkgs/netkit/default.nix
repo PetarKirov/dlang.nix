@@ -1,0 +1,1 @@
+{  url = "https://github.com/huntlabs/netkit";  versions = {    "~master" =  {      rev = "122ceb0b0b22d3da57ba7ab50a1583e57f42b14d";      sha256 = "sha256-sxofWRXVJ/paqqgWiBSjDw9vXkbl40mIECVzv/C5LNI=";    };    "0.0.1" =  {      rev = "9e2bd6055767053b132b4e71ecfe08e60c58a93a";      sha256 = "sha256-ZfSvTmIENHv3/kJqrR9m8/SthXWW6pzxRmbhsrQU+hg=";    };  };}

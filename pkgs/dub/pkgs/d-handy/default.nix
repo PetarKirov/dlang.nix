@@ -1,0 +1,1 @@
+{  url = "https://github.com/Member1221/d-handy";  versions = {    "~master" =  {      rev = "927bc444cc9f50cb1339c2da65915ea95cb14f42";      sha256 = "sha256-ygxdH6l2Ly0oStYrS7S96GNVh7OXvf4Eq8XwBvkZkMk=";    };    "0.0.12" =  {      rev = "927bc444cc9f50cb1339c2da65915ea95cb14f42";      sha256 = "sha256-ygxdH6l2Ly0oStYrS7S96GNVh7OXvf4Eq8XwBvkZkMk=";    };  };}

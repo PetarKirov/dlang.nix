@@ -1,0 +1,1 @@
+{  url = "https://github.com/jmcabo/avgtime";  versions = {    "~master" =  {      rev = "ffdf20049db7a6aa6074354d95265869c6aad65b";      sha256 = "sha256-nAEN0vIHrtTYv5Lj3Y9S4RBAS7AWqJBp9TpYIsOcak0=";    };    "0.5.0" =  {      rev = "508841f2eed31a25406914bfe4696c7be6a8491e";      sha256 = "sha256-K7YXKXldFy5bU06ccsnR0SP69GfRLCBk8osvxE5J77g=";    };  };}

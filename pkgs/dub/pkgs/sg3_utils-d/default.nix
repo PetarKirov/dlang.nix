@@ -1,0 +1,1 @@
+{  url = "https://github.com/TritiatedWater/sg3_utils-d";  versions = {    "~master" =  {      rev = "ba88a17f0cbd924f43487c1d71efaf2853a3d2c2";      sha256 = "sha256-zF3wB6R8ke+8g5D2eQHiaw2y72ZBA7stAMWEJC7UWAE=";    };    "0.0.1" =  {      rev = "ba88a17f0cbd924f43487c1d71efaf2853a3d2c2";      sha256 = "sha256-zF3wB6R8ke+8g5D2eQHiaw2y72ZBA7stAMWEJC7UWAE=";    };  };}

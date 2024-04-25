@@ -1,0 +1,1 @@
+{  url = "https://github.com/qqiangwu/vson";  versions = {    "~master" =  {      rev = "cc79976561d6c7ad5be3ae6d1d9795a96eba06ea";      sha256 = "sha256-eWjrNCHBlTHJNZNBxMHUX9Ra6wX2yq+tuIR5OyZBoKg=";    };    "0.0.2" =  {      rev = "cc79976561d6c7ad5be3ae6d1d9795a96eba06ea";      sha256 = "sha256-eWjrNCHBlTHJNZNBxMHUX9Ra6wX2yq+tuIR5OyZBoKg=";    };  };}

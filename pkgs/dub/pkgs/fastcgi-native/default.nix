@@ -1,0 +1,1 @@
+{  url = "https://github.com/aferust/fastcgi-native";  versions = {    "0.0.1" =  {      rev = "173e2f38871a7e174e3d6fd9965190f3d28b642d";      sha256 = "sha256-R1F9/Kt4K++Ln+8jsrgfGYG7GBABIL6Lga0m4623cd4=";    };  };}

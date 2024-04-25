@@ -1,0 +1,1 @@
+{  url = "https://github.com/jairov4/modernui";  versions = {    "~master" =  {      rev = "f05eb15af7b0f016fdea23a75cf55aafedfd1944";      sha256 = "sha256-Z1jeyfEZTfi7DqVXS8k0giUIGpnKMCl/xnOrfVTkdt0=";    };    "0.0.1" =  {      rev = "f4409965009dfbc22c4ec426a6cabef03d5567e1";      sha256 = "sha256-Hq2mMTaZjvRWoD950Ls9fYZTOrsXenNABAwRYwU1PHg=";    };  };}

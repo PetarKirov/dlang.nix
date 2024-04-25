@@ -1,0 +1,1 @@
+{  url = "https://github.com/thechampagne/cutec2-d";  versions = {    "0.1.0" =  {      rev = "f3b4dad12c7ec80f8eb74e55de45ce3e164d74e2";      sha256 = "sha256-7QOtZDx7Cgj12/rol7aKYCrgbBerNVqMi/5b8RndnVg=";    };    "~main" =  {      rev = "f3b4dad12c7ec80f8eb74e55de45ce3e164d74e2";      sha256 = "sha256-7QOtZDx7Cgj12/rol7aKYCrgbBerNVqMi/5b8RndnVg=";    };  };}

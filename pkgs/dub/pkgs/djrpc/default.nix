@@ -1,0 +1,1 @@
+{  url = "https://github.com/TypicalFence/djrpc";  versions = {    "~master" =  {      rev = "27a882ce94593748679560279d1a22f33292be43";      sha256 = "sha256-I9Uj39l5+hWTAMLlDLAe0tFxEIIQr07Uz2JNTfg4e14=";    };    "0.0.0" =  {      rev = "9fee8efed096c1b06a95ca5fd7cc5173d9c3a662";      sha256 = "sha256-MS+PH+xxuu+G7VUrY8Mgc+RJMH9UkQ92GWX+l9y55J8=";    };  };}

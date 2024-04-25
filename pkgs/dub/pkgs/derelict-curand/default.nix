@@ -1,0 +1,1 @@
+{  url = "https://github.com/naetherm/DerelictCuRAND";  versions = {    "~master" =  {      rev = "155bd81a587f9c2f10d52fac5a0b646b10d1ddaa";      sha256 = "sha256-TLwCnHkW0D3dTdHUkMVmtrJTcYvhOJxVsYmZ5U1imzE=";    };    "0.0.1" =  {      rev = "3a193f6ce7d5c973b97597a4cc42ce58e0d8cf65";      sha256 = "sha256-Sx/Ain+EsoDpa1feAjOwhHFtkM82YQtbWAi9zDJNCss=";    };  };}
