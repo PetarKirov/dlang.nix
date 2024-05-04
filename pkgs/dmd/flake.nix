@@ -1,28 +1,31 @@
 {
   inputs = {
     dmd = {
-      url = github:dlang/dmd;
+      url = "github:dlang/dmd";
       flake = false;
     };
     druntime = {
-      url = github:dlang/druntime;
+      url = "github:dlang/druntime";
       flake = false;
     };
     phobos = {
-      url = github:dlang/phobos;
+      url = "github:dlang/phobos";
       flake = false;
     };
     tools = {
-      url = github:dlang/tools;
+      url = "github:dlang/tools";
       flake = false;
     };
     primary.follows = "dmd";
   };
-  outputs = {...}: let
-    versionBetween = after: before: version:
-      ((builtins.compareVersions version after) >= 0)
-      && ((builtins.compareVersions version before) < 0);
-  in {
-    isVersionSupported = version: versionBetween "2.092.1" "2.105.2" version;
-  };
+  outputs =
+    { ... }:
+    let
+      versionBetween =
+        after: before: version:
+        ((builtins.compareVersions version after) >= 0) && ((builtins.compareVersions version before) < 0);
+    in
+    {
+      isVersionSupported = version: versionBetween "2.092.1" "2.105.2" version;
+    };
 }

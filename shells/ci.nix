@@ -1,4 +1,4 @@
-{pkgs, ...}:
+{ pkgs, ... }:
 pkgs.mkShellNoCC {
   packages = with pkgs; [
     jq

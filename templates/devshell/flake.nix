@@ -13,25 +13,28 @@
     };
   };
 
-  outputs = inputs @ {flake-parts, ...}:
-    flake-parts.lib.mkFlake {inherit inputs;} {
-      systems = ["x86_64-linux" "x86_64-darwin" "aarch64-darwin"];
-      perSystem = {
-        inputs',
-        pkgs,
-        ...
-      }: {
-        devShells.default = pkgs.mkShell {
-          packages = [
-            pkgs.figlet
-            inputs'.dlang-nix.packages.ldc
-            inputs'.dlang-nix.packages.dub
-          ];
+  outputs =
+    inputs@{ flake-parts, ... }:
+    flake-parts.lib.mkFlake { inherit inputs; } {
+      systems = [
+        "x86_64-linux"
+        "x86_64-darwin"
+        "aarch64-darwin"
+      ];
+      perSystem =
+        { inputs', pkgs, ... }:
+        {
+          devShells.default = pkgs.mkShell {
+            packages = [
+              pkgs.figlet
+              inputs'.dlang-nix.packages.ldc
+              inputs'.dlang-nix.packages.dub
+            ];
 
-          shellHook = ''
-            figlet "Hello, D world!"
-          '';
+            shellHook = ''
+              figlet "Hello, D world!"
+            '';
+          };
         };
-      };
     };
 }
