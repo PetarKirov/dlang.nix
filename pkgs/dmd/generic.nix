@@ -228,6 +228,9 @@ stdenv.mkDerivation rec {
     lib.optionalString (lib.versionAtLeast buildFrontendVersion "2.092.0") ''
       substituteInPlace ${dmdPrefix}/src/build.d --replace '"-dip25"' ""
     ''
+    + lib.optionalString (versionBetween "2.092.0" "2.103.0" version) ''
+      substituteInPlace ${dmdPrefix}/src/build.d --replace '"-w", "-de",' ""
+    ''
     + ''
       patchShebangs ${dmdPrefix}/test/{runnable,fail_compilation,compilable,tools}{,/extra-files}/*.sh
 
