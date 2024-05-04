@@ -210,6 +210,20 @@ stdenv.mkDerivation rec {
         sha256 = "sha256-/pPKK7ZK9E/mBrxm2MZyBNhYExE8p9jz8JqBdZSE6uY=";
       })
     ]
+    ++ lib.optionals (versionBetween "2.092.0" "2.101.0" version) [
+      # `src/dmd/backend/cg.d` and `src/dmd/backend/var.d` contained arrays defined as
+      # result from IIFE at CT. These function expressions were inside a
+      # `extern (C++):` block, however they were returning static arrays, which
+      # is not allowed in C++. This patch marks them as `extern (D)`, to avoid
+      # this issue.
+      # See: https://github.com/dlang/dmd/pull/14127
+      (fetchpatch {
+        url = "https://github.com/dlang/dmd/commit/c4cea697e8658f103a69967587e75dd130506304.patch";
+        stripLen = 1;
+        extraPrefix = "dmd/";
+        sha256 = "sha256-JO52sxliPFjCe4qyo/eyWhDTg1x5bh1+7gPj1SYXIh8=";
+      })
+    ]
     ++ lib.optionals (versionBetween "2.102.2" "2.104.0" version) [
       (fetchpatch {
         # Fix for: https://issues.dlang.org/show_bug.cgi?id=23846
