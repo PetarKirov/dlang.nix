@@ -1,4 +1,4 @@
-{ pkgs }:
+{ pkgs, config }:
 with pkgs;
 mkShell {
   packages = [
@@ -15,7 +15,7 @@ mkShell {
 
   shellHook = ''
     export REPO_ROOT="$PWD"
+    ${config.pre-commit.installationScript}
     figlet "Welcome  to Dlang  Nix"
-    export DMD=ldmd2
   '';
 }

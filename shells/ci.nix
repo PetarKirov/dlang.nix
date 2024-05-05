@@ -1,7 +1,13 @@
-{ pkgs, ... }:
+{ pkgs, config, ... }:
 pkgs.mkShellNoCC {
-  packages = with pkgs; [
-    jq
-    nix-eval-jobs
-  ];
+  packages =
+    [ config.pre-commit.settings.package ]
+    ++ (with pkgs; [
+      jq
+      nix-eval-jobs
+    ]);
+
+  shellHook = ''
+    ${config.pre-commit.installationScript}
+  '';
 }
