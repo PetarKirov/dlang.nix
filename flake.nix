@@ -28,9 +28,9 @@
 
   outputs =
     inputs@{
-      self,
       nixpkgs,
       flake-parts,
+      git-hooks-nix,
       ...
     }:
     flake-parts.lib.mkFlake { inherit inputs; } {
@@ -41,15 +41,25 @@
         "aarch64-darwin"
       ];
       imports = [
+        git-hooks-nix.flakeModule
+
         ./pkgs
         ./lib
       ];
 
       perSystem =
-        { pkgs, ... }:
+        { pkgs, config, ... }:
         {
-          devShells.default = import ./shells/default.nix { inherit pkgs; };
-          devShells.ci = import ./shells/ci.nix { inherit pkgs; };
+          devShells.default = import ./shells/default.nix { inherit pkgs config; };
+          devShells.ci = import ./shells/ci.nix { inherit pkgs config; };
+
+          pre-commit.settings.hooks = {
+            editorconfig-checker.enable = true;
+            nixfmt = {
+              enable = true;
+              package = pkgs.nixfmt-rfc-style;
+            };
+          };
         };
 
       flake.templates =
