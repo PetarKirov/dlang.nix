@@ -83,3 +83,21 @@ jobs:
             (contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled')) }}
       - run: exit 0
         if: ${{fromJSON(needs.generate-matrix.outputs.matrix).include.length == 0}}
+
+  check-style:
+    name: Check style
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Nix
+        uses: DeterminateSystems/nix-installer-action@v10
+
+      - uses: cachix/cachix-action@v14
+        with:
+          name: ${{ vars.CACHIX_CACHE }}
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+
+      - name: Check style
+        run: nix develop .#ci -c pre-commit run --all-files
