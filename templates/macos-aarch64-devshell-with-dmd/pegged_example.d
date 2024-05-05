@@ -32,7 +32,7 @@ void main()
 
     pragma(msg, parseTree1.matches);
     assert(parseTree1.matches == ["1", "+", "2", "-",
-       "(", "3", "*", "x", "-", "5", ")", "*", "6"]);
+        "(", "3", "*", "x", "-", "5", ")", "*", "6"]);
     writeln(parseTree1);
 
     // And at runtime too:
