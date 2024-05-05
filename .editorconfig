@@ -8,7 +8,6 @@ insert_final_newline = true
 trim_trailing_whitespace = true
 indent_style = space
 indent_size = 2
-max_line_length = 80
 
 [*.{d,h,hpp,c,cpp,cxx,cs,hs,java,kt,py,rs,sol}]
 indent_size = 4
@@ -20,3 +19,10 @@ indent_size = 4
 [{CMakeLists.txt,*.cmake}]
 indent_size = 2
 indent_style = space
+
+[*.md]
+indent_style = space
+# Prettier handles formatting for markdown files
+# and `indent_size` is not enforcable because ordered and unordered lists use
+# different indentation:
+indent_size = unset
