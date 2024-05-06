@@ -12,7 +12,14 @@ if ! git config --get user.name >/dev/null 2>&1 || \
   git config --local user.name "beep boop"
 fi
 
+current_commit="$(git rev-parse HEAD)"
 nix flake update --commit-lock-file
+commit_after_update="$(git rev-parse HEAD)"
+
+if [[ "$commit_after_update" = "$current_commit" ]]; then
+  echo "All flake inputs are up to date."
+  exit 0
+fi
 
 git commit --amend -F - <<EOF
 chore(flake.lock): Update all Flake inputs ($(date -I))
