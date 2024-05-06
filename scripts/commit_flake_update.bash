@@ -21,8 +21,19 @@ if [[ "$commit_after_update" = "$current_commit" ]]; then
   exit 0
 fi
 
+msg_file=./commit_msg_body.txt
+{
+  echo '```'
+  git log -1 '--pretty=format:%b' | sed '1,2d'
+  echo '```'
+} > $msg_file
+
 git commit --amend -F - <<EOF
 chore(flake.lock): Update all Flake inputs ($(date -I))
 
-$(git log -1 '--pretty=format:%b' | sed '1,2d')
+$(cat $msg_file)
 EOF
+
+if [ -z "${CI+x}" ]; then
+  rm -v $msg_file
+fi
