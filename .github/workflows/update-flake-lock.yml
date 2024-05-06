@@ -32,11 +32,12 @@ jobs:
           private_key: ${{ secrets.APP_PRIVATE_KEY }}
 
       - name: Create Pull Request
+        if: ${{ hashFiles('commit_msg_body.txt') != '' }}
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ steps.generate-token.outputs.token }}
           title: 'Update Nix Flake lockfile'
-          body-path: ./commit_msg_body.txt
+          body-path: commit_msg_body.txt
           branch: 'create-pull-request/update-flake-lockfile'
           delete-branch: true
           branch-suffix: timestamp
