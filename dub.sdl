@@ -1,0 +1,3 @@
+name "dlang-nix-fetcher"
+targetPath "bin"
+targetType "executable"

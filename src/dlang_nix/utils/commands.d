@@ -1,9 +1,11 @@
+module dlang_nix.utils.commands;
+
 import std.algorithm : startsWith;
 import std.file : exists;
 import std.format : format;
 import std.process : executeShell, Config;
-import std.string : splitLines, strip;
 import std.stdio : stderr;
+import std.string : splitLines, strip;
 
 alias Version = string;
 alias Platform = string;
