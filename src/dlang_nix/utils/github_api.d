@@ -10,7 +10,7 @@ import semver : SemVer, VersionPart;
 
 import dlang_nix.utils.api : fetchPagedResponse, getNextPageFromLinkHeader;
 
-string[] getGitHubRepoTags(string repo, bool includePrereleases = false, string apiKey = environment["GH_TOKEN"])
+SemVer[] getGitHubRepoTags(string repo, bool includePrereleases = false, string apiKey = environment["GH_TOKEN"])
 {
     string getGHPage(int page)
     {
@@ -24,8 +24,8 @@ string[] getGitHubRepoTags(string repo, bool includePrereleases = false, string 
         (const(char)[] rawResponse) => rawResponse.parseJSON.array,
         (response, headers) => getNextPageFromLinkHeader(headers),
     )
-        .map!(j => j.object["name"].str)
-        .filter!(ver => SemVer(ver).isValid)
-        .filter!(ver => includePrereleases || SemVer(ver).isStable)
+        .map!(j => SemVer(j.object["name"].str))
+        .filter!(ver => ver.isValid)
+        .filter!(ver => includePrereleases || ver.isStable)
         .array;
 }
