@@ -18,7 +18,7 @@ import std.stdio : stdout, stderr;
 import std.string : outdent, strip, toLower;
 import std.typecons : tuple;
 
-import utils : prefech, Version, Platform, Hash, Url;
+import dlang_nix.utils.commands : prefech, Version, Platform, Hash, Url;
 
 enum Compiler { dmd, dmd_src, ldc, ldc_src };
 
