@@ -58,8 +58,8 @@ alias Link = Tuple!(string, "url", string, "rel");
 Link[] parseLinkHeader(string header)
 {
     return header
-        .split(",")
-        .map!(x => x.split(";").map!(part => part.strip).array)
+        .splitter(",")
+        .map!(x => x.splitter(";").map!(part => part.strip).array)
         .map!(parts => Link(
             parts[0][1 .. $ - 1], // "<URL>"" -> "URL"
             parts[1 .. $]
