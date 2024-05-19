@@ -20,7 +20,7 @@ import std.typecons : tuple;
 
 import dlang_nix.utils.commands : prefech, Version, Platform, Hash, Url;
 
-enum Compiler { dmd, dmd_src, ldc, ldc_src };
+enum Component { dmd, dmd_src, ldc, ldc_src };
 
 alias UrlFormatter =
     Url function(Platform platform, Version compilerVersion) @safe pure;
@@ -29,7 +29,7 @@ alias PlatformQuery = Platform[] function(Version) @safe pure;
 
 enum UnpackingNeeded : bool { no, yes }
 
-struct CompilerInfo {
+struct ComponentInfo {
     UrlFormatter urlFormatter;
     PlatformQuery platforms;
     UnpackingNeeded unpackingNeed;
@@ -41,8 +41,8 @@ struct CompilerInfo {
 
 enum pkgsDir = __FILE_FULL_PATH__.dirName.buildNormalizedPath("..", "pkgs");
 
-enum CompilerInfo[Compiler] supportedPlatforms = [
-    Compiler.dmd: CompilerInfo(
+enum ComponentInfo[Component] supportedPlatforms = [
+    Component.dmd: ComponentInfo(
         urlFormatter: (platform, compilerVersion) =>
             "http://downloads.dlang.org/releases/2.x/%s/dmd.%s.%s.%s"
                 .format(compilerVersion, compilerVersion, platform, suffix(platform)),
@@ -52,7 +52,7 @@ enum CompilerInfo[Compiler] supportedPlatforms = [
         unpackingNeed: UnpackingNeeded.no,
         supportedVersionsFile: pkgsDir.buildNormalizedPath("dmd", "supported-binary-versions.json"),
     ),
-    Compiler.dmd_src: CompilerInfo(
+    Component.dmd_src: ComponentInfo(
         urlFormatter: (platform, compilerVersion) =>
             "https://github.com/dlang/%s/archive/refs/tags/v%s.tar.gz"
                 .format(platform, compilerVersion),
@@ -64,7 +64,7 @@ enum CompilerInfo[Compiler] supportedPlatforms = [
         unpackingNeed: UnpackingNeeded.yes,
         supportedVersionsFile: pkgsDir.buildNormalizedPath("dmd", "supported-source-versions.json"),
     ),
-    Compiler.ldc: CompilerInfo(
+    Component.ldc: ComponentInfo(
         urlFormatter: (platform, compilerVersion) =>
             "https://github.com/ldc-developers/ldc/releases/download/v%s/ldc2-%s-%s.%s"
                 .format(compilerVersion, compilerVersion, platform, suffix(platform)),
@@ -78,7 +78,7 @@ enum CompilerInfo[Compiler] supportedPlatforms = [
         unpackingNeed: UnpackingNeeded.no,
         supportedVersionsFile: pkgsDir.buildNormalizedPath("ldc", "supported-binary-versions.json"),
     ),
-    Compiler.ldc_src: CompilerInfo(
+    Component.ldc_src: ComponentInfo(
         urlFormatter: (platform, compilerVersion) =>
             "https://github.com/ldc-developers/ldc/releases/download/v%s/ldc-%s-src.tar.gz"
                 .format(compilerVersion, compilerVersion),
@@ -91,22 +91,22 @@ enum CompilerInfo[Compiler] supportedPlatforms = [
 ];
 
 void main(string[] args) {
-    Version[] compilerVersions;
-    Compiler compiler = Compiler.ldc;
+    Version[] componentVersions;
+    Component component = Component.ldc;
     bool liveRun = false;
 
     auto parseCLI(string[] args) {
         std.getopt.arraySep = ",";
         return args.getopt(
-            "versions", "list of compiler versions to fetch. For example, " ~
+            "versions", "list of component versions to fetch. For example, " ~
                     "2.099.1,2.100.2",
-                &compilerVersions,
-            "compiler",
+                &componentVersions,
+            "component",
                 // Ideally we would generate the list of allowed values as
                 // opposed to this hardcoding
-                "What compiler to fetch. dmd | dmd_src | ldc | ldc_src, " ~
+                "What component to fetch. dmd | dmd_src | ldc | ldc_src, " ~
                     "default ldc",
-                &compiler,
+                &component,
             "dry-run",
                 "Only print what would be done, but don't really act." ~
                     " Opposite of live-run. This is the default. ",
@@ -136,14 +136,14 @@ void main(string[] args) {
         return;
     }
 
-    compilerVersions = compilerVersions.length
-        ? compilerVersions
-        : compiler == Compiler.ldc
+    componentVersions = componentVersions.length
+        ? componentVersions
+        : component == Component.ldc
         ? [ "1.34.0" ]
         : [ "2.105.0" ];
 
-    const compilerInfo = supportedPlatforms[compiler];
-    const platforms = compilerVersions
+    const compilerInfo = supportedPlatforms[component];
+    const platforms = componentVersions
         .map!(vers => compilerInfo.platforms(vers))
         .uniq
         .adjoin!(
@@ -156,16 +156,16 @@ void main(string[] args) {
 
     const getUrl = compilerInfo.urlFormatter;
 
-    foreach (compilerVersion; compilerVersions)
+    foreach (compilerVersion; componentVersions)
         stderr.writefln(
             "* Prefetching %s v%s for %s:",
-            compiler,
+            component,
             compilerVersion,
             platforms,
         );
     stderr.writeln("-----");
 
-    auto jobs = compilerVersions.map!(compilerVersion =>
+    auto jobs = componentVersions.map!(compilerVersion =>
         platforms.map!(platform =>
             tuple(compilerVersion, platform, getUrl(platform, compilerVersion),
                 compilerInfo.unpackingNeed)
@@ -192,7 +192,7 @@ void main(string[] args) {
     }
 
     if (liveRun) {
-        const target = supportedPlatforms[compiler].supportedVersionsFile;
+        const target = supportedPlatforms[component].supportedVersionsFile;
         const existingJson =
             std.file.exists(target) ? std.file.readText(target) : "";
         const merged = mergeHashesIntoJson(existingJson, hashes);
