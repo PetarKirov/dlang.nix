@@ -7,8 +7,6 @@ import std.process : executeShell, Config;
 import std.stdio : stderr;
 import std.string : splitLines, strip;
 
-alias Version = string;
-alias Platform = string;
 alias Hash = string;
 alias Url = string;
 
