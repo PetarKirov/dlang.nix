@@ -1,14 +1,16 @@
 module dlang_nix.utils.github_api;
 
-import std;
-import std.json;
+import std.algorithm : filter, map;
+import std.array : array;
 import std.format : format;
+import std.json : JSONValue, parseJSON;
+import std.process : environment;
 
 import semver : SemVer, VersionPart;
 
 import dlang_nix.utils.api : fetchPagedResponse, getNextPageFromLinkHeader;
 
-string[] getGitHubRepoTags(string repo, bool includePrereleases = false)
+string[] getGitHubRepoTags(string repo, bool includePrereleases = false, string apiKey = environment["GH_TOKEN"])
 {
     string getGHPage(int page)
     {
@@ -18,7 +20,7 @@ string[] getGitHubRepoTags(string repo, bool includePrereleases = false)
 
     return fetchPagedResponse!(JSONValue)(
         getGHPage(1),
-        [ "Authorization": "Bearer " ~ environment["GH_TOKEN"]],
+        [ "Authorization": "Bearer " ~ apiKey ],
         (const(char)[] rawResponse) => rawResponse.parseJSON.array,
         (response, headers) => getNextPageFromLinkHeader(headers),
     )
