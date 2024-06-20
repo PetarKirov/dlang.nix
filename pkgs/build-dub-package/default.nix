@@ -2,8 +2,7 @@
   lib,
   stdenv,
   dub,
-  dmd,
-  ldc,
+  compiler,
   makeSetupHook,
   jq,
   bash,
@@ -118,8 +117,7 @@
       name = "dub-build-hook";
       substitutions = {
         "dub" = "${dub}/bin/dub";
-        "dmd" = "${dmd}/bin/dmd";
-        "ldc" = "${ldc}/bin/ldc";
+        "compiler" = "${compiler}/bin/${compiler.meta.mainProgram}";
       };
     }
     ./dub-build-hook.sh;
@@ -130,8 +128,7 @@
       name = "dub-test-hook";
       substitutions = {
         "dub" = "${dub}/bin/dub";
-        "dmd" = "${dmd}/bin/dmd";
-        "ldc" = "${ldc}/bin/ldc";
+        "compiler" = "${compiler}/bin/${compiler.meta.mainProgram}";
       };
     }
     ./dub-test-hook.sh;
@@ -145,8 +142,8 @@
 in
   stdenv.mkDerivation (args
     // {
-      nativeBuildInputs = nativeBuildInputs ++ [dub ldc dmd dubConfigHook dubBuildHook dubInstallHook dubTestHook];
-      buildInputs = buildInputs ++ [dub ldc dmd];
+      nativeBuildInputs = nativeBuildInputs ++ [dub compiler dubConfigHook dubBuildHook dubInstallHook dubTestHook];
+      buildInputs = buildInputs ++ [dub compiler];
 
       strictDeps = true;
 

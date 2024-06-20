@@ -20,14 +20,10 @@ in {
     overlayAttrs = self'.packages;
     legacyPackages =
       {
-        buildDubPackage =
-          pkgs.callPackage ./build-dub-package {
-            dub = self'.packages.dub;
-            ldc = self'.packages.ldc;
-          }
-          // optionalAttrs (pkgs.hostPlatform.isx86 || pkgs.stdenv.isDarwin) rec {
-            dmd = self'.packages.dmd;
-          };
+        buildDubPackage = pkgs.callPackage ./build-dub-package {
+          dub = self'.packages.dub;
+          compiler = self'.packages.ldc;
+        };
       }
       // (genPkgVersions "dmd").hierarchical
       // (genPkgVersions "ldc").hierarchical
