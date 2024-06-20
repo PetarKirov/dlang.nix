@@ -117,7 +117,6 @@
       name = "dub-build-hook";
       substitutions = {
         "dub" = "${dub}/bin/dub";
-        "compiler" = "${compiler}/bin/${compiler.meta.mainProgram}";
       };
     }
     ./dub-build-hook.sh;
@@ -128,7 +127,6 @@
       name = "dub-test-hook";
       substitutions = {
         "dub" = "${dub}/bin/dub";
-        "compiler" = "${compiler}/bin/${compiler.meta.mainProgram}";
       };
     }
     ./dub-test-hook.sh;
