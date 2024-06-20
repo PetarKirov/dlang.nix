@@ -13,18 +13,11 @@
 assert dcompiler != null;
 let
   inherit (import ../../lib/build-status.nix { inherit lib; }) getBuildStatus;
+  inherit (import ../../lib/dc.nix { inherit lib; }) getDCInfo;
+
   buildStatus = getBuildStatus "dub" version stdenv.system;
 
-  xdmdName =
-    if lib.hasPrefix "ldc" dcompiler.pname then
-      "ldmd2"
-    else if lib.hasPrefix "dmd" dcompiler.pname then
-      "dmd"
-    else
-      (
-        assert lib.hasPrefix "gdc" dcompiler.pname;
-        "gdmd"
-      );
+  hostDCInfo = getDCInfo dcompiler;
 in
 stdenv.mkDerivation rec {
   pname = "dub";
@@ -81,7 +74,7 @@ stdenv.mkDerivation rec {
   checkPhase = ''
     export DUB=$NIX_BUILD_TOP/source/bin/dub
     export PATH=$PATH:$NIX_BUILD_TOP/source/bin/
-    export DC=${dcompiler.out}/bin/${xdmdName}
+    export DC=${hostDCInfo.dmdWrapper}
     echo "DC out --> $DC"
     export HOME=$TMP
 
