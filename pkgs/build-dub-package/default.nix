@@ -117,6 +117,12 @@
       name = "dub-build-hook";
       substitutions = {
         "dub" = "${dub}/bin/dub";
+        "comp" =
+          ${
+            if compiler.meta.name == "dmd"
+            then "dmd"
+            else "ldc2"
+          };
       };
     }
     ./dub-build-hook.sh;
@@ -127,6 +133,12 @@
       name = "dub-test-hook";
       substitutions = {
         "dub" = "${dub}/bin/dub";
+        "comp" =
+          ${
+            if compiler.meta.name == "dmd"
+            then "dmd"
+            else "ldc2"
+          };
       };
     }
     ./dub-test-hook.sh;

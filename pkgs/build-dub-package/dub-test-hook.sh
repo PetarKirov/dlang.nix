@@ -8,7 +8,7 @@ dubTestHook() {
     export HOME="/build"
     chmod -R +rw $HOME
     chown -R $(whoami) $HOME
-    if ! @dub@ test  $dubTestFlags "${dubTestFlagsArray[@]}" $dubFlags "${dubFlagsArray[@]}"; then
+    if ! @dub@ test --compiler=@comp@ $dubTestFlags "${dubTestFlagsArray[@]}" $dubFlags "${dubFlagsArray[@]}"; then
         echo
         echo 'ERROR: `dub test` failed'
         echo
