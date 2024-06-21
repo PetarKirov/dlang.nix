@@ -78,6 +78,7 @@ in
       license = licenses.boost;
       maintainers = [maintainers.lionello];
       homepage = "https://dlang.org/";
+      mainProgram = "dmd";
       platforms = ["x86_64-linux" "i686-linux" "x86_64-darwin" "aarch64-darwin" "aarch64-apple-darwin"];
     };
   }

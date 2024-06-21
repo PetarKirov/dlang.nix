@@ -83,5 +83,6 @@ in
       license = with licenses; [bsd3 boost mit ncsa gpl2Plus];
       maintainers = with maintainers; [ThomasMader lionello];
       platforms = supportedSystems;
+      mainProgram = "ldc2";
     };
   }
