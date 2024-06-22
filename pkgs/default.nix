@@ -22,7 +22,7 @@ in {
       {
         buildDubPackage = pkgs.callPackage ./build-dub-package {
           dub = self'.packages.dub;
-          compiler = self'.packages.ldc;
+          dCompiler = self'.packages.ldc;
         };
       }
       // (genPkgVersions "dmd").hierarchical
