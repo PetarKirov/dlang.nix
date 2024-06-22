@@ -49,7 +49,7 @@ in {
         inherit (legacyPackages) buildDubPackage;
       })
       // rec {
-        ldc-binary = self'.packages."ldc-binary-1_34_0";
+        ldc-binary = self'.packages."ldc-binary-1_38_0";
         ldc = self'.packages."ldc-1_30_0";
 
         dub = self'.packages."dub-1_31_0";

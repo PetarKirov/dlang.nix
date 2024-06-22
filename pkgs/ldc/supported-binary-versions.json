@@ -53,5 +53,16 @@
     "osx-x86_64": "sha256-93aJN7ZNOLrQmKd6z/435trWg5F6B3XfOmKU/j5M5ig=",
     "windows-x64": "sha256-WrZnrDo/8hnsOsY2Ih8txErDz3OaNhVzwFFXsPJCEFM=",
     "windows-x86": "sha256-Vu/W9z7cB7VrcBqrlClknCYYni+GCDB4baGZOT6JS54="
+  },
+  "1.38.0": {
+    "android-aarch64": "sha256-49h5VlfgSLA01Jq+5qUKtHKe6e+VEuzhlRtSu2xThDs=",
+    "android-armv7a": "sha256-jNcbYVV3MZ98y9dzMh6KykWG0KqC3xtdOYX7XF2MrpU=",
+    "freebsd-x86_64": "sha256-js2dX2YCrCZU9l6Fwx3mVwNPt1gsm6xmgqxh5nkkNkg=",
+    "linux-aarch64": "sha256-PReq6E91AKDgrVo7akxjmEFdKkzTMCFqSxWjtNOi7eo=",
+    "linux-x86_64": "sha256-5RCKWufKE1Yj95VpGCkpoqqxF3Z6b7hbWZM4ZIt+dzc=",
+    "osx-arm64": "sha256-v8rYGFNGKhMIwEXxyCtkHDrABwAMX33iaRcgZ+YKbeo=",
+    "osx-x86_64": "sha256-1S4bxWNPBFUoCD1QiLjPuTa1q5wEGqqmBJAtv4Lu92s=",
+    "windows-x64": null,
+    "windows-x86": null
   }
 }
