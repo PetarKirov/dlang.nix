@@ -1,5 +1,3 @@
-#!/usr/bin/env -S rdmd -preview=shortenedMethods
-
 import std.algorithm : joiner, map, predSwitch, sort, startsWith, uniq;
 import std.array : array, join, split;
 import std.conv : to;
@@ -70,7 +68,7 @@ void main(string[] args) {
     componentVersions = componentVersions.length
         ? componentVersions
         : component == Component.ldc
-        ? [ "1.34.0" ]
+        ? [ "1.35.0" ]
         : [ "2.105.0" ];
 
     const compilerInfo = supportedPlatforms[component];
