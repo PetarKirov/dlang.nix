@@ -51,11 +51,14 @@ let
         "${dmdTestDir}/runnable/gdb15729.sh"
         "${dmdTestDir}/runnable/gdb4149.d"
         "${dmdTestDir}/runnable/gdb4181.d"
-
-        # tests that rely on objdump whitespace
-        "${dmdTestDir}/runnable/cdvecfill.sh"
-        "${dmdTestDir}/compilable/cdcmp.d"
       ]
+      # tests that rely on objdump whitespace
+      ++ (
+        if versionAtLeast version "2.087.0"
+        then ["${dmdTestDir}/runnable/cdvecfill.sh" "${dmdTestDir}/compilable/cdcmp.d"]
+        else ["${dmdTestDir}/runnable/test_cdvecfill.d" "${dmdTestDir}/runnable/test_cdcmp.d"]
+      )
+
       ++ lib.optionals (versionBetween "2.089.0" "2.092.2" version) [ "${dmdTestDir}/dshell/test6952.d" ]
       # This test is patched on it's current path, but would have to patch
       # the patch to work on the file path before repository unification.
@@ -113,14 +116,14 @@ let
   };
 in
 mergeVersions [
-  (between "2.092.0" latestVersion (version: {
+  (between "2.084.0" latestVersion (version: {
     x86_64-linux = {
       build = true;
       check = true;
       skippedTests = (getInfo version).skippedTests;
     };
   }))
-  (between "2.092.0" "2.096.2" (version: {
+  (between "2.084.0" "2.096.2" (version: {
     x86_64-darwin = {
       build = true;
       check = false;

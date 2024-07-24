@@ -280,6 +280,7 @@ stdenv.mkDerivation rec {
   dontConfigure = true;
 
   buildFlags = commonBuildFlags { forMake = true; };
+  dmdFlags = buildFlags ++ lib.optional (lib.versionOlder version "2.092.0") "";
 
   # Build and install are based on http://wiki.dlang.org/Building_DMD
   buildPhase = ''

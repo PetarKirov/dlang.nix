@@ -1,4 +1,18 @@
 {
+  "2.087.1": {
+    "dmd": "sha256-HlBJsvtzbx2wSs7mHF5JdkSEVitVp6QJ/XiE7qTFpac=",
+    "druntime": "sha256-ROH7ijIoAKmJAoQbCp6jyAiX/OUO4e0wqrh22OfOi14=",
+    "phobos": "sha256-YeoHtJpnN8qGEmvpulvgnHHn/RdgMyBKy0Togu6zzFU=",
+    "tools": "sha256-sdOQ84LsPW82zn2cMb6NIF+z/oSOICgeL6mMurKjlgA=",
+    "host-d-compiler": "ldc-binary-1_19_0"
+  },
+  "2.088.1": {
+    "dmd": "sha256-NEVGA3V9dzureWF4tCdeF5RhJT0fwB1T8Lu/6Y0MLJg=",
+    "druntime": "sha256-QZwm3a7m1NyTytorL3mg6pb/wUyiv80mBbMhWgktGJE=",
+    "phobos": "sha256-hEVw9Enkrvw4W+vIo17E4M7PcWl0tnpRXqswY+aw0Jo=",
+    "tools": "sha256-sdOQ84LsPW82zn2cMb6NIF+z/oSOICgeL6mMurKjlgA=",
+    "host-d-compiler": "ldc-binary-1_19_0"
+  },
   "2.092.1": {
     "dmd": "sha256-1dbrm8YzRy2i4qiQxldjKoRyyITQ6cHucI2FNPXVjvQ=",
     "druntime": "sha256-RCutGpXgjeRTMt42/LztYBthfV3L8C2lgfpRGbiluGY=",

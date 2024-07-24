@@ -1,4 +1,4 @@
-rec {
+lib: rec {
   supportedVersions = {
     source = builtins.fromJSON (builtins.readFile ./supported-source-versions.json);
   };
@@ -6,7 +6,7 @@ rec {
   getBinaryVersion = null; # unsupported
 
   getSourceVersion =
-    version:
+    pkgs: version:
     assert builtins.hasAttr version supportedVersions.source;
     let
       componentHashes = supportedVersions.source."${version}";
