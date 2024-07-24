@@ -14,10 +14,14 @@ let
   inherit (lib) nameValuePair pipe optional;
 
   inherit (pkgs) callPackage;
-  extraPkgs = {
-    hostDCompiler = self'.packages.ldc-bootstrap;
-    inherit (pkgs.darwin.apple_sdk.frameworks) Foundation;
-  };
+
+  callWithExtras = package:
+    let
+      result' = callPackage package {
+        hostDCompiler = result'.hostDCompiler or self'.packages.ldc-bootstrap;
+        inherit (pkgs.darwin.apple_sdk.frameworks) Foundation;
+      };
+    in result';
 
   system = pkgs.hostPlatform.system;
   filterBySystem = pkgs: lib.filterAttrs (_name: pkg: builtins.elem system pkg.meta.platforms) pkgs;
@@ -27,14 +31,14 @@ in
     pkgName:
     let
       mod = ../pkgs/${pkgName}/version-catalog.nix;
-      inherit (import mod) supportedVersions getSourceVersion getBinaryVersion;
+      inherit (import mod lib) supportedVersions getSourceVersion getBinaryVersion;
 
       supportedTypes =
         (optional (getBinaryVersion != null) "binary") ++ (optional (getSourceVersion != null) "source");
 
       sanitizeVersion = version: builtins.replaceStrings [ "." ] [ "_" ] version;
 
-      getVersion = type: if type == "source" then getSourceVersion else getBinaryVersion;
+      getVersion = type: if type == "source" then getSourceVersion self'.packages else getBinaryVersion self'.packages;
     in
     {
       flattened =
@@ -46,7 +50,7 @@ in
           (map (
             version:
             nameValuePair "${pkgName}${nameSuffix}-${sanitizeVersion version}" (
-              callPackage (getVersion type version) extraPkgs
+              callWithExtras (getVersion type version)
             )
           ))
           listToAttrs
@@ -58,7 +62,7 @@ in
           (map (
             type:
             nameValuePair type (
-              mapAttrs (version: _: (callPackage (getVersion type version) extraPkgs)) supportedVersions."${type}"
+              mapAttrs (version: _: callWithExtras (getVersion type version)) supportedVersions."${type}"
             )
           ))
           listToAttrs

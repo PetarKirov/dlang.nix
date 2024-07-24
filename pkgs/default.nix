@@ -20,6 +20,8 @@ in
 
       packages =
         {
+          # NOTE: This is only the default. The bootstrap compiler in the
+          # version catalog will override this.
           ldc-bootstrap = self'.packages."ldc-binary-1_25_0";
           ldc = self'.packages."ldc-1_30_0";
 
