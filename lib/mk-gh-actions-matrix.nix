@@ -1,7 +1,6 @@
 { lib, self, ... }:
 rec {
   # See https://docs.github.com/en/actions/using-github-hosted-runners/about-github-hosted-runners/about-github-hosted-runners#standard-github-hosted-runners-for-public-repositories
-  # See https://www.flyci.net/#pricing
   nixSystemToGHPlatform = {
     # GH-hosted runners:
     "x86_64-linux" = "ubuntu-latest";
@@ -9,9 +8,8 @@ rec {
     # "x86_64-darwin" = "macos-14"; # - macos-14 is a 3 aarch64 vCPU / 7GB RAM (but it seems faster than the macos-13 one)
     # "aarch64-darwin" = "macos-14";
 
-    # FlyCI-hosted runners:
-    "x86_64-darwin" = "flyci-macos-large-latest-m1";
-    "aarch64-darwin" = "flyci-macos-large-latest-m1";
+    "x86_64-darwin" = "macos-13";
+    "aarch64-darwin" = "macos-latest";
   };
 
   inherit (import ./build-status.nix { inherit lib; }) getBuildStatus;
