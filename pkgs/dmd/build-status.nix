@@ -116,7 +116,7 @@ let
   };
 in
 mergeVersions [
-  (between "2.092.0" "2.107.2" (version: {
+  (between "2.092.0" latestVersion (version: {
     x86_64-linux = {
       build = true;
       check = true;
@@ -130,7 +130,7 @@ mergeVersions [
       skippedTests = (getInfo version).darwinSkippedTests;
     };
   }))
-  (between "2.098.0" "2.107.2" (version: {
+  (between "2.098.0" latestVersion (version: {
     x86_64-darwin = {
       build = true;
       check = true;
