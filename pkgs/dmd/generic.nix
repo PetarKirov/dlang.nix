@@ -210,6 +210,16 @@ stdenv.mkDerivation rec {
         extraPrefix = "dmd/";
         sha256 = "sha256-xgaIraFH3ZfIn99ms148MP7cKV63JgU90yEYq21noRw=";
       })
+    ]
+    ++ lib.optionals (lib.versionOlder version "2.111.0" && !druntimeRepo) [
+      (fetchpatch {
+        # Linker started demangling a D symbol in an error message,
+        # breaking this test before a patch.
+        url = "https://github.com/dlang/dmd/commit/dfe0f34b2aa59e6cf4526c9af8069e08638149bc.patch";
+        stripLen = 1;
+        extraPrefix = "dmd/";
+        hash = "sha256-Uccb8rBPBLAEPWbOYWgdR5xN3wJoIkKKhLGu58IK1sM=";
+      })
     ];
 
   postPatch =
@@ -227,8 +237,11 @@ stdenv.mkDerivation rec {
 
       # Grep'd string changed with gdb 12
       #   https://issues.dlang.org/show_bug.cgi?id=23198
+      # And seem to have changed back since then
+      # Yes I know backslashes don't work in single quotes.
+      # They are there because the substituted text is inside double quotes
       substituteInPlace ${druntimePrefix}/test/exceptions/Makefile \
-        --replace 'in D main (' 'in _Dmain ('
+        --replace 'D main (' '\(D main\|_Dmain\) ('
 
       # We're using gnused on all platforms
       substituteInPlace ${druntimePrefix}/test/coverage/Makefile \
