@@ -237,7 +237,7 @@ stdenv.mkDerivation rec {
 
       # Grep'd string changed with gdb 12
       #   https://issues.dlang.org/show_bug.cgi?id=23198
-      # And seem to have changed back since then
+      # And seem to have changed back since then.
       # Yes I know backslashes don't work in single quotes.
       # They are there because the substituted text is inside double quotes
       substituteInPlace ${druntimePrefix}/test/exceptions/Makefile \
