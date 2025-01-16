@@ -56,7 +56,10 @@ let
         "${dmdTestDir}/runnable/cdvecfill.sh"
         "${dmdTestDir}/compilable/cdcmp.d"
       ]
-      ++ lib.optionals (versionBetween "2.089.0" "2.092.2" version) [ "${dmdTestDir}/dshell/test6952.d" ];
+      ++ lib.optionals (versionBetween "2.089.0" "2.092.2" version) [ "${dmdTestDir}/dshell/test6952.d" ]
+      # This test is patched on it's current path, but would have to patch
+      # the patch to work on the file path before repository unification.
+      ++ lib.optionals (hasDruntimeRepo) [ "${dmdTestDir}/fail_compilation/needspkgmod.d" ];
 
     darwinSkippedTests =
       let
