@@ -98,12 +98,6 @@ let
                   "${dmdTestDir}/runnable/objc_class.d"
                   "${dmdTestDir}/runnable/objc_self_test.d"
                 ]
-              else if versionOlder version "2.107.0" then
-                [
-                  "${dmdTestDir}/runnable/objc_class.d"
-                  "${dmdTestDir}/runnable/objc_self_test.d"
-                  "${dmdTestDir}/runnable/closure.d"
-                ]
               else
                 [
                   "${dmdTestDir}/runnable/objc_class.d"
