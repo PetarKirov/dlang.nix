@@ -168,6 +168,15 @@ stdenv.mkDerivation rec {
         sha256 = "sha256-DdAIHK42q4vyVJsuTN0nRZAAjWXRBZHY8oUidW4pMwI=";
       })
     ]
+    ++ lib.optionals (lib.versionOlder version "2.092.2") [
+      # Fixes C++ tests that compiled on older C++ but not on the current one
+      (fetchpatch {
+        url = "https://github.com/dlang/druntime/commit/438990def7e377ca1f87b6d28246673bb38022ab.patch";
+        stripLen = 1;
+        extraPrefix = "druntime/";
+        sha256 = "sha256-/pPKK7ZK9E/mBrxm2MZyBNhYExE8p9jz8JqBdZSE6uY=";
+      })
+    ]
     ++ lib.optionals (lib.versionOlder version "2.096.1") [
       # Stop using feature deprecated from 2.097.0 on, link:
       # https://dlang.org/changelog/2.097.0.html#fqn-bypass-deprecation
@@ -178,14 +187,10 @@ stdenv.mkDerivation rec {
         sha256 = "sha256-4Bd3YD14jzMelVvR2t738Dtrf7xMlWJM6AdsB34wKyM=";
       })
     ]
-    ++ lib.optionals (lib.versionOlder version "2.092.2") [
-      # Fixes C++ tests that compiled on older C++ but not on the current one
-      (fetchpatch {
-        url = "https://github.com/dlang/druntime/commit/438990def7e377ca1f87b6d28246673bb38022ab.patch";
-        stripLen = 1;
-        extraPrefix = "druntime/";
-        sha256 = "sha256-/pPKK7ZK9E/mBrxm2MZyBNhYExE8p9jz8JqBdZSE6uY=";
-      })
+    ++ lib.optionals (lib.versionOlder version "2.099.1") [
+      # Issue 22942: Bugged section headers in Mach-obj output that happened
+      # to work in contemporary linker but not in the current version.
+      ./patches/fix-22942.patch
     ]
     ++ lib.optionals (versionBetween "2.092.0" "2.101.0" version) [
       # `src/dmd/backend/cg.d` and `src/dmd/backend/var.d` contained arrays defined as
