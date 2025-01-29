@@ -23,6 +23,11 @@
     "phobos": "sha256-kTHRaAKG7cAGb4IE/NGHWaZ8t7ZceKj03l6E8wLzJzs=",
     "tools": "sha256-2yzdkarbsf0kOXzLaS6bvBFoiYbDulnEHTozmHX3Oc4="
   },
+  "2.101.2": {
+    "dmd": "sha256-qxhDb8CD3ou+eQLiVnR9K1/FYEv2HhSNtapV9VXtS5w=",
+    "phobos": "sha256-XKpTm/GdaRY8TTjWQ2h2jbUlSZZ7VRP6MyLJyDUjKiE=",
+    "tools": "sha256-faiKE7a6qyl3MoDvkXcRmGGjFRYYK0gWRihJjG2I46k="
+  },
   "2.102.2": {
     "dmd": "sha256-der9nb31hJ+K1aJZdzIgs8+eRgVVsH97QnYEnVbKUws=",
     "phobos": "sha256-SracmUm2aY/LDCyDqYuVS39pCbwO8UCL3TSB0CVHpHE=",
