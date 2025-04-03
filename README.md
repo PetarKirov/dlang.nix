@@ -21,7 +21,7 @@ development environments for the D programming language.
 | package      | version range                          | platforms                      |
 | ------------ | -------------------------------------- | ------------------------------ |
 | `dmd-binary` | 2.079.1 - 2.090.1, 2.098.0             | ✅ Linux x86_64, ✅ macOS x86_64 |
-| `dmd`        | 2.092.1, 2.096.1, 2.098.1, 2.100.2 - 2.109.1              | ✅ Linux x86_64, ✅ macOS x86_64 |
+| `dmd`        | 2.087.1, 2.088.1, 2.092.1, 2.096.1, 2.098.1, 2.100.2 - 2.109.1              | ✅ Linux x86_64, ✅ macOS x86_64 |
 | `ldc-binary` | 1.19.0, 1.25.0, 1.28.0, 1.32.1, 1.34.0 | ✅ Linux x86_64, ✅ macOS x86_64 |
 | `ldc`        | 1.30.0                                 | ✅ Linux x86_64, ❌ macOS x86_64 |
 | `dub`        | 1.30.0                                 | ✅ Linux x86_64, ✅ macOS x86_64 |
