@@ -1,1 +1,1 @@
-{  url = "https://github.com/Enalye/atelier";  versions = {    "~main" =  {      rev = "146dcbdcaaa150a7d9e53df3b0b96ffdceba1601";      sha256 = "sha256-gtWxtNgG76NsUyuucVrFCdkLckt5pvfpKyQx6IfWxvE=";    };  };}
+{  url = "https://github.com/Enalye/atelier";  versions = {    "~main" =  {      rev = "cdc1e109805816117e95a37a0896d171e2836ec3";      sha256 = "sha256-gtWxtNgG76NsUyuucVrFCdkLckt5pvfpKyQx6IfWxvE=";    };  };}

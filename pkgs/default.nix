@@ -19,11 +19,16 @@ in {
   in rec {
     overlayAttrs = self'.packages;
     legacyPackages =
-      {
-        buildDubPackage = pkgs.callPackage ./build-dub-package {
+      rec {
+        buildDubPackageLDC = pkgs.callPackage ./build-dub-package {
           dub = self'.packages.dub;
           dCompiler = self'.packages.ldc;
         };
+        buildDubPackageDMD = pkgs.callPackage ./build-dub-package {
+          dub = self'.packages.dub;
+          dCompiler = self'.packages.dmd;
+        };
+        buildDubPackage = buildDubPackageLDC;
       }
       // (genPkgVersions "dmd").hierarchical
       // (genPkgVersions "ldc").hierarchical
@@ -35,10 +40,10 @@ in {
           inherit (legacyPackages) buildDubPackage;
         };
         dcd = pkgs.callPackage ./dcd {
-          inherit (legacyPackages) buildDubPackage;
+          buildDubPackage = legacyPackages.buildDubPackageDMD;
         };
         serve-d = pkgs.callPackage ./serve-d {
-          inherit (legacyPackages) buildDubPackage;
+          buildDubPackage = legacyPackages.buildDubPackageDMD;
         };
         dlangide = pkgs.callPackage ./dlangide {
           inherit (legacyPackages) buildDubPackage;

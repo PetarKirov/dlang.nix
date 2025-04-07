@@ -1,1 +1,9 @@
-{  url = "https://github.com/ichordev/sparsed";  versions = {    "1.0.0" =  {      rev = "56b3d3ed37df3560363fb0bf1afd0411ba2f1b1d";      sha256 = "sha256-jXkRIE8sDKjF9PPYMnOtPgNMXqmMNP1kg8Ay0s6Ap7Q=";    };    "~main" =  {      rev = "56b3d3ed37df3560363fb0bf1afd0411ba2f1b1d";      sha256 = "sha256-jXkRIE8sDKjF9PPYMnOtPgNMXqmMNP1kg8Ay0s6Ap7Q=";    };  };}
+{  url = "https://github.com/ichordev/sparsed";  versions = {    "1.0.4" =  {      rev = "ac397546d36a968a790a798e6194d34284fa02b3";      sha256 = "/bin/sh: line 1: nix-prefetch-git: command not found
+warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
+error: hash '' has wrong length for hash algorithm 'sha256'";    };    "1.0.2" =  {      rev = "cf7dc961664023b46f77e08ca118b2006072e7da";      sha256 = "/bin/sh: line 1: nix-prefetch-git: command not found
+warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
+error: hash '' has wrong length for hash algorithm 'sha256'";    };    "1.0.0" =  {      rev = "56b3d3ed37df3560363fb0bf1afd0411ba2f1b1d";      sha256 = "sha256-jXkRIE8sDKjF9PPYMnOtPgNMXqmMNP1kg8Ay0s6Ap7Q=";    };    "1.0.1" =  {      rev = "7f0cbfd527a945479b97038f42e24ec230bc08a8";      sha256 = "/bin/sh: line 1: nix-prefetch-git: command not found
+warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
+error: hash '' has wrong length for hash algorithm 'sha256'";    };    "1.0.3" =  {      rev = "2c24e71004eedd3730fde2de8ababfc5cd51e31f";      sha256 = "/bin/sh: line 1: nix-prefetch-git: command not found
+warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
+error: hash '' has wrong length for hash algorithm 'sha256'";    };    "~main" =  {      rev = "ac397546d36a968a790a798e6194d34284fa02b3";      sha256 = "sha256-jXkRIE8sDKjF9PPYMnOtPgNMXqmMNP1kg8Ay0s6Ap7Q=";    };  };}
