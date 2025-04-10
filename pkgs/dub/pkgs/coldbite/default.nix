@@ -1,3 +1,1 @@
-{  url = "https://github.com/coldbite/Engine";  versions = {    "~master" =  {      rev = "d9104b7132c0bebb18de65137d27c73f11288bff";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-sha256-tV9IpYnf0ZWHN/acLUbQuhgHK0zmGXQJsAG/OyUvauA=";    };    "1.0.0" =  {      rev = "2ea4bb8dc2cf449d2bbc1a888e7e80b2207007db";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-sha256-EGAvfcyMUs7Qv+N93kbbqN1AxKBOZm5jG8lQUfgdRDA=";    };  };}
+{  url = "https://github.com/coldbite/Engine";  versions = {    "~master" =  {      rev = "d9104b7132c0bebb18de65137d27c73f11288bff";      sha256 = "sha256-tV9IpYnf0ZWHN/acLUbQuhgHK0zmGXQJsAG/OyUvauA=";    };    "1.0.0" =  {      rev = "2ea4bb8dc2cf449d2bbc1a888e7e80b2207007db";      sha256 = "sha256-EGAvfcyMUs7Qv+N93kbbqN1AxKBOZm5jG8lQUfgdRDA=";    };  };}

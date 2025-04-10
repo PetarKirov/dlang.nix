@@ -1,3 +1,1 @@
-{  url = "https://github.com/trikko/quickview";  versions = {    "0.0.1" =  {      rev = "64a984eddf06d09b40780a11f3d2ada8360194b2";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-sha256-FotirjGruRjx5f4Qluqs7Aq/6dHKWKrpOvzXlUpJXJU=";    };    "~main" =  {      rev = "64a984eddf06d09b40780a11f3d2ada8360194b2";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-sha256-FotirjGruRjx5f4Qluqs7Aq/6dHKWKrpOvzXlUpJXJU=";    };  };}
+{  url = "https://github.com/trikko/quickview";  versions = {    "0.0.1" =  {      rev = "64a984eddf06d09b40780a11f3d2ada8360194b2";      sha256 = "sha256-FotirjGruRjx5f4Qluqs7Aq/6dHKWKrpOvzXlUpJXJU=";    };    "~main" =  {      rev = "64a984eddf06d09b40780a11f3d2ada8360194b2";      sha256 = "sha256-FotirjGruRjx5f4Qluqs7Aq/6dHKWKrpOvzXlUpJXJU=";    };  };}

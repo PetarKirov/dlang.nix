@@ -1,2 +1,1 @@
-{  url = "https://github.com/jaredonline/action-pack";  versions = {    "~master" =  {      rev = "b42d53242c9e4044d0278d0f5c95641c22aa6bef";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-sha256-S3FC1BISJHggXDX/NsqUs6W+/A+sIO9ExBK1Qr63H4k=";    };  };}
+{  url = "https://github.com/jaredonline/action-pack";  versions = {    "~master" =  {      rev = "b42d53242c9e4044d0278d0f5c95641c22aa6bef";      sha256 = "sha256-S3FC1BISJHggXDX/NsqUs6W+/A+sIO9ExBK1Qr63H4k=";    };  };}

@@ -1,3 +1,1 @@
-{  url = "https://github.com/TodNaz/iterimg";  versions = {    "~master" =  {      rev = "b74eaa3c3a6dd3cb5ef5fdcb846cce1502740518";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-sha256-sDN6Vl9+Tu3RXqk2DNEpQeY87pO5o/fV4vnhgwUabDg=";    };    "0.1.1" =  {      rev = "b74eaa3c3a6dd3cb5ef5fdcb846cce1502740518";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-sha256-sDN6Vl9+Tu3RXqk2DNEpQeY87pO5o/fV4vnhgwUabDg=";    };  };}
+{  url = "https://github.com/TodNaz/iterimg";  versions = {    "~master" =  {      rev = "b74eaa3c3a6dd3cb5ef5fdcb846cce1502740518";      sha256 = "sha256-sDN6Vl9+Tu3RXqk2DNEpQeY87pO5o/fV4vnhgwUabDg=";    };    "0.1.1" =  {      rev = "b74eaa3c3a6dd3cb5ef5fdcb846cce1502740518";      sha256 = "sha256-sDN6Vl9+Tu3RXqk2DNEpQeY87pO5o/fV4vnhgwUabDg=";    };  };}

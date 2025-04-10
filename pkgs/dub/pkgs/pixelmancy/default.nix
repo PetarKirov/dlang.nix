@@ -1,3 +1,1 @@
-{  url = "https://github.com/herringway/pixelmancy";  versions = {    "0.0.0" =  {      rev = "e589ce94e79b44bf8d493c6c83f24ce8d92b2492";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-sha256-x2Na+AIWtL7bssTLOlcZp+oHA07aO8EjkvPXoSr8uiE=";    };    "~main" =  {      rev = "e589ce94e79b44bf8d493c6c83f24ce8d92b2492";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-sha256-x2Na+AIWtL7bssTLOlcZp+oHA07aO8EjkvPXoSr8uiE=";    };  };}
+{  url = "https://github.com/herringway/pixelmancy";  versions = {    "0.0.0" =  {      rev = "e589ce94e79b44bf8d493c6c83f24ce8d92b2492";      sha256 = "sha256-x2Na+AIWtL7bssTLOlcZp+oHA07aO8EjkvPXoSr8uiE=";    };    "~main" =  {      rev = "e589ce94e79b44bf8d493c6c83f24ce8d92b2492";      sha256 = "sha256-x2Na+AIWtL7bssTLOlcZp+oHA07aO8EjkvPXoSr8uiE=";    };  };}

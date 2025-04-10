@@ -1,3 +1,1 @@
-{  url = "https://github.com/pdenapo/libsql-d";  versions = {    "0.1.0" =  {      rev = "caab7e19c16f513ffef50e7c7f744679ecc4bf48";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-sha256-AyuS2K4MIgrkHOjgfxq+fNLMpelUjOCMGY/0XtnJjQo=";    };    "~main" =  {      rev = "12328c76e47d18aa94e916094522251bd3c20413";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-sha256-Utdcs/HcWIXFVS8FTz9DQVJLp8R/8zNADHdL6WPkjvA=";    };  };}
+{  url = "https://github.com/pdenapo/libsql-d";  versions = {    "0.1.0" =  {      rev = "caab7e19c16f513ffef50e7c7f744679ecc4bf48";      sha256 = "sha256-AyuS2K4MIgrkHOjgfxq+fNLMpelUjOCMGY/0XtnJjQo=";    };    "~main" =  {      rev = "12328c76e47d18aa94e916094522251bd3c20413";      sha256 = "sha256-Utdcs/HcWIXFVS8FTz9DQVJLp8R/8zNADHdL6WPkjvA=";    };  };}

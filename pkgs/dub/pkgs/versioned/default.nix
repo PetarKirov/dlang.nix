@@ -1,3 +1,1 @@
-{  url = "https://github.com/katyukha/VersioneD";  versions = {    "0.1.0" =  {      rev = "2d97d32e7871a3f8c574134537431e5ef28cc110";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-sha256-t8Ju8JIbj4y0E5PqP/Yrjnp4dm/GXv73sHWXJ3OzV6w=";    };    "~main" =  {      rev = "2d97d32e7871a3f8c574134537431e5ef28cc110";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-sha256-t8Ju8JIbj4y0E5PqP/Yrjnp4dm/GXv73sHWXJ3OzV6w=";    };  };}
+{  url = "https://github.com/katyukha/VersioneD";  versions = {    "0.1.0" =  {      rev = "2d97d32e7871a3f8c574134537431e5ef28cc110";      sha256 = "sha256-t8Ju8JIbj4y0E5PqP/Yrjnp4dm/GXv73sHWXJ3OzV6w=";    };    "~main" =  {      rev = "2d97d32e7871a3f8c574134537431e5ef28cc110";      sha256 = "sha256-t8Ju8JIbj4y0E5PqP/Yrjnp4dm/GXv73sHWXJ3OzV6w=";    };  };}

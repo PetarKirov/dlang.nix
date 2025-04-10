@@ -1,3 +1,1 @@
-{  url = "https://github.com/ip2whois/ip2whois-d";  versions = {    "1.0.0" =  {      rev = "e39de242f6bb5dacf7194b254d09a7075687ebeb";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-sha256-tmcg3Z9lU10qz+OvkhNAmQC4EGFBfNWV4Dz2sp6EkU8=";    };    "~main" =  {      rev = "e39de242f6bb5dacf7194b254d09a7075687ebeb";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-sha256-tmcg3Z9lU10qz+OvkhNAmQC4EGFBfNWV4Dz2sp6EkU8=";    };  };}
+{  url = "https://github.com/ip2whois/ip2whois-d";  versions = {    "1.0.0" =  {      rev = "e39de242f6bb5dacf7194b254d09a7075687ebeb";      sha256 = "sha256-tmcg3Z9lU10qz+OvkhNAmQC4EGFBfNWV4Dz2sp6EkU8=";    };    "~main" =  {      rev = "e39de242f6bb5dacf7194b254d09a7075687ebeb";      sha256 = "sha256-tmcg3Z9lU10qz+OvkhNAmQC4EGFBfNWV4Dz2sp6EkU8=";    };  };}

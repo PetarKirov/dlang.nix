@@ -1,3 +1,1 @@
-{  url = "https://github.com/shoo/bsky";  versions = {    "0.0.1" =  {      rev = "44531593a217d01650750266ba8221703e697880";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-sha256-c2qSNr8TOrvX+yqClSTTEKOqx4GdCEgmFPvBu81/ZqE=";    };    "~main" =  {      rev = "896e5a7a75f76fd2bb4992866b11c003221c9f39";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-sha256-vi1DSn0z1NJZQq4OVv3qvmm4FtMjonkeIQRJYHTRjJk=";    };  };}
+{  url = "https://github.com/shoo/bsky";  versions = {    "0.0.1" =  {      rev = "44531593a217d01650750266ba8221703e697880";      sha256 = "sha256-c2qSNr8TOrvX+yqClSTTEKOqx4GdCEgmFPvBu81/ZqE=";    };    "~main" =  {      rev = "896e5a7a75f76fd2bb4992866b11c003221c9f39";      sha256 = "sha256-vi1DSn0z1NJZQq4OVv3qvmm4FtMjonkeIQRJYHTRjJk=";    };  };}

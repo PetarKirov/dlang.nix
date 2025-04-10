@@ -1,3 +1,1 @@
-{  url = "https://github.com/herringway/replatform64";  versions = {    "0.0.0" =  {      rev = "c63985a40d33ad139bfad0295c61293a17fcefc4";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-sha256-KtXcxihB8beqTENDPNdHxbXxMZoTkqXMwrMf44qvdpI=";    };    "~main" =  {      rev = "c63985a40d33ad139bfad0295c61293a17fcefc4";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-sha256-KtXcxihB8beqTENDPNdHxbXxMZoTkqXMwrMf44qvdpI=";    };  };}
+{  url = "https://github.com/herringway/replatform64";  versions = {    "0.0.0" =  {      rev = "c63985a40d33ad139bfad0295c61293a17fcefc4";      sha256 = "sha256-KtXcxihB8beqTENDPNdHxbXxMZoTkqXMwrMf44qvdpI=";    };    "~main" =  {      rev = "c63985a40d33ad139bfad0295c61293a17fcefc4";      sha256 = "sha256-KtXcxihB8beqTENDPNdHxbXxMZoTkqXMwrMf44qvdpI=";    };  };}

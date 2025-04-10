@@ -1,3 +1,1 @@
-{  url = "https://github.com/aravindavk/json-serialization-d";  versions = {    "0.1.0" =  {      rev = "00d960a8eeed9886fae79694137b0e8bc95fac5f";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-sha256-zFDah3vmuLqRG7tK8c95sfQAQw53HKlWWNs0rq/+1WI=";    };    "~main" =  {      rev = "00d960a8eeed9886fae79694137b0e8bc95fac5f";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-sha256-zFDah3vmuLqRG7tK8c95sfQAQw53HKlWWNs0rq/+1WI=";    };  };}
+{  url = "https://github.com/aravindavk/json-serialization-d";  versions = {    "0.1.0" =  {      rev = "00d960a8eeed9886fae79694137b0e8bc95fac5f";      sha256 = "sha256-zFDah3vmuLqRG7tK8c95sfQAQw53HKlWWNs0rq/+1WI=";    };    "~main" =  {      rev = "00d960a8eeed9886fae79694137b0e8bc95fac5f";      sha256 = "sha256-zFDah3vmuLqRG7tK8c95sfQAQw53HKlWWNs0rq/+1WI=";    };  };}

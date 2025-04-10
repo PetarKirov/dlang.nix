@@ -1,3 +1,1 @@
-{  url = "https://github.com/Inochi2D/coregraphics-d";  versions = {    "0.5.0" =  {      rev = "361386788d6bb07979d68fee3f1892996bdd1cae";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-sha256-KTbqgbwohWDV5d+wvyaJzgvMsRKrPjUvULcZEkVXOBk=";    };    "~main" =  {      rev = "361386788d6bb07979d68fee3f1892996bdd1cae";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-sha256-KTbqgbwohWDV5d+wvyaJzgvMsRKrPjUvULcZEkVXOBk=";    };  };}
+{  url = "https://github.com/Inochi2D/coregraphics-d";  versions = {    "0.5.0" =  {      rev = "361386788d6bb07979d68fee3f1892996bdd1cae";      sha256 = "sha256-KTbqgbwohWDV5d+wvyaJzgvMsRKrPjUvULcZEkVXOBk=";    };    "~main" =  {      rev = "361386788d6bb07979d68fee3f1892996bdd1cae";      sha256 = "sha256-KTbqgbwohWDV5d+wvyaJzgvMsRKrPjUvULcZEkVXOBk=";    };  };}

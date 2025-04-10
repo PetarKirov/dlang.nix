@@ -1,3 +1,1 @@
-{  url = "https://github.com/Bithero-Agency/ninox.d-dsp";  versions = {    "~master" =  {      rev = "5b24490c3fdc42612c441ba450bc57feb130d04d";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-sha256-vvFn0tKXsw4L82RT8wNmf+04Gh3gtnESgvjqtTH3G6w=";    };    "1.0.0" =  {      rev = "5b24490c3fdc42612c441ba450bc57feb130d04d";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-sha256-vvFn0tKXsw4L82RT8wNmf+04Gh3gtnESgvjqtTH3G6w=";    };  };}
+{  url = "https://github.com/Bithero-Agency/ninox.d-dsp";  versions = {    "~master" =  {      rev = "5b24490c3fdc42612c441ba450bc57feb130d04d";      sha256 = "sha256-vvFn0tKXsw4L82RT8wNmf+04Gh3gtnESgvjqtTH3G6w=";    };    "1.0.0" =  {      rev = "5b24490c3fdc42612c441ba450bc57feb130d04d";      sha256 = "sha256-vvFn0tKXsw4L82RT8wNmf+04Gh3gtnESgvjqtTH3G6w=";    };  };}

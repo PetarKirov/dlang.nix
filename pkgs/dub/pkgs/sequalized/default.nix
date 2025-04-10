@@ -1,3 +1,1 @@
-{  url = "https://github.com/rodevasia/sequelized";  versions = {    "0.0.1" =  {      rev = "0972b6d582fc5f89d0e6480ced119409753b4cda";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-sha256-aS1ukiagkycJdoZZ+XlOv4JMuvsknrwnX1RY6YF0lLo=";    };    "~main" =  {      rev = "73231cfbf3ebe638f5080ab470388b239b2726a9";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-sha256-x0Gnyua5PRV8ZcQPDfYfZtd1cLecfdjXTf1y8UqL6Ek=";    };  };}
+{  url = "https://github.com/rodevasia/sequelized";  versions = {    "0.0.1" =  {      rev = "0972b6d582fc5f89d0e6480ced119409753b4cda";      sha256 = "sha256-aS1ukiagkycJdoZZ+XlOv4JMuvsknrwnX1RY6YF0lLo=";    };    "~main" =  {      rev = "73231cfbf3ebe638f5080ab470388b239b2726a9";      sha256 = "sha256-x0Gnyua5PRV8ZcQPDfYfZtd1cLecfdjXTf1y8UqL6Ek=";    };  };}

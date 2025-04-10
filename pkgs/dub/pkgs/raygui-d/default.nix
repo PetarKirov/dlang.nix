@@ -1,3 +1,1 @@
-{  url = "https://github.com/schveiguy/raygui-d";  versions = {    "~master" =  {      rev = "783447d2f28d06bc9554c4ea76737ecad207b1ba";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-sha256-AvWDaubYQtKEcOO2b9LlsyQ3RCZ9M+DDsp6bpwT5MJ8=";    };    "0.0.1" =  {      rev = "783447d2f28d06bc9554c4ea76737ecad207b1ba";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-sha256-AvWDaubYQtKEcOO2b9LlsyQ3RCZ9M+DDsp6bpwT5MJ8=";    };  };}
+{  url = "https://github.com/schveiguy/raygui-d";  versions = {    "~master" =  {      rev = "783447d2f28d06bc9554c4ea76737ecad207b1ba";      sha256 = "sha256-AvWDaubYQtKEcOO2b9LlsyQ3RCZ9M+DDsp6bpwT5MJ8=";    };    "0.0.1" =  {      rev = "783447d2f28d06bc9554c4ea76737ecad207b1ba";      sha256 = "sha256-AvWDaubYQtKEcOO2b9LlsyQ3RCZ9M+DDsp6bpwT5MJ8=";    };  };}

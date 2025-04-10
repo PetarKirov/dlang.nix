@@ -1,3 +1,1 @@
-{  url = "https://github.com/gtnoble/mcp-d";  versions = {    "~master" =  {      rev = "ebec60bbdbfa474374d0d6babd21f83c608eefc2";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-sha256-5XKZTDYcmrw9gOL1PKHp6HljgjnqNhO8+fbKGATu0QM=";    };    "1.0.0" =  {      rev = "ebec60bbdbfa474374d0d6babd21f83c608eefc2";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-sha256-5XKZTDYcmrw9gOL1PKHp6HljgjnqNhO8+fbKGATu0QM=";    };  };}
+{  url = "https://github.com/gtnoble/mcp-d";  versions = {    "~master" =  {      rev = "ebec60bbdbfa474374d0d6babd21f83c608eefc2";      sha256 = "sha256-5XKZTDYcmrw9gOL1PKHp6HljgjnqNhO8+fbKGATu0QM=";    };    "1.0.0" =  {      rev = "ebec60bbdbfa474374d0d6babd21f83c608eefc2";      sha256 = "sha256-5XKZTDYcmrw9gOL1PKHp6HljgjnqNhO8+fbKGATu0QM=";    };  };}

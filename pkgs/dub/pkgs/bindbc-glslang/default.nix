@@ -1,3 +1,1 @@
-{  url = "https://github.com/DLangGamedev/bindbc-glslang";  versions = {    "0.1.0" =  {      rev = "96b5a267e0bf21f81d2e8f78488fb96ab399c5fc";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-sha256-g0iKbawG1Yfn+8Glvl+cZmet/L4PMRw3CHg+qPffCcg=";    };    "~main" =  {      rev = "f26149d113a15943ef2e3555b74793afb7a0ffd5";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-sha256-Et9+j132uIE7Fe/Dekj36lbbp08BhlSG2+eo3oBcrDo=";    };  };}
+{  url = "https://github.com/DLangGamedev/bindbc-glslang";  versions = {    "0.1.0" =  {      rev = "96b5a267e0bf21f81d2e8f78488fb96ab399c5fc";      sha256 = "sha256-g0iKbawG1Yfn+8Glvl+cZmet/L4PMRw3CHg+qPffCcg=";    };    "~main" =  {      rev = "f26149d113a15943ef2e3555b74793afb7a0ffd5";      sha256 = "sha256-Et9+j132uIE7Fe/Dekj36lbbp08BhlSG2+eo3oBcrDo=";    };  };}

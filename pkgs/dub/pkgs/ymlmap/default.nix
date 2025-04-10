@@ -1,3 +1,1 @@
-{  url = "https://github.com/papcli/ymlmap";  versions = {    "1.0.2" =  {      rev = "4a697b0a29eb13bc2b7928e6c8371fd8e12c7b96";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-sha256-Axtf/wpbzeuuLoZnlTXKJCgVjpyyOGst/VSp/xFWvJo=";    };    "~main" =  {      rev = "4a697b0a29eb13bc2b7928e6c8371fd8e12c7b96";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-sha256-Axtf/wpbzeuuLoZnlTXKJCgVjpyyOGst/VSp/xFWvJo=";    };  };}
+{  url = "https://github.com/papcli/ymlmap";  versions = {    "1.0.2" =  {      rev = "4a697b0a29eb13bc2b7928e6c8371fd8e12c7b96";      sha256 = "sha256-Axtf/wpbzeuuLoZnlTXKJCgVjpyyOGst/VSp/xFWvJo=";    };    "~main" =  {      rev = "4a697b0a29eb13bc2b7928e6c8371fd8e12c7b96";      sha256 = "sha256-Axtf/wpbzeuuLoZnlTXKJCgVjpyyOGst/VSp/xFWvJo=";    };  };}

@@ -1,3 +1,1 @@
-{  url = "https://github.com/DarkSystemGit/dray";  versions = {    "5.0.0-r6" =  {      rev = "e1bfa0f0871a4a229104521073fd6dd049db0adb";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-sha256-Ju3v66U+zWvKzfrJ7g+2OeZNj7HqwW681/qdXWVwyaE=";    };    "~master" =  {      rev = "e1bfa0f0871a4a229104521073fd6dd049db0adb";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-sha256-Ju3v66U+zWvKzfrJ7g+2OeZNj7HqwW681/qdXWVwyaE=";    };  };}
+{  url = "https://github.com/DarkSystemGit/dray";  versions = {    "5.0.0-r6" =  {      rev = "e1bfa0f0871a4a229104521073fd6dd049db0adb";      sha256 = "sha256-Ju3v66U+zWvKzfrJ7g+2OeZNj7HqwW681/qdXWVwyaE=";    };    "~master" =  {      rev = "e1bfa0f0871a4a229104521073fd6dd049db0adb";      sha256 = "sha256-Ju3v66U+zWvKzfrJ7g+2OeZNj7HqwW681/qdXWVwyaE=";    };  };}

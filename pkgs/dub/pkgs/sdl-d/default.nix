@@ -1,3 +1,1 @@
-{  url = "https://github.com/Inochi2D/dsdl";  versions = {    "3.2.0-rc1" =  {      rev = "86f3681b6632868d21056f375807efe5be7202c1";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-sha256-G1m2ggjSh8TiTjRmY6CcSMSck+6WERNCFZCh11Ntk2s=";    };    "~main" =  {      rev = "86f3681b6632868d21056f375807efe5be7202c1";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-sha256-G1m2ggjSh8TiTjRmY6CcSMSck+6WERNCFZCh11Ntk2s=";    };  };}
+{  url = "https://github.com/Inochi2D/dsdl";  versions = {    "3.2.0-rc1" =  {      rev = "86f3681b6632868d21056f375807efe5be7202c1";      sha256 = "sha256-G1m2ggjSh8TiTjRmY6CcSMSck+6WERNCFZCh11Ntk2s=";    };    "~main" =  {      rev = "86f3681b6632868d21056f375807efe5be7202c1";      sha256 = "sha256-G1m2ggjSh8TiTjRmY6CcSMSck+6WERNCFZCh11Ntk2s=";    };  };}

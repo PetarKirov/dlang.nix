@@ -1,3 +1,1 @@
-{  url = "https://github.com/DLangGamedev/dcore";  versions = {    "0.0.1-alpha.1" =  {      rev = "092048edfdcc92bf98c0b1833cefbe1b425dabe7";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-sha256-QqLegXlNGuVTNKD6Uj0SEobKaOMI56p4/6lqkQ1bA8E=";    };    "~main" =  {      rev = "1a3b2902d6818ca50bed69e307a85860c7d94470";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-sha256-uTYFqPqhtUemUQiQJT87PTL2lDD7ASL+B4CYcw8IO+A=";    };  };}
+{  url = "https://github.com/DLangGamedev/dcore";  versions = {    "0.0.1-alpha.1" =  {      rev = "092048edfdcc92bf98c0b1833cefbe1b425dabe7";      sha256 = "sha256-QqLegXlNGuVTNKD6Uj0SEobKaOMI56p4/6lqkQ1bA8E=";    };    "~main" =  {      rev = "1a3b2902d6818ca50bed69e307a85860c7d94470";      sha256 = "sha256-uTYFqPqhtUemUQiQJT87PTL2lDD7ASL+B4CYcw8IO+A=";    };  };}

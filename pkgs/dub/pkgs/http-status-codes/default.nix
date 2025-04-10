@@ -1,3 +1,1 @@
-{  url = "https://github.com/aravindavk/http-status-codes";  versions = {    "0.1.0" =  {      rev = "e282c036a36f9b331727d279f557b0d8b1cee628";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-sha256-JmRA1UOJEI7XKExI667vkwIzP9aG32vhVNtkk3gkW8Q=";    };    "~main" =  {      rev = "e282c036a36f9b331727d279f557b0d8b1cee628";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-sha256-JmRA1UOJEI7XKExI667vkwIzP9aG32vhVNtkk3gkW8Q=";    };  };}
+{  url = "https://github.com/aravindavk/http-status-codes";  versions = {    "0.1.0" =  {      rev = "e282c036a36f9b331727d279f557b0d8b1cee628";      sha256 = "sha256-JmRA1UOJEI7XKExI667vkwIzP9aG32vhVNtkk3gkW8Q=";    };    "~main" =  {      rev = "e282c036a36f9b331727d279f557b0d8b1cee628";      sha256 = "sha256-JmRA1UOJEI7XKExI667vkwIzP9aG32vhVNtkk3gkW8Q=";    };  };}

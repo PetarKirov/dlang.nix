@@ -1,3 +1,1 @@
-{  url = "https://github.com/gitgit3/dom-persist";  versions = {    "0.1.1" =  {      rev = "9580f70315c75737c92205d2f159a8ad3146d9bb";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-sha256-qONkeLcmR1c0jBB38CVQeZq0/F6yM825Yy1+Jye22bM=";    };    "~main" =  {      rev = "9580f70315c75737c92205d2f159a8ad3146d9bb";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-sha256-qONkeLcmR1c0jBB38CVQeZq0/F6yM825Yy1+Jye22bM=";    };  };}
+{  url = "https://github.com/gitgit3/dom-persist";  versions = {    "0.1.1" =  {      rev = "9580f70315c75737c92205d2f159a8ad3146d9bb";      sha256 = "sha256-qONkeLcmR1c0jBB38CVQeZq0/F6yM825Yy1+Jye22bM=";    };    "~main" =  {      rev = "9580f70315c75737c92205d2f159a8ad3146d9bb";      sha256 = "sha256-qONkeLcmR1c0jBB38CVQeZq0/F6yM825Yy1+Jye22bM=";    };  };}

@@ -1,3 +1,1 @@
-{  url = "https://github.com/yellowsink/rockhopper";  versions = {    "0.0.1-beta.1" =  {      rev = "7a843df0f69a5c4c81c33f8633be5b094453eaf7";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-sha256-kSGuKZJvYgUg8+IugQ3IODoJwHxsWT4cxh9fR02hPSA=";    };    "~main" =  {      rev = "4a4e34923c41c185fbb2e9a33bb94bdca9669925";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-sha256-yMr5vDv5iM3HirvZd46dTODAb5+JOAyKgQlX5KzFSd4=";    };  };}
+{  url = "https://github.com/yellowsink/rockhopper";  versions = {    "0.0.1-beta.1" =  {      rev = "7a843df0f69a5c4c81c33f8633be5b094453eaf7";      sha256 = "sha256-kSGuKZJvYgUg8+IugQ3IODoJwHxsWT4cxh9fR02hPSA=";    };    "~main" =  {      rev = "4a4e34923c41c185fbb2e9a33bb94bdca9669925";      sha256 = "sha256-yMr5vDv5iM3HirvZd46dTODAb5+JOAyKgQlX5KzFSd4=";    };  };}

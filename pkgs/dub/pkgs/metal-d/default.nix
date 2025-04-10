@@ -1,3 +1,1 @@
-{  url = "https://github.com/Inochi2D/metal-d";  versions = {    "0.5.0" =  {      rev = "8f937c8f36184a977f068e0a54cba8ca0ebd84d9";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-sha256-ayTjNtCx4hv13/P8rH5R66m4mqeT7hfm0ecQCdTy+yE=";    };    "~main" =  {      rev = "79420dc85720690d04795ed9c2beb219ec3e98d2";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-sha256-QcCL5frTSjS3xQ1ge7ll81c94D8BjCVLW9tzJFQCMiE=";    };  };}
+{  url = "https://github.com/Inochi2D/metal-d";  versions = {    "0.5.0" =  {      rev = "8f937c8f36184a977f068e0a54cba8ca0ebd84d9";      sha256 = "sha256-ayTjNtCx4hv13/P8rH5R66m4mqeT7hfm0ecQCdTy+yE=";    };    "~main" =  {      rev = "79420dc85720690d04795ed9c2beb219ec3e98d2";      sha256 = "sha256-QcCL5frTSjS3xQ1ge7ll81c94D8BjCVLW9tzJFQCMiE=";    };  };}

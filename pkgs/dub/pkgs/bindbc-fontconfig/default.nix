@@ -1,3 +1,1 @@
-{  url = "https://github.com/BindBC/bindbc-fontconfig";  versions = {    "~master" =  {      rev = "98755e4d9af0c7f3387613ec281e2e377e29fea9";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-sha256-ZaL7mJtUrKQC6qbkN/996B3XhHLlhH1HT1gMUZqjkuw=";    };    "1.0.0" =  {      rev = "98755e4d9af0c7f3387613ec281e2e377e29fea9";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-sha256-ZaL7mJtUrKQC6qbkN/996B3XhHLlhH1HT1gMUZqjkuw=";    };  };}
+{  url = "https://github.com/BindBC/bindbc-fontconfig";  versions = {    "~master" =  {      rev = "98755e4d9af0c7f3387613ec281e2e377e29fea9";      sha256 = "sha256-ZaL7mJtUrKQC6qbkN/996B3XhHLlhH1HT1gMUZqjkuw=";    };    "1.0.0" =  {      rev = "98755e4d9af0c7f3387613ec281e2e377e29fea9";      sha256 = "sha256-ZaL7mJtUrKQC6qbkN/996B3XhHLlhH1HT1gMUZqjkuw=";    };  };}

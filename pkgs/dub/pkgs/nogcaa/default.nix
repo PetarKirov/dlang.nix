@@ -1,3 +1,1 @@
-{  url = "https://github.com/domhathair/nogcaa";  versions = {    "0.1.0" =  {      rev = "ad5e626715250ff1db7fef5a84fe44439abd57ec";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-sha256-YIc1qZAAS7R74JhY9PjX4B9pRjABpgVltdRYyGIDq+k=";    };    "0.1.1" =  {      rev = "3eac91a525283a03a396e55bdc6e00d588056a35";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-sha256-B+vHqQOyH7sps3QYWssyqLkzgpKYsIYyFZFx7Qdvmwo=";    };  };}
+{  url = "https://github.com/domhathair/nogcaa";  versions = {    "0.1.0" =  {      rev = "ad5e626715250ff1db7fef5a84fe44439abd57ec";      sha256 = "sha256-YIc1qZAAS7R74JhY9PjX4B9pRjABpgVltdRYyGIDq+k=";    };    "0.1.1" =  {      rev = "3eac91a525283a03a396e55bdc6e00d588056a35";      sha256 = "sha256-B+vHqQOyH7sps3QYWssyqLkzgpKYsIYyFZFx7Qdvmwo=";    };  };}

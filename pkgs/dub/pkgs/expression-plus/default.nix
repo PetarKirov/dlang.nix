@@ -1,3 +1,1 @@
-{  url = "https://github.com/aleferri/expression-plus";  versions = {    "~master" =  {      rev = "e4bd9261180eebeecd2aa75d1b7079ccbd2741cd";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-sha256-OMFWD0Xjzkku8HZ94vourxU0MC/r/YFJhpL4yl8hrbc=";    };    "1.0.1" =  {      rev = "e4bd9261180eebeecd2aa75d1b7079ccbd2741cd";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-sha256-OMFWD0Xjzkku8HZ94vourxU0MC/r/YFJhpL4yl8hrbc=";    };  };}
+{  url = "https://github.com/aleferri/expression-plus";  versions = {    "~master" =  {      rev = "e4bd9261180eebeecd2aa75d1b7079ccbd2741cd";      sha256 = "sha256-OMFWD0Xjzkku8HZ94vourxU0MC/r/YFJhpL4yl8hrbc=";    };    "1.0.1" =  {      rev = "e4bd9261180eebeecd2aa75d1b7079ccbd2741cd";      sha256 = "sha256-OMFWD0Xjzkku8HZ94vourxU0MC/r/YFJhpL4yl8hrbc=";    };  };}
