@@ -1,1 +1,0 @@
-{  url = "https://github.com/ErnyTech/StdLow";  versions = {    "0.1.0" =  {      rev = "0d884fc966ef9ed34450121ee314d5771ae52d51";      sha256 = "sha256-tAnRyCcR/T2/Z0zHyPSmgpiDoGMN2/tVrvPZO+KAJuY=";    };    "~master" =  {      rev = "0d884fc966ef9ed34450121ee314d5771ae52d51";      sha256 = "sha256-tAnRyCcR/T2/Z0zHyPSmgpiDoGMN2/tVrvPZO+KAJuY=";    };  };}

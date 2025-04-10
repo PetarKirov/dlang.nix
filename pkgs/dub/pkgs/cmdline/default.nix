@@ -1,23 +1,12 @@
-{  url = "https://github.com/malyjacob/d-cmdline";  versions = {    "1.0.2" =  {      rev = "5d5251f7c853e4cee536936acbd8dc177a118bae";      sha256 = "/bin/sh: line 1: nix-prefetch-git: command not found
-warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-error: hash '' has wrong length for hash algorithm 'sha256'";    };    "1.0.1" =  {      rev = "ae37955253b9b05d4b3956c1e2dcbd7763424e33";      sha256 = "/bin/sh: line 1: nix-prefetch-git: command not found
-warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-error: hash '' has wrong length for hash algorithm 'sha256'";    };    "1.3.1" =  {      rev = "350cd1829a921b2699c82ae2745f77e9d4f011b6";      sha256 = "/bin/sh: line 1: nix-prefetch-git: command not found
-warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-error: hash '' has wrong length for hash algorithm 'sha256'";    };    "1.4.0" =  {      rev = "8dc23accf0becc86f5016c1408ab28379c2173e6";      sha256 = "/bin/sh: line 1: nix-prefetch-git: command not found
-warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-error: hash '' has wrong length for hash algorithm 'sha256'";    };    "1.2.0" =  {      rev = "db94427d3adbc1c96a512797f33e21e11a5fc6d4";      sha256 = "/bin/sh: line 1: nix-prefetch-git: command not found
-warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-error: hash '' has wrong length for hash algorithm 'sha256'";    };    "1.3.4" =  {      rev = "e20c0e10ad97888411157991f408dd31b1cedebd";      sha256 = "/bin/sh: line 1: nix-prefetch-git: command not found
-warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-error: hash '' has wrong length for hash algorithm 'sha256'";    };    "1.3.3" =  {      rev = "3bfd4111f2a52d4ccce4b07773a16e2d5c0e7882";      sha256 = "/bin/sh: line 1: nix-prefetch-git: command not found
-warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-error: hash '' has wrong length for hash algorithm 'sha256'";    };    "1.4.1" =  {      rev = "da831496cbab00286b3a217e99bc30f4edb5d614";      sha256 = "/bin/sh: line 1: nix-prefetch-git: command not found
-warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-error: hash '' has wrong length for hash algorithm 'sha256'";    };    "1.4.2" =  {      rev = "7acb0a3bb9c73eb0bde787daeca389edf84c867d";      sha256 = "/bin/sh: line 1: nix-prefetch-git: command not found
-warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-error: hash '' has wrong length for hash algorithm 'sha256'";    };    "1.3.2" =  {      rev = "058dceba6fbd6a371f0cc50e288674865b3373ce";      sha256 = "/bin/sh: line 1: nix-prefetch-git: command not found
-warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-error: hash '' has wrong length for hash algorithm 'sha256'";    };    "1.1.0" =  {      rev = "9a67792582b758e8fa043680dc7c6bac23c015a7";      sha256 = "/bin/sh: line 1: nix-prefetch-git: command not found
-warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-error: hash '' has wrong length for hash algorithm 'sha256'";    };  };}
+{  url = "https://github.com/malyjacob/d-cmdline";  versions = {    "1.0.2" =  {      rev = "5d5251f7c853e4cee536936acbd8dc177a118bae";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
+sha256-FoH7HPBCzJSicpe6SlXAW3Unlt1bIDTUiTM8xrcmv5U=";    };    "1.0.1" =  {      rev = "ae37955253b9b05d4b3956c1e2dcbd7763424e33";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
+sha256-WJfMb3kwEkYYO6tO3YN9CTYBd99TWKDKPGLY4H6Yk0E=";    };    "1.3.1" =  {      rev = "350cd1829a921b2699c82ae2745f77e9d4f011b6";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
+sha256-V4tocyn3ge7NHSdjYVzg3tcxxn1bms5LmN7hC4JzPNc=";    };    "1.4.0" =  {      rev = "8dc23accf0becc86f5016c1408ab28379c2173e6";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
+sha256-YiCWMkxo0WvOY/FadnsYJ34hqpIfWQOm6IKK7QQrRlI=";    };    "1.2.0" =  {      rev = "db94427d3adbc1c96a512797f33e21e11a5fc6d4";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
+sha256-+XE1W/HO5D9QRilP2DQRr9WPknn8Lp/EejaPYz3zHys=";    };    "1.3.4" =  {      rev = "e20c0e10ad97888411157991f408dd31b1cedebd";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
+sha256-uPA6+xFuVDv+96u8JpHePEzkdlDJWGji71sj2tRic3U=";    };    "1.3.3" =  {      rev = "3bfd4111f2a52d4ccce4b07773a16e2d5c0e7882";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
+sha256-ohKP4FG5itK9v+S/siJFUNyrPaXMr03S1yC8izPXaBc=";    };    "1.4.1" =  {      rev = "da831496cbab00286b3a217e99bc30f4edb5d614";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
+sha256-8iv2+h0BY03lvI8r5z8xe62mf5WRBZ0LY/0BducyEXg=";    };    "1.4.2" =  {      rev = "7acb0a3bb9c73eb0bde787daeca389edf84c867d";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
+sha256-9Gd3v0CP9ozs/m0h2mlv88s++qi4aZN2iRYTrcK9drA=";    };    "1.3.2" =  {      rev = "058dceba6fbd6a371f0cc50e288674865b3373ce";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
+sha256-w9HLZ0g9fVAwSosnw6XMMftkxuCg8ZUoQCTz0Oz6p8Q=";    };    "1.1.0" =  {      rev = "9a67792582b758e8fa043680dc7c6bac23c015a7";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
+sha256-cvRb9wLvW+Hxtt+hJQr+SFoWrb2BXH8iFh0cPqZoxzY=";    };  };}

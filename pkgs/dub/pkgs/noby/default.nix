@@ -1,7 +1,4 @@
-{  url = "https://github.com/Kapendev/noby";  versions = {    "0.0.2" =  {      rev = "f2172ca93f490c630f89f81201d7737bd03bc9e3";      sha256 = "/bin/sh: line 1: nix-prefetch-git: command not found
-warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-error: hash '' has wrong length for hash algorithm 'sha256'";    };    "0.0.1" =  {      rev = "57f483dda4a59668159c6d5f40ef6c3875f29957";      sha256 = "/bin/sh: line 1: nix-prefetch-git: command not found
-warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-error: hash '' has wrong length for hash algorithm 'sha256'";    };    "~main" =  {      rev = "c1e59b42fce761533869bd8adc4630029609c82e";      sha256 = "/bin/sh: line 1: nix-prefetch-git: command not found
-warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-error: hash '' has wrong length for hash algorithm 'sha256'";    };  };}
+{  url = "https://github.com/Kapendev/noby";  versions = {    "0.0.2" =  {      rev = "f2172ca93f490c630f89f81201d7737bd03bc9e3";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
+sha256-MoqmhB4wvsSMlODpqoHPWGdM3lzQ3MC/bn6S/PlwlDY=";    };    "0.0.1" =  {      rev = "57f483dda4a59668159c6d5f40ef6c3875f29957";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
+sha256-gFbGlA/luvqpObzfvUD7ASMOCz6mfplNBLkrz0dER9U=";    };    "~main" =  {      rev = "c1e59b42fce761533869bd8adc4630029609c82e";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
+sha256-w6FlQmz95X5KIrFuL8ISMcPEnjDubeWtH6++VLzRiCk=";    };  };}

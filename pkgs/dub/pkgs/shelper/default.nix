@@ -1,5 +1,5 @@
-{  url = "https://github.com/ichordev/shelper";  versions = {    "2.0.0" =  {      rev = "aa878d9e76d93f21dc5e39c248e269ac9dc901b1";      sha256 = "/bin/sh: line 1: nix-prefetch-git: command not found
-warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-error: hash '' has wrong length for hash algorithm 'sha256'";    };    "2.0.1" =  {      rev = "69c4c509f41cbff6c68f96ff9dc02b5e98301d22";      sha256 = "/bin/sh: line 1: nix-prefetch-git: command not found
-warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-error: hash '' has wrong length for hash algorithm 'sha256'";    };    "1.0.0" =  {      rev = "7584ec5e876507fe22b9ace005f8704735e52da2";      sha256 = "sha256-KwDX8aU9YK/45BgFBkHOnR7pqdCKuVgAjKj9V+2hdTc=";    };    "~main" =  {      rev = "69c4c509f41cbff6c68f96ff9dc02b5e98301d22";      sha256 = "sha256-KwDX8aU9YK/45BgFBkHOnR7pqdCKuVgAjKj9V+2hdTc=";    };  };}
+{  url = "https://github.com/ichordev/shelper";  versions = {    "2.0.0" =  {      rev = "aa878d9e76d93f21dc5e39c248e269ac9dc901b1";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
+sha256-ZeL473hY3RTwbfVWMrupdCMcjDUGkpOKjIamTRM9+cU=";    };    "2.0.1" =  {      rev = "69c4c509f41cbff6c68f96ff9dc02b5e98301d22";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
+sha256-biggeRXKIACLkOUKtxSw64b7JgaSBedW4cV8FTjUL+k=";    };    "1.0.0" =  {      rev = "7584ec5e876507fe22b9ace005f8704735e52da2";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
+sha256-KwDX8aU9YK/45BgFBkHOnR7pqdCKuVgAjKj9V+2hdTc=";    };    "~main" =  {      rev = "69c4c509f41cbff6c68f96ff9dc02b5e98301d22";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
+sha256-biggeRXKIACLkOUKtxSw64b7JgaSBedW4cV8FTjUL+k=";    };  };}

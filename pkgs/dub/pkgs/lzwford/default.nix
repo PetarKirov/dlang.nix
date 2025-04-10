@@ -1,3 +1,4 @@
-{  url = "https://github.com/ZILtoid1991/lzwford";  versions = {    "1.1.0" =  {      rev = "9c52a067ac70caad460840394f021ef24958b2d0";      sha256 = "/bin/sh: line 1: nix-prefetch-git: command not found
-warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-error: hash '' has wrong length for hash algorithm 'sha256'";    };    "~master" =  {      rev = "9c52a067ac70caad460840394f021ef24958b2d0";      sha256 = "sha256-dkAialPVwiAewJUm9Dgr3UebkQs//SUrrrPRQFb/cf8=";    };    "1.0.0" =  {      rev = "8245fac55ccb460b22b0024d9d5de194c725d145";      sha256 = "sha256-dkAialPVwiAewJUm9Dgr3UebkQs//SUrrrPRQFb/cf8=";    };  };}
+{  url = "https://github.com/ZILtoid1991/lzwford";  versions = {    "1.1.0" =  {      rev = "9c52a067ac70caad460840394f021ef24958b2d0";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
+sha256-sO7KVLSnW2mO9j3fhPS8lw8+4k4eapcQQTUUujrqbcQ=";    };    "~master" =  {      rev = "9c52a067ac70caad460840394f021ef24958b2d0";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
+sha256-sO7KVLSnW2mO9j3fhPS8lw8+4k4eapcQQTUUujrqbcQ=";    };    "1.0.0" =  {      rev = "8245fac55ccb460b22b0024d9d5de194c725d145";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
+sha256-dkAialPVwiAewJUm9Dgr3UebkQs//SUrrrPRQFb/cf8=";    };  };}

@@ -1,1 +1,0 @@
-{  url = "https://github.com/UI-Manufaktur/uim-vue";  versions = {    "~master" =  {      rev = "ae1432535f67239f8fea9f8688c26cb2694fcbc7";      sha256 = "sha256-nAJLgz7GReKsvIj0zkCjRkbJctwVWFM0EuCtyqI0qhU=";    };    "0.19.6" =  {      rev = "3b61e7e85ea7aa292a181253f2a3cd9106a93fb2";      sha256 = "sha256-Ag27UCNOcircMrvQkqNveUusfXfCSPVxz4HPSK5kK0A=";    };  };}

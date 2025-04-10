@@ -1,5 +1,4 @@
-{  url = "https://github.com/ArthaTi/mypaint-d";  versions = {    "0.1.0" =  {      rev = "3900c6972b386f51d0229d5995a3eb617ecfec88";      sha256 = "/bin/sh: line 1: nix-prefetch-git: command not found
-warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-error: hash '' has wrong length for hash algorithm 'sha256'";    };    "~main" =  {      rev = "3900c6972b386f51d0229d5995a3eb617ecfec88";      sha256 = "/bin/sh: line 1: nix-prefetch-git: command not found
-warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-error: hash '' has wrong length for hash algorithm 'sha256'";    };  };}
+{  url = "https://github.com/ArthaTi/mypaint-d";  versions = {    "0.1.1" =  {      rev = "7eb40a1512f2de7c9b7cd68871e5f1c992a95530";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
+sha256-uyTZvZNL7KHz54yyX6OZpRtS8e3hFYLwvNLXCmIBzV8=";    };    "0.1.0" =  {      rev = "3900c6972b386f51d0229d5995a3eb617ecfec88";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
+sha256-4oj+TRkZyyqqqqFidN9/BjaLvjO9Y1PGFJKivO8MP1M=";    };    "~main" =  {      rev = "7eb40a1512f2de7c9b7cd68871e5f1c992a95530";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
+sha256-uyTZvZNL7KHz54yyX6OZpRtS8e3hFYLwvNLXCmIBzV8=";    };  };}

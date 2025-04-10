@@ -1,5 +1,5 @@
-{  url = "https://github.com/Inochi2D/i2d-cairo";  versions = {    "1.0.2" =  {      rev = "127e30c8d069e253897e5f896e04061b17889582";      sha256 = "/bin/sh: line 1: nix-prefetch-git: command not found
-warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-error: hash '' has wrong length for hash algorithm 'sha256'";    };    "1.0.0" =  {      rev = "96ca3be77f56c3798c6fdfdf3d2ab39bad50fafe";      sha256 = "sha256-Xu2s1ZmKdeV1qtAeXvHwTSMLZjBkUPZzPq4SMkiOVh8=";    };    "1.0.1" =  {      rev = "0795fb9317f37659eb62ff31545589dd2dd2fc0c";      sha256 = "/bin/sh: line 1: nix-prefetch-git: command not found
-warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-error: hash '' has wrong length for hash algorithm 'sha256'";    };    "~main" =  {      rev = "127e30c8d069e253897e5f896e04061b17889582";      sha256 = "sha256-Xu2s1ZmKdeV1qtAeXvHwTSMLZjBkUPZzPq4SMkiOVh8=";    };  };}
+{  url = "https://github.com/Inochi2D/i2d-cairo";  versions = {    "1.0.2" =  {      rev = "127e30c8d069e253897e5f896e04061b17889582";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
+sha256-1DKfqFJdC5pKn8snQaZZTXrXXXNNhgbBe1nR5QLoT74=";    };    "1.0.0" =  {      rev = "96ca3be77f56c3798c6fdfdf3d2ab39bad50fafe";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
+sha256-Xu2s1ZmKdeV1qtAeXvHwTSMLZjBkUPZzPq4SMkiOVh8=";    };    "1.0.1" =  {      rev = "0795fb9317f37659eb62ff31545589dd2dd2fc0c";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
+sha256-lTX5W2g6WMEHKK48L8gNUb/ThpRqSpOgofJEk/RbAag=";    };    "~main" =  {      rev = "127e30c8d069e253897e5f896e04061b17889582";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
+sha256-1DKfqFJdC5pKn8snQaZZTXrXXXNNhgbBe1nR5QLoT74=";    };  };}

@@ -1,5 +1,5 @@
-{  url = "https://github.com/schveiguy/poker";  versions = {    "~master" =  {      rev = "26ea6b4776f4b6efa9c31481b2dc3f3964e3fc5e";      sha256 = "sha256-ycyvXbp9pa7O04QC+8J/z1LXgttpRaWUcgw51YxqIO8=";    };    "0.0.2" =  {      rev = "249344e795a8fd554a8b93c80fcd4b794b6466e8";      sha256 = "/bin/sh: line 1: nix-prefetch-git: command not found
-warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-error: hash '' has wrong length for hash algorithm 'sha256'";    };    "0.0.3" =  {      rev = "26ea6b4776f4b6efa9c31481b2dc3f3964e3fc5e";      sha256 = "/bin/sh: line 1: nix-prefetch-git: command not found
-warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-error: hash '' has wrong length for hash algorithm 'sha256'";    };    "0.0.1" =  {      rev = "6f70cf7ca74e19e78b470f81640a3ce34a95d0d3";      sha256 = "sha256-ycyvXbp9pa7O04QC+8J/z1LXgttpRaWUcgw51YxqIO8=";    };  };}
+{  url = "https://github.com/schveiguy/poker";  versions = {    "~master" =  {      rev = "26ea6b4776f4b6efa9c31481b2dc3f3964e3fc5e";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
+sha256-qcD56KUmtATYst9QefnlIt4nPfyaNdcvsOT4t19oGEY=";    };    "0.0.2" =  {      rev = "249344e795a8fd554a8b93c80fcd4b794b6466e8";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
+sha256-TM8VOo//MbrRLgW77PZ5gqjr1o61S22GiMhCI+aYrKs=";    };    "0.0.3" =  {      rev = "26ea6b4776f4b6efa9c31481b2dc3f3964e3fc5e";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
+sha256-qcD56KUmtATYst9QefnlIt4nPfyaNdcvsOT4t19oGEY=";    };    "0.0.1" =  {      rev = "6f70cf7ca74e19e78b470f81640a3ce34a95d0d3";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
+sha256-ycyvXbp9pa7O04QC+8J/z1LXgttpRaWUcgw51YxqIO8=";    };  };}

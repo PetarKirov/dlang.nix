@@ -1,1 +1,0 @@
-{  url = "https://github.com/ErnyTech/HiTGVoip";  versions = {    "~master" =  {      rev = "bb286dc5c6b0384979ff00efd6fde497e6fbb0c6";      sha256 = "sha256-GjQiyYFML/ADTXh82UkbIKAt8XKK7oAU5VpuG7bfuSU=";    };    "0.0.1-rc1" =  {      rev = "bb286dc5c6b0384979ff00efd6fde497e6fbb0c6";      sha256 = "sha256-GjQiyYFML/ADTXh82UkbIKAt8XKK7oAU5VpuG7bfuSU=";    };  };}

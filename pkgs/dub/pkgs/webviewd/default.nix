@@ -1,5 +1,4 @@
-{  url = "https://github.com/ronnie-w/webviewd";  versions = {    "1.0.0" =  {      rev = "55b33c7702d3c2955d397f0a65f81d8927d5a42e";      sha256 = "/bin/sh: line 1: nix-prefetch-git: command not found
-warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-error: hash '' has wrong length for hash algorithm 'sha256'";    };    "~main" =  {      rev = "55b33c7702d3c2955d397f0a65f81d8927d5a42e";      sha256 = "/bin/sh: line 1: nix-prefetch-git: command not found
-warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-error: hash '' has wrong length for hash algorithm 'sha256'";    };  };}
+{  url = "https://github.com/ronnie-w/webviewd";  versions = {    "1.0.0" =  {      rev = "55b33c7702d3c2955d397f0a65f81d8927d5a42e";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
+sha256-lPTFSHs/IKVnECt9+bWfJXv+tF/VRvMRj+Zs1AGoCA8=";    };    "1.0.1" =  {      rev = "ad47375548e85bdde08eb4a6971b5fbfeb69064f";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
+sha256-+bTukKhknOizDZHyudLUvWqLmGxFfz/HhBDkUmPolUE=";    };    "~main" =  {      rev = "ad47375548e85bdde08eb4a6971b5fbfeb69064f";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
+sha256-+bTukKhknOizDZHyudLUvWqLmGxFfz/HhBDkUmPolUE=";    };  };}

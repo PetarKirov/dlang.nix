@@ -1,3 +1,3 @@
-{  url = "https://github.com/linkrope/gamma";  versions = {    "~master" =  {      rev = "7cb03766d45554152dc3594c425727e13690c5d1";      sha256 = "sha256-8HiHcb1zjp5/MTGvlp9+mmXHSi4GQUXr/eYgNclPDRk=";    };    "~finish-parser" =  {      rev = "9c6fce61f3c44422d4cb98c75ffb69ad72d8b9b5";      sha256 = "/bin/sh: line 1: nix-prefetch-git: command not found
-warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
-error: hash '' has wrong length for hash algorithm 'sha256'";    };  };}
+{  url = "https://github.com/linkrope/gamma";  versions = {    "~master" =  {      rev = "7cb03766d45554152dc3594c425727e13690c5d1";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
+sha256-7Dkf+0hSVRwb5JgQ0ms1wL5+TNrHNJQ6EpQzmF7ObXY=";    };    "~finish-parser" =  {      rev = "9c6fce61f3c44422d4cb98c75ffb69ad72d8b9b5";      sha256 = "warning: The old format conversion sub commands of `nix hash` where deprecated in favor of `nix hash convert`.
+sha256-nXs6WzyO3RJ4itvlASQUjqe3anFB4H9JZxyfuDcQ/VY=";    };  };}

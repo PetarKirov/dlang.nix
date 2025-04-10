@@ -171,9 +171,9 @@ void main(string[] args)
     string packagesPath = dirName(__FILE__.absolutePath) ~ "/../pkgs/build-dub-package/packages.json";
     // Request url
 
-    auto dump = get("https://code.dlang.org/api/packages/dump");
-    packagesPath.write(dump);
-    // auto dump = readText(packagesPath);
+    // auto dump = get("https://code.dlang.org/api/packages/dump");
+    // packagesPath.write(dump);
+    auto dump = readText(packagesPath);
     Package[string] pkgs;
 
     foreach (ref pkg; parseJSON(dump).array.parallel)
