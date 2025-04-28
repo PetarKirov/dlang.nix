@@ -11,16 +11,23 @@ lib: rec {
     let
       componentHashes = supportedVersions.source."${version}";
       package = import ./generic.nix (
-      {
-        inherit version;
-        dmdSha256 = componentHashes.dmd;
-        phobosSha256 = componentHashes.phobos;
-        toolsSha256 = componentHashes.tools;
-      } // (if componentHashes ? "druntime" then { druntimeSha256 = componentHashes.druntime; } else { }));
-    in lib.mirrorFunctionArgs package
-      (nixpkgs:
-      package nixpkgs // { ${if componentHashes ? host-d-compiler then "hostDCompiler" else null}
-        = ourPkgs.${componentHashes.host-d-compiler}; });
+        {
+          inherit version;
+          dmdSha256 = componentHashes.dmd;
+          phobosSha256 = componentHashes.phobos;
+          toolsSha256 = componentHashes.tools;
+        }
+        // (if componentHashes ? "druntime" then { druntimeSha256 = componentHashes.druntime; } else { })
+      );
+    in
+    lib.mirrorFunctionArgs package (
+      nixpkgs:
+      package nixpkgs
+      // {
+        ${if componentHashes ? host-d-compiler then "hostDCompiler" else null} =
+          ourPkgs.${componentHashes.host-d-compiler};
+      }
+    );
 
   getBinaryVersion =
     pkgs: version:

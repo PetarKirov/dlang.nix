@@ -54,9 +54,16 @@ let
       ]
       # tests that rely on objdump whitespace
       ++ (
-        if versionAtLeast version "2.087.0"
-        then ["${dmdTestDir}/runnable/cdvecfill.sh" "${dmdTestDir}/compilable/cdcmp.d"]
-        else ["${dmdTestDir}/runnable/test_cdvecfill.d" "${dmdTestDir}/runnable/test_cdcmp.d"]
+        if versionAtLeast version "2.087.0" then
+          [
+            "${dmdTestDir}/runnable/cdvecfill.sh"
+            "${dmdTestDir}/compilable/cdcmp.d"
+          ]
+        else
+          [
+            "${dmdTestDir}/runnable/test_cdvecfill.d"
+            "${dmdTestDir}/runnable/test_cdcmp.d"
+          ]
       )
 
       ++ lib.optionals (versionBetween "2.089.0" "2.092.2" version) [ "${dmdTestDir}/dshell/test6952.d" ]

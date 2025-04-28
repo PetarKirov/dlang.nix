@@ -15,13 +15,15 @@ let
 
   inherit (pkgs) callPackage;
 
-  callWithExtras = package:
+  callWithExtras =
+    package:
     let
       result' = callPackage package {
         hostDCompiler = result'.hostDCompiler or self'.packages.ldc-bootstrap;
         inherit (pkgs.darwin.apple_sdk.frameworks) Foundation;
       };
-    in result';
+    in
+    result';
 
   system = pkgs.hostPlatform.system;
   filterBySystem = pkgs: lib.filterAttrs (_name: pkg: builtins.elem system pkg.meta.platforms) pkgs;
@@ -38,7 +40,8 @@ in
 
       sanitizeVersion = version: builtins.replaceStrings [ "." ] [ "_" ] version;
 
-      getVersion = type: if type == "source" then getSourceVersion self'.packages else getBinaryVersion self'.packages;
+      getVersion =
+        type: if type == "source" then getSourceVersion self'.packages else getBinaryVersion self'.packages;
     in
     {
       flattened =
