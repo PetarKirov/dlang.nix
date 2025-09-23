@@ -3,6 +3,7 @@
   lib,
   stdenv,
   writeTextFile,
+  fetchpatch,
   fetchurl,
   cmake,
   ninja,
@@ -24,6 +25,7 @@
 }:
 let
   inherit (import ../../lib/build-status.nix { inherit lib; }) getBuildStatus;
+  inherit (import ../../lib/version-utils.nix { inherit lib; }) versionBetween;
   buildStatus = getBuildStatus "ldc" version stdenv.system;
 
   pathConfig = runCommand "phobos-tzdata-curl-paths" { } ''
@@ -96,6 +98,19 @@ stdenv.mkDerivation rec {
       # https://github.com/NixOS/nixpkgs/issues/34817
       rm -r ldc-${version}-src/tests/plugins/addFuncEntryCall
     '';
+
+  patches = lib.optionals (versionBetween "2.092.0" "2.101.0" version) [
+    # `src/dmd/backend/cg.d` and `src/dmd/backend/var.d` contained arrays defined as
+    # result from IIFE at CT. These function expressions were inside a
+    # `extern (C++):` block, however they were returning static arrays, which
+    # is not allowed in C++. This patch marks them as `extern (D)`, to avoid
+    # this issue.
+    # See: https://github.com/dlang/dmd/pull/14127
+    (fetchpatch {
+      url = "https://github.com/ldc-developers/ldc/commit/60079c3b596053b1a70f9f2e0cf38a287089df56.patch";
+      sha256 = "sha256-Y/5+zt5ou9rzU7rLJq2OqUxMDvC7aSFS6AsPeDxNATQ=";
+    })
+  ];
 
   postPatch =
     ''

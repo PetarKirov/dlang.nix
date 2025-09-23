@@ -206,6 +206,31 @@ stdenv.mkDerivation rec {
         sha256 = "sha256-JO52sxliPFjCe4qyo/eyWhDTg1x5bh1+7gPj1SYXIh8=";
       })
     ]
+    ++ lib.optionals (versionBetween "2.099.0" "2.111.0" version) [
+      # GCC started giving warnings on preprocessor undefinitons
+      # that were implicitly added to every C file by DMD.
+      (fetchpatch {
+        url = "https://github.com/dlang/dmd/commit/9773c41a1323642cce6ce47810a6c8b5ec31e5c6.patch";
+        stripLen = 2;
+        extraPrefix = druntimePrefix + "/";
+        sha256 =
+          if druntimeRepo then
+            "sha256-wfFSqg38YbNZI7kUbvwyMs7RjydS4e0CpIKsjvZGTWU="
+          else
+            "sha256-nvq2JWbdNOuEfNOqZOw5ymB8OYEdR87EbqbQU7J60QE=";
+      })
+    ]
+    ++ lib.optionals (versionBetween "2.101.0" "2.112.0" version) [
+      # MacOS 15.4 siletly changed thread-local storage ABI breaking all DRuntimes
+      # built with compilers starting from 2.099.0
+      # https://github.com/dlang/dmd/issues/21126
+      (fetchpatch {
+        url = "https://github.com/dlang/dmd/commit/5febad2e92dbabcd797abae13b6f9a392e3783f6.patch";
+        stripLen = 1;
+        extraPrefix = "dmd/";
+        sha256 = "sha256-In6YndwS4tDASo0AQ6aUBYDf8SSx7E2TqwuE8tpwjfM=";
+      })
+    ]
     ++ lib.optionals (versionBetween "2.102.2" "2.104.0" version) [
       (fetchpatch {
         # Fix for: https://issues.dlang.org/show_bug.cgi?id=23846
