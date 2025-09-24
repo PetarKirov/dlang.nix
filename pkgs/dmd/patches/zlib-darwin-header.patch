@@ -1,0 +1,32 @@
+Patch written specifically for dlang.nix by Ate Eskola
+
+This conditional and it's "else" branch seems to be some copypasta bug that
+I suspect previously compiled because stdio, which is included after
+this definition, previously defined fdopen by macro that overwrote
+this, but stopped compiling when stdio made it a function definition
+instead. Didn't check if that's the case though.
+
+In any case the conditions are senseless: it is already established this is a
+MacOS, and __MWERKS__ seems to be a long-obsolete compiler ID
+(source: https://stackoverflow.com/questions/19584527/where-is-mwerks-in-os10-7).
+There is nothing compiler-specific here.
+
+diff --git a/etc/c/zlib/zutil.h b/etc/c/zlib/zutil.h
+index d9a20ae1b..67984964e 100644
+--- a/phobos/etc/c/zlib/zutil.h
++++ b/phobos/etc/c/zlib/zutil.h
+@@ -140,13 +140,7 @@ extern z_const char * const z_errmsg[10]; /* indexed by 2-zlib_error */
+ #if defined(MACOS) || defined(TARGET_OS_MAC)
+ #  define OS_CODE  7
+ #  ifndef Z_SOLO
+-#    if defined(__MWERKS__) && __dest_os != __be_os && __dest_os != __win32_os
+-#      include <unix.h> /* for fdopen */
++#    include <stdio.h> /* for fdopen */
+-#    else
+-#      ifndef fdopen
+-#        define fdopen(fd,mode) NULL /* No fdopen() */
+-#      endif
+-#    endif
+ #  endif
+ #endif
+ 

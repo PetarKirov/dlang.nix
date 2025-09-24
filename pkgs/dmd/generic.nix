@@ -206,6 +206,22 @@ stdenv.mkDerivation rec {
         sha256 = "sha256-JO52sxliPFjCe4qyo/eyWhDTg1x5bh1+7gPj1SYXIh8=";
       })
     ]
+    ++ lib.optionals (versionBetween "2.102.2" "2.104.0" version) [
+      (fetchpatch {
+        # Fix for: https://issues.dlang.org/show_bug.cgi?id=23846
+        # Implemented in: https://github.com/dlang/dmd/pull/15139
+        url = "https://github.com/dlang/dmd/commit/deaf1b81986c57d31a1b1163301ca4d157505220.patch";
+        stripLen = 1;
+        extraPrefix = "dmd/";
+        sha256 = "sha256-xgaIraFH3ZfIn99ms148MP7cKV63JgU90yEYq21noRw=";
+      })
+    ]
+    ++ lib.optionals (lib.versionOlder version "2.108.0") [
+      # Fixes a latent ZLib C header bug. In DMD, it if fixed for 2.108.0
+      # by upgrading ZLib to 1.3.1 but we don't do that here because it would
+      # be less faithful to the langauge as it existed before that.
+      ./patches/zlib-darwin-header.patch
+    ]
     ++ lib.optionals (versionBetween "2.099.0" "2.111.0" version) [
       # GCC started giving warnings on preprocessor undefinitons
       # that were implicitly added to every C file by DMD.
@@ -220,6 +236,16 @@ stdenv.mkDerivation rec {
             "sha256-nvq2JWbdNOuEfNOqZOw5ymB8OYEdR87EbqbQU7J60QE=";
       })
     ]
+    ++ lib.optionals (lib.versionOlder version "2.111.0" && !druntimeRepo) [
+      (fetchpatch {
+        # Linker started demangling a D symbol in an error message,
+        # breaking this test before a patch.
+        url = "https://github.com/dlang/dmd/commit/dfe0f34b2aa59e6cf4526c9af8069e08638149bc.patch";
+        stripLen = 1;
+        extraPrefix = "dmd/";
+        hash = "sha256-Uccb8rBPBLAEPWbOYWgdR5xN3wJoIkKKhLGu58IK1sM=";
+      })
+    ]
     ++ lib.optionals (versionBetween "2.101.0" "2.112.0" version) [
       # MacOS 15.4 siletly changed thread-local storage ABI breaking all DRuntimes
       # built with compilers starting from 2.099.0
@@ -229,26 +255,6 @@ stdenv.mkDerivation rec {
         stripLen = 1;
         extraPrefix = "dmd/";
         sha256 = "sha256-In6YndwS4tDASo0AQ6aUBYDf8SSx7E2TqwuE8tpwjfM=";
-      })
-    ]
-    ++ lib.optionals (versionBetween "2.102.2" "2.104.0" version) [
-      (fetchpatch {
-        # Fix for: https://issues.dlang.org/show_bug.cgi?id=23846
-        # Implemented in: https://github.com/dlang/dmd/pull/15139
-        url = "https://github.com/dlang/dmd/commit/deaf1b81986c57d31a1b1163301ca4d157505220.patch";
-        stripLen = 1;
-        extraPrefix = "dmd/";
-        sha256 = "sha256-xgaIraFH3ZfIn99ms148MP7cKV63JgU90yEYq21noRw=";
-      })
-    ]
-    ++ lib.optionals (lib.versionOlder version "2.111.0" && !druntimeRepo) [
-      (fetchpatch {
-        # Linker started demangling a D symbol in an error message,
-        # breaking this test before a patch.
-        url = "https://github.com/dlang/dmd/commit/dfe0f34b2aa59e6cf4526c9af8069e08638149bc.patch";
-        stripLen = 1;
-        extraPrefix = "dmd/";
-        hash = "sha256-Uccb8rBPBLAEPWbOYWgdR5xN3wJoIkKKhLGu58IK1sM=";
       })
     ];
 
