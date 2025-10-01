@@ -86,5 +86,15 @@
     "dmd": "sha256-3nCDPZnb4eQZmhYYxcH6qOmsP8or0KYuzAa5g/C9xdU=",
     "phobos": "sha256-73I0k7tCBwe5tl4K6uMs3/nT2JTZ2SppFYzmokS4W5Y=",
     "tools": "sha256-Pfj8Kwf5AlcrHhLs5A/0vIFWLZaNR3ro+esbs7oWN9I="
+  },
+  "2.110.0": {
+    "dmd": "sha256-icXp9xWF2AI2gp7z/lQFAChmXfQePe9b5pbpQ9Mn19Y=",
+    "phobos": "sha256-CmJpcHM+sIsaYBlpALCFoQFG+93s8gUyWmM0tYqjXkk=",
+    "tools": "sha256-xMEHnrstL5hAkhp8+/z1I2KZWZ7eztWZnUGLTKCfbBI="
+  },
+  "2.111.0": {
+    "dmd": "sha256-2bjsGa9nTny818dLRV6LKkes+Ycq8W+PFjwhGVrD5TM=",
+    "phobos": "sha256-9jySZbODoL8sULhYKj/l4+c/uiG5xY2dO240k9XQtPk=",
+    "tools": "sha256-xMEHnrstL5hAkhp8+/z1I2KZWZ7eztWZnUGLTKCfbBI="
   }
 }
