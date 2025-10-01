@@ -18,7 +18,7 @@ jobs:
   generate-matrix:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Post initial package status comment
         uses: marocchino/sticky-pull-request-comment@v2.9.2
@@ -51,7 +51,7 @@ jobs:
     continue-on-error: ${{ matrix.allowedToFail }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Install Nix
         uses: DeterminateSystems/nix-installer-action@v16
@@ -72,7 +72,7 @@ jobs:
     name: Final Results
     needs: [build, generate-matrix]
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Generate Matrix
         uses: ./.github/generate-matrix
@@ -92,7 +92,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Install Nix
         uses: DeterminateSystems/nix-installer-action@v16
