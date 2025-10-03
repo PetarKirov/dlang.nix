@@ -15,7 +15,7 @@ let
 
   latestVersion = lib.last supportedVersions;
 
-  mergeVersions = attrs: lib.foldr lib.recursiveUpdate { } attrs;
+  mergeVersions = attrs: lib.foldl lib.recursiveUpdate { } attrs;
 
   between =
     start: end: func:
@@ -144,4 +144,10 @@ mergeVersions [
       skippedTests = (getInfo version).darwinSkippedTests;
     };
   }))
+  {
+    "2.111.0".x86_64-darwin = {
+      build = true;
+      check = false;
+    };
+  }
 ]

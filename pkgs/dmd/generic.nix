@@ -222,7 +222,7 @@ stdenv.mkDerivation rec {
       # be less faithful to the langauge as it existed before that.
       ./patches/zlib-darwin-header.patch
     ]
-    ++ lib.optionals (versionBetween "2.099.0" "2.111.0" version) [
+    ++ lib.optionals (versionBetween "2.099.0" "2.110.0" version) [
       # GCC started giving warnings on preprocessor undefinitons
       # that were implicitly added to every C file by DMD.
       (fetchpatch {
@@ -247,7 +247,7 @@ stdenv.mkDerivation rec {
       })
     ]
     ++ lib.optionals (versionBetween "2.101.0" "2.112.0" version) [
-      # MacOS 15.4 siletly changed thread-local storage ABI breaking all DRuntimes
+      # MacOS 15.4 silently changed thread-local storage ABI breaking all DRuntimes
       # built with compilers starting from 2.099.0
       # https://github.com/dlang/dmd/issues/21126
       (fetchpatch {
@@ -255,6 +255,18 @@ stdenv.mkDerivation rec {
         stripLen = 1;
         extraPrefix = "dmd/";
         sha256 = "sha256-In6YndwS4tDASo0AQ6aUBYDf8SSx7E2TqwuE8tpwjfM=";
+      })
+    ]
+    ++ lib.optionals (version == "2.111.0") [
+      # Sarif JSON writer didn't strip newline out of the VERSION file without
+      # this patch, causing its output to mismatch the expectation in Sarif
+      # tests.
+      # See: https://github.com/dlang/dmd/pull/21127#issuecomment-2766083584
+      (fetchpatch {
+        url = "https://github.com/dlang/dmd/pull/21127/commits/ae919e01f9e270d8980466b508ea3381ce51a88d.patch";
+        stripLen = 1;
+        extraPrefix = "dmd/";
+        sha256 = "sha256-XmK/4MaJYShho0r7er7/+ugsD7IEg4wXJP2qNIkCCec=";
       })
     ];
 
