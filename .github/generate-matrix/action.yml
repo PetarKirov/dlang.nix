@@ -9,6 +9,9 @@ inputs:
   cachix-cache:
     description: The name of the cachix cache to use
     required: true
+  nix-github-token:
+    description: GitHub token to add as access-token in nix.conf
+    required: true
 outputs:
   matrix:
     description: 'Generated Matrix'
@@ -21,9 +24,10 @@ runs:
   using: "composite"
   steps:
     - name: Install Nix
-      uses: DeterminateSystems/nix-installer-action@v10
+      uses: cachix/install-nix-action@v31
       with:
-        extra-conf: accept-flake-config = true
+        github_access_token: ${{ inputs.GITHUB_TOKEN }}
+        extra_nix_config: accept-flake-config = true
 
     - name: Generate CI Matrix
       id: generate-matrix
