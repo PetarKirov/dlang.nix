@@ -54,9 +54,8 @@
 
           pre-commit.settings.hooks = {
             editorconfig-checker.enable = true;
-            nixfmt = {
+            nixfmt-rfc-style = {
               enable = true;
-              package = pkgs.nixfmt-rfc-style;
             };
           };
         };
