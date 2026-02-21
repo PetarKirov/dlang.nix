@@ -10,6 +10,7 @@ import std.getopt : getopt, GetOptException, defaultGetoptFormatter;
 static import std.getopt;
 import std.json : JSONValue, JSONOptions;
 import std.parallelism : parallel;
+import std.path : buildNormalizedPath, dirName;
 import std.process : executeShell, Config;
 import std.range : walkLength;
 import std.stdio : stdout, stderr;
@@ -31,10 +32,13 @@ struct CompilerInfo {
     UrlFormatter urlFormatter;
     PlatformQuery platforms;
     UnpackingNeeded unpackingNeed;
+    string supportedVersionsFile;
 }
 
 @safe pure string suffix(Platform p) => p.startsWith("windows") ?
     "7z" : "tar.xz";
+
+enum pkgsDir = __FILE_FULL_PATH__.dirName.buildNormalizedPath("..", "pkgs");
 
 enum CompilerInfo[Compiler] supportedPlatforms = [
     Compiler.dmd: CompilerInfo(
@@ -45,6 +49,7 @@ enum CompilerInfo[Compiler] supportedPlatforms = [
             "linux", "osx", "freebsd-64", "windows"
         ],
         unpackingNeed: UnpackingNeeded.no,
+        supportedVersionsFile: pkgsDir.buildNormalizedPath("dmd", "supported-binary-versions.json"),
     ),
     Compiler.dmd_src: CompilerInfo(
         urlFormatter: (platform, compilerVersion) =>
@@ -56,6 +61,7 @@ enum CompilerInfo[Compiler] supportedPlatforms = [
             ["phobos", "tools"]
         ].join,
         unpackingNeed: UnpackingNeeded.yes,
+        supportedVersionsFile: pkgsDir.buildNormalizedPath("dmd", "supported-source-versions.json"),
     ),
     Compiler.ldc: CompilerInfo(
         urlFormatter: (platform, compilerVersion) =>
@@ -69,6 +75,7 @@ enum CompilerInfo[Compiler] supportedPlatforms = [
             "windows-x64", "windows-x86"
         ],
         unpackingNeed: UnpackingNeeded.no,
+        supportedVersionsFile: pkgsDir.buildNormalizedPath("ldc", "supported-binary-versions.json"),
     ),
     Compiler.ldc_src: CompilerInfo(
         urlFormatter: (platform, compilerVersion) =>
@@ -78,6 +85,7 @@ enum CompilerInfo[Compiler] supportedPlatforms = [
             "src"
         ],
         unpackingNeed: UnpackingNeeded.no,
+        supportedVersionsFile: pkgsDir.buildNormalizedPath("ldc", "supported-source-versions.json"),
     ),
 ];
 
