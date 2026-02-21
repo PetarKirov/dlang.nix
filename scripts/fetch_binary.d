@@ -38,46 +38,46 @@ struct CompilerInfo {
 
 enum CompilerInfo[Compiler] supportedPlatforms = [
     Compiler.dmd: CompilerInfo(
-        (platform, compilerVersion) =>
+        urlFormatter: (platform, compilerVersion) =>
             "http://downloads.dlang.org/releases/2.x/%s/dmd.%s.%s.%s"
                 .format(compilerVersion, compilerVersion, platform, suffix(platform)),
-        compVersion => [
+        platforms: compVersion => [
             "linux", "osx", "freebsd-64", "windows"
         ],
-        UnpackingNeeded.no,
+        unpackingNeed: UnpackingNeeded.no,
     ),
     Compiler.dmd_src: CompilerInfo(
-        (platform, compilerVersion) =>
+        urlFormatter: (platform, compilerVersion) =>
             "https://github.com/dlang/%s/archive/refs/tags/v%s.tar.gz"
                 .format(platform, compilerVersion),
-        compVersion => [
+        platforms: compVersion => [
             ["dmd"],
             compVersion.split(".")[1].to!int >= 101 ? [] : ["druntime"],
             ["phobos", "tools"]
         ].join,
-        UnpackingNeeded.yes,
+        unpackingNeed: UnpackingNeeded.yes,
     ),
     Compiler.ldc: CompilerInfo(
-        (platform, compilerVersion) =>
+        urlFormatter: (platform, compilerVersion) =>
             "https://github.com/ldc-developers/ldc/releases/download/v%s/ldc2-%s-%s.%s"
                 .format(compilerVersion, compilerVersion, platform, suffix(platform)),
-        compVersion => [
+        platforms: compVersion => [
             "android-aarch64", "android-armv7a",
             "freebsd-x86_64",
             "linux-aarch64", "linux-x86_64",
             "osx-arm64", "osx-x86_64",
             "windows-x64", "windows-x86"
         ],
-        UnpackingNeeded.no,
+        unpackingNeed: UnpackingNeeded.no,
     ),
     Compiler.ldc_src: CompilerInfo(
-        (platform, compilerVersion) =>
+        urlFormatter: (platform, compilerVersion) =>
             "https://github.com/ldc-developers/ldc/releases/download/v%s/ldc-%s-src.tar.gz"
                 .format(compilerVersion, compilerVersion),
-        compVersion => [
+        platforms: compVersion => [
             "src"
         ],
-        UnpackingNeeded.no,
+        unpackingNeed: UnpackingNeeded.no,
     ),
 ];
 
