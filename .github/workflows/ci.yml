@@ -21,7 +21,7 @@ jobs:
       - uses: actions/checkout@v6
 
       - name: Post initial package status comment
-        uses: marocchino/sticky-pull-request-comment@v2.9.4
+        uses: marocchino/sticky-pull-request-comment@v3.0.2
         with:
           recreate: true
           message: |
