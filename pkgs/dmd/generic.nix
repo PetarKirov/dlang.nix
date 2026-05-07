@@ -217,7 +217,7 @@ stdenv.mkDerivation rec {
       })
     ]
     ++ lib.optionals (lib.versionOlder version "2.108.0") [
-      # Fixes a latent ZLib C header bug. In DMD, it if fixed for 2.108.0
+      # Fixes a latent ZLib C header bug. In DMD, it is fixed for 2.108.0
       # by upgrading ZLib to 1.3.1 but we don't do that here because it would
       # be less faithful to the langauge as it existed before that.
       ./patches/zlib-darwin-header.patch
@@ -267,6 +267,18 @@ stdenv.mkDerivation rec {
         stripLen = 1;
         extraPrefix = "dmd/";
         sha256 = "sha256-XmK/4MaJYShho0r7er7/+ugsD7IEg4wXJP2qNIkCCec=";
+      })
+    ]
+    ++ lib.optionals (versionBetween "2.112.0" "2.112.2" version) [
+      # 2.112.0 started to recognise env var TZVAR
+      # (https://github.com/dlang/phobos/pull/10776), but malfunctions if the
+      # variable lacks a trailing slash, which is the case on NixOS.
+      # See: https://github.com/dlang/phobos/pull/11001
+      (fetchpatch {
+        url = "https://github.com/dukc/phobos/commit/8b3a14c374fa9877c235334ac949de2f523dca3c.patch";
+        stripLen = 1;
+        extraPrefix = "phobos/";
+        sha256 = "sha256-/ig3UDfU19nIMKz07342fbYlADRnVPqo4v174uMWmqk=";
       })
     ];
 
