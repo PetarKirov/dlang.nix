@@ -273,12 +273,12 @@ stdenv.mkDerivation rec {
       # 2.112.0 started to recognise env var TZVAR
       # (https://github.com/dlang/phobos/pull/10776), but malfunctions if the
       # variable lacks a trailing slash, which is the case on NixOS.
-      # See: https://github.com/dlang/phobos/pull/11001
+      # See: https://github.com/dlang/phobos/pull/11011
       (fetchpatch {
-        url = "https://github.com/dukc/phobos/commit/8b3a14c374fa9877c235334ac949de2f523dca3c.patch";
+        url = "https://github.com/dlang/phobos/commit/3581244dbcb71d6ae640843b700dfcff8354bb5c.patch";
         stripLen = 1;
         extraPrefix = "phobos/";
-        sha256 = "sha256-/ig3UDfU19nIMKz07342fbYlADRnVPqo4v174uMWmqk=";
+        sha256 = "sha256-oM0OGSkbjqSxXLpPU3bA6Wfkv40SwUOJp8MK25/cUFU=";
       })
     ];
 
