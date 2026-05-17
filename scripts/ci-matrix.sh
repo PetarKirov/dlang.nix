@@ -13,18 +13,15 @@ eval_packages_to_json() {
 
   cachix_url="https://${CACHIX_CACHE}.cachix.org"
 
-  nix eval --json .#lib.allowedToFailMap > "${result_dir}/allowed-to-fail.json"
+  nix eval --json .#lib.allowedToFailMap >"${result_dir}/allowed-to-fail.json"
+  nix eval --json .#lib.nixSystemToGHPlatform >"${result_dir}/system-to-gh-platform.json"
 
-  nix_eval_for_all_systems "$flake_attr_pre" "$flake_attr_post" \
-    | cat "${result_dir}/allowed-to-fail.json" - \
-    | jq -sr '
+  nix_eval_for_all_systems "$flake_attr_pre" "$flake_attr_post" |
+    cat "${result_dir}/allowed-to-fail.json" "${result_dir}/system-to-gh-platform.json" - |
+    jq -sr '
     .[0] as $allowed_to_fail
-    | .[1:] as $nix_eval_results
-    | {
-      "x86_64-linux": "ubuntu-latest",
-      "x86_64-darwin": "macos-13",
-      "aarch64-darwin": "macos-latest"
-    } as $system_to_gh_platform
+    | .[1] as $system_to_gh_platform
+    | .[2:] as $nix_eval_results
     | $nix_eval_results
     | map({
       package: .attr,
@@ -49,14 +46,14 @@ save_gh_ci_matrix() {
   else
     filename='matrix-post.json'
   fi
-  echo "$matrix" > "$result_dir/$filename"
-  echo "matrix=$matrix" >> "${GITHUB_OUTPUT:-${result_dir}/gh-output.env}"
+  echo "$matrix" >"$result_dir/$filename"
+  echo "matrix=$matrix" >>"${GITHUB_OUTPUT:-${result_dir}/gh-output.env}"
 }
 
 convert_nix_eval_to_table_summary_json() {
   is_initial="${IS_INITIAL:-true}"
-  echo "$packages" \
-  | jq '
+  echo "$packages" |
+    jq '
     def getStatus(pkg; key):
       if (pkg | has(key))
       then (
@@ -107,8 +104,7 @@ printTableForCacheStatus() {
       .[] | "| `\(.package)` | \(.["x86_64-linux"]) | \(.["x86_64-darwin"]) | \(.["aarch64-darwin"]) |"
     '
     echo
-  } > "$result_dir/comment.md"
+  } >"$result_dir/comment.md"
 }
 
 printTableForCacheStatus "$@"
-
