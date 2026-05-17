@@ -4,11 +4,7 @@ rec {
   nixSystemToGHPlatform = {
     # GH-hosted runners:
     "x86_64-linux" = "ubuntu-latest";
-    # "x86_64-darwin" = "macos-13"; - macos-13 is a 4 x86_64 vCPU / 14GB RAM
-    # "x86_64-darwin" = "macos-14"; # - macos-14 is a 3 aarch64 vCPU / 7GB RAM (but it seems faster than the macos-13 one)
-    # "aarch64-darwin" = "macos-14";
-
-    "x86_64-darwin" = "macos-13";
+    "x86_64-darwin" = "macos-26-intel"; # x64 macOS 26 runner
     "aarch64-darwin" = "macos-latest";
   };
 
