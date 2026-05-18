@@ -1,0 +1,9 @@
+{
+	"fileVersion": 1,
+	"versions": {
+		"expected": "0.4.1",
+		"semver": "0.5.0",
+		"silly": "1.1.1",
+		"sparkles": "0.2.0"
+	}
+}
