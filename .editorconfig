@@ -9,10 +9,10 @@ trim_trailing_whitespace = true
 indent_style = space
 indent_size = 2
 
-[*.{d,h,hpp,c,cpp,cxx,cs,hs,java,kt,py,rs,sol}]
+[*.{d,h,hpp,c,cpp,cxx,cs,hs,java,kt,py,rs,sol,sdl}]
 indent_size = 4
 
-[{Makefile,go.mod,go.sum,*.go,.gitmodules}]
+[{dub.selections.json,Makefile,go.mod,go.sum,*.go,.gitmodules}]
 indent_style = tab
 indent_size = 4
 
@@ -20,9 +20,7 @@ indent_size = 4
 indent_size = 2
 indent_style = space
 
+# Disable indent checking for markdown - code blocks may have intentional
+# spacing for visual output examples
 [*.md]
-indent_style = space
-# Prettier handles formatting for markdown files
-# and `indent_size` is not enforcable because ordered and unordered lists use
-# different indentation:
 indent_size = unset
