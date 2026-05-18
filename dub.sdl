@@ -1,5 +1,17 @@
 name "dlang-nix-fetcher"
 targetPath "bin"
-targetType "executable"
 
 dependency "sparkles:semver" version="0.2.0"
+
+configuration "application" {
+    targetType "executable"
+    targetName "dlang-nix-fetcher"
+    mainSourceFile "src/main.d"
+}
+
+configuration "update" {
+    targetType "executable"
+    targetName "update-nix-inputs"
+    mainSourceFile "scripts/update.d"
+    excludedSourceFiles "src/main.d"
+}
