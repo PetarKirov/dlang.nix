@@ -26,6 +26,7 @@ struct ComponentInfo {
     PlatformQuery platforms;
     UnpackingNeeded unpackingNeed;
     string supportedVersionsFile;
+    string tagsRepo;   // "owner/repo" on GitHub for tag discovery
 }
 
 string suffix(Platform p) => p.startsWith("windows") ? "7z" : "tar.xz";
@@ -42,6 +43,7 @@ enum ComponentInfo[Component] supportedPlatforms = [
         ],
         unpackingNeed: UnpackingNeeded.no,
         supportedVersionsFile: pkgsDir.buildNormalizedPath("dmd", "supported-binary-versions.json"),
+        tagsRepo: "dlang/dmd",
     ),
     Component.dmd_src: ComponentInfo(
         urlFormatter: (platform, compilerVersion) =>
@@ -54,6 +56,7 @@ enum ComponentInfo[Component] supportedPlatforms = [
         ].join,
         unpackingNeed: UnpackingNeeded.yes,
         supportedVersionsFile: pkgsDir.buildNormalizedPath("dmd", "supported-source-versions.json"),
+        tagsRepo: "dlang/dmd",
     ),
     Component.ldc: ComponentInfo(
         urlFormatter: (platform, compilerVersion) =>
@@ -68,6 +71,7 @@ enum ComponentInfo[Component] supportedPlatforms = [
         ],
         unpackingNeed: UnpackingNeeded.no,
         supportedVersionsFile: pkgsDir.buildNormalizedPath("ldc", "supported-binary-versions.json"),
+        tagsRepo: "ldc-developers/ldc",
     ),
     Component.ldc_src: ComponentInfo(
         urlFormatter: (platform, compilerVersion) =>
@@ -78,5 +82,6 @@ enum ComponentInfo[Component] supportedPlatforms = [
         ],
         unpackingNeed: UnpackingNeeded.no,
         supportedVersionsFile: pkgsDir.buildNormalizedPath("ldc", "supported-source-versions.json"),
+        tagsRepo: "ldc-developers/ldc",
     ),
 ];
