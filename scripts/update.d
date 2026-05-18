@@ -1,14 +1,10 @@
-#!/usr/bin/env dub
-
-/+ dub.sdl:
-    name "update-nix-inputs"
-    dependency "semver" version="~>0.3.4"
-    dflags "-preview=shortenedMethods"
-+/
-
 import std;
-import semver : SemVer, VersionPart;
 import std.file : isFile;
+
+import sparkles.semver : SemVer, SemVerParseMode;
+
+import dlang_nix.utils.commands :
+    fetchTags, isStable, latestPatchPerMinor;
 
 enum defaultPackagesDir = __FILE_FULL_PATH__.dirName.buildNormalizedPath("..", "pkgs");
 
@@ -70,12 +66,6 @@ string[] allPackages(string pkgsDir = defaultPackagesDir)
         .array;
 }
 
-bool isVersionSupportedByPackage(string flakePath, string versionStr)
-{
-    const res = ["nix", "eval", "--json", "-f", flakePath,
-        "--apply", `flake: (flake.outputs {}).isVersionSupported ` ~ versionStr].execute;
-}
-
 PackageInfo getPackageInfo(string flakePath)
 in (flakePath.isFile)
 {
@@ -110,11 +100,6 @@ in (flakePath.isFile)
     );
 }
 
-unittest
-{
-    assert(getPackageInfo("pkgs/dmd/flake.nix").primaryInput.name == "dmd");
-}
-
 Result getResolutions(PackageInfo info, ushort maxCount = 100, bool includePrereleases = false)
 {
     return info.primaryInput.repo
@@ -129,30 +114,25 @@ Result getResolutions(PackageInfo info, ushort maxCount = 100, bool includePrere
         .assocArray;
 }
 
+/// Returns up to `maxCount` of the most recent latest-patch-per-minor tags
+/// from a `github:<owner>/<repo>` flake input. Composes the helpers in
+/// dlang_nix.utils.commands.
 string[] getTags(string repoUrl, ushort maxCount, bool includePrereleases = false)
 {
     auto parts = repoUrl.findSplit(":");
-    enforce(parts, "Expected format: <protocol>:<repo>, got: " ~ repoUrl);
+    enforce(parts, "Expected format: github:<owner>/<repo>, got: " ~ repoUrl);
+    enforce(parts[0] == "github", "Unsupported protocol: " ~ parts[0]);
 
-    auto protocol = parts[0];
-    auto repo = parts[2];
+    auto vers = fetchTags(parts[2])
+        .map!(s => SemVer.parse(s, SemVerParseMode.loose))
+        .filter!(p => !p.hasError)
+        .map!(p => p.value)
+        .filter!(v => includePrereleases || v.isStable)
+        .array;
 
-    string[] tags;
-    switch(protocol)
-    {
-        default: throw new Error("Unknown protocol: " ~ protocol);
-        case "github":
-        {
-            tags = getGitHubRepoTags(repo, includePrereleases);
-            break;
-        }
-    }
-
-    return zip(tags, tags.map!(tag => SemVer(tag)).array)
-        .sort!((a, b) => a[1] > b[1])
-        .uniq!((a, b) => equalMajorAndMinorVersion(a[1], b[1]))
+    return vers.latestPatchPerMinor
         .take(maxCount)
-        .map!"a[0]"
+        .map!(v => v.to!string)
         .array;
 }
 
@@ -166,21 +146,4 @@ Resolution prefetchAndResolveInput(Ref input, string gitTag)
         input,
         res.output.parseJSON()["hash"].str
     );
-}
-
-bool equalMajorAndMinorVersion(SemVer a, SemVer b) =>
-    a == b || a.differAt(b) >= VersionPart.PATCH;
-
-unittest
-{
-    assert(equalMajorAndMinorVersion(SemVer("1.2.3"), SemVer("1.2.3")));
-    assert(equalMajorAndMinorVersion(SemVer("1.2.3"), SemVer("1.2.4")));
-    assert(equalMajorAndMinorVersion(SemVer("1.2.0"), SemVer("1.2.3")));
-    assert(equalMajorAndMinorVersion(SemVer("1.2.3-rc.1"), SemVer("1.2.3-rc.1")));
-    assert(equalMajorAndMinorVersion(SemVer("1.2.3-rc.1"), SemVer("1.2.3-rc.2")));
-
-    assert(!equalMajorAndMinorVersion(SemVer("1.2.3"), SemVer("1.3.3")));
-    assert(!equalMajorAndMinorVersion(SemVer("1.2.3"), SemVer("1.0.3")));
-    assert(!equalMajorAndMinorVersion(SemVer("1.2.3"), SemVer("2.2.3")));
-    assert(!equalMajorAndMinorVersion(SemVer("1.2.3"), SemVer("0.2.3")));
 }
