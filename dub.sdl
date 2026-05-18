@@ -1,3 +1,5 @@
 name "dlang-nix-fetcher"
 targetPath "bin"
 targetType "executable"
+
+dependency "sparkles:semver" version="0.2.0"
