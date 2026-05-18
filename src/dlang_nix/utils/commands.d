@@ -1,12 +1,13 @@
 module dlang_nix.utils.commands;
 
-import std.algorithm : map, sort, startsWith, uniq;
+import std.algorithm : filter, map, sort, startsWith, endsWith, uniq;
 import std.array : array;
+import std.exception : enforce;
 import std.file : exists;
 import std.format : format;
 import std.process : executeShell, Config;
 import std.stdio : stderr;
-import std.string : splitLines, strip;
+import std.string : indexOf, outdent, splitLines, strip;
 import std.typecons : tuple;
 
 import sparkles.semver : SemVer, SemVerParseMode;
@@ -114,3 +115,51 @@ unittest {
     auto vs3 = [SemVer(1, 0, 0, "rc.2"), SemVer(1, 0, 0, "rc.10")];
     assert(latestPatchPerMinor(vs3) == [SemVer(1, 0, 0, "rc.10")]);
 }
+
+// ---------------------------------------------------------------------------
+// Tag fetcher.
+//
+// Uses `git ls-remote --tags --refs <url>` — no auth required, works for
+// any GitHub repo. `--refs` filters out peeled refs (`^{}`); we strip them
+// defensively too.
+// ---------------------------------------------------------------------------
+
+/// Fetches tag names from a GitHub `"owner/repo"` via `git ls-remote`.
+string[] fetchTags(string repo) {
+    const cmd = "git ls-remote --tags --refs https://github.com/" ~ repo;
+    stderr.writefln(`> %s`, cmd);
+    const result = executeShell(cmd, null, Config.stderrPassThrough);
+    enforce(result.status == 0, "git ls-remote failed: " ~ repo);
+    return parseGitLsRemoteTags(result.output);
+}
+
+/// Pure: parses the output of `git ls-remote --tags [--refs] <url>` into
+/// a list of tag names (with peeled refs removed).
+string[] parseGitLsRemoteTags(string output) @safe pure {
+    return output.splitLines
+        .map!(line => line.strip)
+        .filter!(line => line.length > 0)
+        .map!((line) {
+            const tabIdx = line.indexOf('\t');
+            return tabIdx < 0 ? "" : line[tabIdx + 1 .. $];
+        })
+        .filter!(refName => refName.startsWith("refs/tags/"))
+        .map!(refName => refName["refs/tags/".length .. $])
+        .filter!(name => !name.endsWith("^{}"))
+        .array;
+}
+
+// editorconfig-checker-disable
+unittest {
+    // Mixed peeled / non-peeled, junk lines, non-version tags.
+    auto sample = outdent(`
+        abc123	refs/tags/v1.0.0
+        def456	refs/tags/v1.0.0^{}
+        789ghi	refs/tags/v1.1.0
+        000zzz	refs/tags/CI
+        aaabbb	refs/heads/main
+    `)[1 .. $];
+    assert(parseGitLsRemoteTags(sample) == ["v1.0.0", "v1.1.0", "CI"]);
+    assert(parseGitLsRemoteTags("") == []);
+}
+// editorconfig-checker-enable
