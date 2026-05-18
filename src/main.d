@@ -1,4 +1,4 @@
-import std.algorithm : joiner, map, predSwitch, sort, startsWith, uniq;
+import std.algorithm : filter, joiner, map, maxElement, predSwitch, sort, startsWith, uniq;
 import std.array : array, join, split;
 import std.conv : to;
 import std.exception : enforce;
@@ -10,26 +10,40 @@ static import std.getopt;
 import std.json : JSONValue, JSONType, JSONOptions, parseJSON;
 import std.parallelism : parallel;
 import std.path : buildNormalizedPath, dirName;
-import std.process : executeShell, Config;
 import std.range : iota, walkLength;
 import std.stdio : stdout, stderr;
-import std.string : outdent, strip, toLower;
+import std.string : outdent, strip;
 import std.typecons : tuple;
 
-import dlang_nix.utils.commands : prefech, Hash, Url;
+import sparkles.semver : SemVer, SemVerParseMode;
+
+import dlang_nix.utils.commands :
+    prefech, Hash, Url,
+    fetchTags, inMinorRange, isStable, latestPatchPerMinor;
 import dlang_nix.components : Platform, Version, Component, supportedPlatforms, ComponentInfo;
 
 void main(string[] args) {
     Version[] componentVersions;
     Component component = Component.ldc;
     bool liveRun = false;
+    string firstVersion, lastVersion;
 
     auto parseCLI(string[] args) {
         std.getopt.arraySep = ",";
         return args.getopt(
-            "versions", "list of component versions to fetch. For example, " ~
-                    "2.099.1,2.100.2",
+            "versions", "Explicit list of component versions to fetch. " ~
+                    "For example, 2.099.1,2.100.2. Mutually exclusive with " ~
+                    "--first-version/--last-version.",
                 &componentVersions,
+            "first-version",
+                "First minor (inclusive) of an auto-resolved version range, " ~
+                    "e.g. 2.100.",
+                &firstVersion,
+            "last-version",
+                "Last minor (inclusive) of an auto-resolved version range, " ~
+                    "e.g. 2.108. Optional; defaults to the latest stable " ~
+                    "tag available in the repo.",
+                &lastVersion,
             "component",
                 // Ideally we would generate the list of allowed values as
                 // opposed to this hardcoding
@@ -65,13 +79,40 @@ void main(string[] args) {
         return;
     }
 
-    componentVersions = componentVersions.length
-        ? componentVersions
-        : component == Component.ldc
-        ? [ "1.35.0" ]
-        : [ "2.105.0" ];
-
     const compilerInfo = supportedPlatforms[component];
+
+    // Resolve --first-version/--last-version into an explicit version list.
+    if (firstVersion.length > 0 || lastVersion.length > 0) {
+        enforce(firstVersion.length > 0,
+            "--last-version requires --first-version.");
+        enforce(componentVersions.length == 0,
+            "--versions is mutually exclusive with " ~
+                "--first-version/--last-version.");
+
+        stderr.writefln(
+            "Resolving %s..%s (repo: %s)...",
+            firstVersion,
+            lastVersion.length > 0 ? lastVersion : "latest",
+            compilerInfo.tagsRepo);
+
+        componentVersions = resolveVersionRange(
+            compilerInfo.tagsRepo, firstVersion, lastVersion);
+        enforce(componentVersions.length > 0,
+            "No stable releases found in range " ~
+                firstVersion ~ ".." ~
+                (lastVersion.length > 0 ? lastVersion : "latest"));
+        stderr.writefln("Resolved to %s versions: %-(%s, %)",
+            componentVersions.length, componentVersions);
+    }
+    else
+    {
+        componentVersions = componentVersions.length
+            ? componentVersions
+            : component == Component.ldc
+            ? [ "1.35.0" ]
+            : [ "2.105.0" ];
+    }
+
     const platforms = componentVersions
         .map!(vers => compilerInfo.platforms(vers))
         .uniq
@@ -301,3 +342,36 @@ unittest {
         ]`)[1 .. $]);
 }
 // editorconfig-checker-enable
+
+/// Resolves an inclusive `[first, last]` minor range against the tags of
+/// the given GitHub repo and returns the highest-patch stable release for
+/// each minor, as `Version` strings sorted ascending. An empty `last`
+/// means "latest available stable tag".
+Version[] resolveVersionRange(string tagsRepo, string first, string last) {
+    // `.value` on a parse-failed Expected throws — what we want for user
+    // input.
+    const lo = SemVer.parse(first, SemVerParseMode.loose).value;
+
+    auto stable = fetchTags(tagsRepo)
+        .map!(s => SemVer.parse(s, SemVerParseMode.loose))
+        .filter!(p => !p.hasError)
+        .map!(p => p.value)
+        .filter!isStable
+        .array;
+    enforce(stable.length > 0, "No stable tags found in repo " ~ tagsRepo);
+
+    const hi = last.length > 0
+        ? SemVer.parse(last, SemVerParseMode.loose).value
+        : stable.maxElement;
+    enforce(lo <= hi,
+        "--first-version " ~ first ~ " must not be greater than " ~
+            (last.length > 0 ? "--last-version " ~ last : "latest tag " ~ hi.to!string));
+
+    auto vers = stable
+        .filter!(v => v.inMinorRange(lo, hi))
+        .array
+        .latestPatchPerMinor;
+
+    vers.sort!((a, b) => a < b);  // ascending for user display
+    return vers.map!(v => v.to!string).array;
+}
