@@ -176,21 +176,41 @@ void main(string[] args) {
     stderr.writeln("All done!\n");
 
     stdout.writeln(
-        toSortedPrettyJson(hashes.JSONValue)
+        toSortedPrettyJson(hashesToJsonValue(hashes))
     );
+}
+
+/// Converts a `Hash[Platform][Version]` AA into a JSONValue, mapping null
+/// or empty Hash values to JSON `null`. Done manually because D's std.json
+/// otherwise renders a null `string` as the JSON string `""`, masking the
+/// "unsupported on this platform" sentinel.
+JSONValue hashesToJsonValue(Hash[Platform][Version] hashes) {
+    JSONValue[string] outer;
+    foreach (ver, platforms; hashes) {
+        JSONValue[string] inner;
+        foreach (platform, hash; platforms) {
+            inner[platform] = hash.length == 0 ? JSONValue(null) : JSONValue(hash);
+        }
+        outer[ver] = JSONValue(inner);
+    }
+    return JSONValue(outer);
 }
 
 /// Parses `existingJson` (if non-empty), merges `newHashes` into it, and
 /// returns the result rendered as pretty JSON with a trailing newline.
-/// New entries overwrite existing version/platform pairs.
+/// New entries overwrite existing version/platform pairs. Existing `null`
+/// or `""` entries are preserved as the null sentinel.
 string mergeHashesIntoJson(string existingJson, Hash[Platform][Version] newHashes) {
     Hash[Platform][Version] allHashes;
     if (existingJson.length > 0) {
         auto existing = parseJSON(existingJson);
         foreach (string ver, platforms; existing.object) {
             foreach (string platform, hashVal; platforms.object) {
-                allHashes[ver][platform] =
-                    hashVal.type == JSONType.null_ ? cast(Hash) null : hashVal.str;
+                if (hashVal.type == JSONType.null_ || hashVal.str.length == 0) {
+                    allHashes[ver][platform] = cast(Hash) null;
+                } else {
+                    allHashes[ver][platform] = hashVal.str;
+                }
             }
         }
     }
@@ -199,7 +219,7 @@ string mergeHashesIntoJson(string existingJson, Hash[Platform][Version] newHashe
             allHashes[ver][platform] = hash;
         }
     }
-    return toSortedPrettyJson(allHashes.JSONValue) ~ "\n";
+    return toSortedPrettyJson(hashesToJsonValue(allHashes)) ~ "\n";
 }
 
 // `outdent` strips the leading whitespace common to every non-blank line,
@@ -255,6 +275,31 @@ unittest {
           "1.0.0": {
             "linux": "sha256-linux",
             "osx": "sha256-osx"
+          }
+        }
+    `)[1 .. $]);
+
+    // Null Hash from a failed prefetch renders as JSON null, not `""`.
+    Hash[Platform][Version] h5;
+    h5["1.0.0"]["linux"] = "sha256-linux";
+    h5["1.0.0"]["freebsd"] = null;
+    assert(mergeHashesIntoJson("", h5) == outdent(`
+        {
+          "1.0.0": {
+            "freebsd": null,
+            "linux": "sha256-linux"
+          }
+        }
+    `)[1 .. $]);
+
+    // Legacy `""` entries in existing JSON are normalized to JSON null.
+    Hash[Platform][Version] h6;
+    assert(mergeHashesIntoJson(
+        `{"1.0.0": {"linux": "sha256-linux", "freebsd": ""}}`, h6) == outdent(`
+        {
+          "1.0.0": {
+            "freebsd": null,
+            "linux": "sha256-linux"
           }
         }
     `)[1 .. $]);
