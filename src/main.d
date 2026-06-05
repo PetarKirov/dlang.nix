@@ -341,7 +341,17 @@ unittest {
             return format("[\n%s\n%s]", items, indent);
         case JSONType.object:
             auto obj = val.objectNoRef;
-            auto keys = obj.keys.sort.release;
+            auto keys = obj.keys.sort!((a, b) {
+                auto va = SemVer.parseLoose(a);
+                auto vb = SemVer.parseLoose(b);
+                if (va.hasValue && vb.hasValue) {
+                    return va.value < vb.value;
+                }
+                if (va.hasValue != vb.hasValue) {
+                    return va.hasValue;
+                }
+                return a < b;
+            }).release;
             if (keys.length == 0) return "{}";
             auto inner = indent ~ "  ";
             auto items = keys.map!(k =>
@@ -374,6 +384,28 @@ unittest {
         {
           "a": "2",
           "b": "1"
+        }`)[1 .. $]);
+
+    // Object keys are sorted by SemVer if they parse as versions.
+    assert(toSortedPrettyJson(parseJSON(`{"1.40.0": "1", "1.4.0": "2"}`)) == outdent(`
+        {
+          "1.4.0": "2",
+          "1.40.0": "1"
+        }`)[1 .. $]);
+
+    // Handles DMD version strings correctly.
+    assert(toSortedPrettyJson(parseJSON(`{"2.100.0": "1", "2.070.2": "2"}`)) == outdent(`
+        {
+          "2.070.2": "2",
+          "2.100.0": "1"
+        }`)[1 .. $]);
+
+    // Mixed version and non-version keys (versions first, then alphabetical).
+    assert(toSortedPrettyJson(parseJSON(`{"linux": "1", "1.0.0": "2", "osx": "3"}`)) == outdent(`
+        {
+          "1.0.0": "2",
+          "linux": "1",
+          "osx": "3"
         }`)[1 .. $]);
 
     // Nested objects indent two spaces per level; inner keys are sorted too.

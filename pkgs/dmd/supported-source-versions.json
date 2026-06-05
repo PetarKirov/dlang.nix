@@ -2,16 +2,16 @@
   "2.087.1": {
     "dmd": "sha256-HlBJsvtzbx2wSs7mHF5JdkSEVitVp6QJ/XiE7qTFpac=",
     "druntime": "sha256-ROH7ijIoAKmJAoQbCp6jyAiX/OUO4e0wqrh22OfOi14=",
+    "host-d-compiler": "ldc-binary-1_19_0",
     "phobos": "sha256-YeoHtJpnN8qGEmvpulvgnHHn/RdgMyBKy0Togu6zzFU=",
-    "tools": "sha256-sdOQ84LsPW82zn2cMb6NIF+z/oSOICgeL6mMurKjlgA=",
-    "host-d-compiler": "ldc-binary-1_19_0"
+    "tools": "sha256-sdOQ84LsPW82zn2cMb6NIF+z/oSOICgeL6mMurKjlgA="
   },
   "2.088.1": {
     "dmd": "sha256-NEVGA3V9dzureWF4tCdeF5RhJT0fwB1T8Lu/6Y0MLJg=",
     "druntime": "sha256-QZwm3a7m1NyTytorL3mg6pb/wUyiv80mBbMhWgktGJE=",
+    "host-d-compiler": "ldc-binary-1_19_0",
     "phobos": "sha256-hEVw9Enkrvw4W+vIo17E4M7PcWl0tnpRXqswY+aw0Jo=",
-    "tools": "sha256-sdOQ84LsPW82zn2cMb6NIF+z/oSOICgeL6mMurKjlgA=",
-    "host-d-compiler": "ldc-binary-1_19_0"
+    "tools": "sha256-sdOQ84LsPW82zn2cMb6NIF+z/oSOICgeL6mMurKjlgA="
   },
   "2.092.1": {
     "dmd": "sha256-1dbrm8YzRy2i4qiQxldjKoRyyITQ6cHucI2FNPXVjvQ=",
@@ -98,13 +98,13 @@
     "tools": "sha256-xMEHnrstL5hAkhp8+/z1I2KZWZ7eztWZnUGLTKCfbBI="
   },
   "2.112.0": {
-      "dmd": "sha256-7MoLLAimtXs6t94VpWjhWGR1wBOISB4metbPcZYTb2M=",
-      "phobos": "sha256-rIW4fwSvwEt2rxYfXyaB82m3JWMgZLuYIMIkZ+kr0Sk=",
-      "tools": "sha256-WHgV33fu1YhRQCERVatqXKEqmfHlUvZ4IXhga/yOQ3w="
+    "dmd": "sha256-7MoLLAimtXs6t94VpWjhWGR1wBOISB4metbPcZYTb2M=",
+    "phobos": "sha256-rIW4fwSvwEt2rxYfXyaB82m3JWMgZLuYIMIkZ+kr0Sk=",
+    "tools": "sha256-WHgV33fu1YhRQCERVatqXKEqmfHlUvZ4IXhga/yOQ3w="
   },
   "2.112.1": {
-      "dmd": "sha256-UqNNUGoGmOV0lGNCGaFk8HbOE01qD55WuJ8NyQzqLJs=",
-      "phobos": "sha256-CNvDSlerOXh6Qn060MNaSF1IIcbrcZzljyIxkm+TQQ0=",
-      "tools": "sha256-WHgV33fu1YhRQCERVatqXKEqmfHlUvZ4IXhga/yOQ3w="
+    "dmd": "sha256-UqNNUGoGmOV0lGNCGaFk8HbOE01qD55WuJ8NyQzqLJs=",
+    "phobos": "sha256-CNvDSlerOXh6Qn060MNaSF1IIcbrcZzljyIxkm+TQQ0=",
+    "tools": "sha256-WHgV33fu1YhRQCERVatqXKEqmfHlUvZ4IXhga/yOQ3w="
   }
 }
