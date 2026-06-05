@@ -24,7 +24,7 @@ development environments for the D programming language.
 | `dmd`        | 2.087.1, 2.088.1, 2.092.1, 2.096.1, 2.098.1, 2.100.2 - 2.112.1              | ✅ Linux x86_64, ✅ macOS x86_64 |
 | `ldc-binary` | 1.19.0, 1.25.0, 1.28.0, 1.32.1, 1.34.0 | ✅ Linux x86_64, ✅ macOS x86_64 |
 | `ldc`        | 1.30.0                                 | ✅ Linux x86_64, ❌ macOS x86_64 |
-| `dub`        | 1.30.0                                 | ✅ Linux x86_64, ✅ macOS x86_64 |
+| `dub`        | 1.30.0, 1.41.0, 1.42.0-beta.1          | ✅ Linux x86_64, ✅ macOS x86_64 |
 
 ## Usage
 
@@ -47,7 +47,7 @@ nix flake show github:PetarKirov/dlang-nix
 ```bash
 ➤ nix shell \
   github:PetarKirov/dlang-nix#dmd-2_102_2 \
-  github:PetarKirov/dlang-nix#dub-1_30_0
+  github:PetarKirov/dlang-nix#dub-1_42_0-beta_1
 
 ➤ dmd --version
 DMD64 D Compiler v2.102.2
@@ -55,7 +55,7 @@ DMD64 D Compiler v2.102.2
 Copyright (C) 1999-2023 by The D Language Foundation, All Rights Reserved written by Walter Bright
 
 ➤ dub --version
-DUB version 1.30.0, built on Jan  1 1980
+DUB version 1.42.0-beta.1, built on Jan  1 1980
 ```
 
 #### Add to your local Nix flakes registry
@@ -63,7 +63,7 @@ DUB version 1.30.0, built on Jan  1 1980
 ```bash
 ➤ nix registry add d github:PetarKirov/dlang-nix
 
-➤ nix shell d#dmd-2_102_2 d#dub-1_30_0
+➤ nix shell d#dmd-2_102_2 d#dub-1_42_0-beta_1
 
 ➤ dmd --version
 DMD64 D Compiler v2.102.2
@@ -71,7 +71,7 @@ DMD64 D Compiler v2.102.2
 Copyright (C) 1999-2023 by The D Language Foundation, All Rights Reserved written by Walter Bright
 
 ➤ dub --version
-DUB version 1.30.0, built on Jan  1 1980
+DUB version 1.42.0-beta.1, built on Jan  1 1980
 ```
 
 #### Install packages to your Nix profile
@@ -87,7 +87,7 @@ DUB version 1.30.0, built on Jan  1 1980
   github:PetarKirov/dlang-nix#dmd-2_098_1 \
   github:PetarKirov/dlang-nix#dmd-2_100_2 \
   github:PetarKirov/dlang-nix#dmd-2_102_2 \
-  github:PetarKirov/dlang-nix#dub-1_30_0
+  github:PetarKirov/dlang-nix#dub-1_42_0-beta_1
 ```
 
 Or if you're inside this repo:
@@ -97,7 +97,7 @@ Or if you're inside this repo:
   .#dmd-2_098_1 \
   .#dmd-2_100_2 \
   .#dmd-2_102_2 \
-  .#dub-1_30_0
+  .#dub-1_42_0-beta_1
 ```
 
 #### Creating declarative & reproducible development environment
@@ -139,7 +139,7 @@ bash: dub: command not found
 $ nix develop
 
 $ dub --version
-DUB version 1.30.0, built on Jan  1 1980
+DUB version 1.42.0-beta.1, built on Jan  1 1980
 ```
 
 You can find the full example in [`templates/devshell/`](./templates/devshell/).
