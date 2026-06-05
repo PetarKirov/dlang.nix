@@ -10,7 +10,7 @@ import std.stdio : stderr;
 import std.string : indexOf, outdent, splitLines, strip;
 import std.typecons : tuple;
 
-import sparkles.semver : SemVer, SemVerParseMode;
+import sparkles.versions.traits : hasSemVerComponents, supportsPrerelease;
 
 alias Hash = string;
 alias Url = string;
@@ -53,20 +53,21 @@ string executeCommand(bool dryRun, string command) {
 }
 
 // ---------------------------------------------------------------------------
-// SemVer predicates and selectors.
+// Version predicates and selectors.
 //
-// Free functions over sparkles.semver.SemVer so callers use them via UFCS
-// (`v.isStable`, `v.inMinorRange(lo, hi)`, `vers.latestPatchPerMinor`).
-// No wrapper struct: callers parse with `SemVer.parse(s, SemVerParseMode.loose)`
-// and handle the returned `Expected!SemVer` directly.
+// Templated over any `sparkles:versions` scheme that exposes the SemVer
+// triple. Callers use them via UFCS (`v.isStable`, `v.inMinorRange(lo, hi)`,
+// `vers.latestPatchPerMinor`).
 // ---------------------------------------------------------------------------
 
-bool isStable(SemVer v) @safe pure nothrow @nogc =>
-    v.prerelease.length == 0;
+bool isStable(V)(V v) @safe pure nothrow @nogc
+if (supportsPrerelease!V)
+    => !v.isPrerelease;
 
 /// Inclusive minor-version range filter. Patch and prerelease of `lo`/`hi`
 /// are ignored — only (major, minor) are compared.
-bool inMinorRange(SemVer v, SemVer lo, SemVer hi) @safe pure nothrow {
+bool inMinorRange(V)(V v, V lo, V hi) @safe pure nothrow
+if (hasSemVerComponents!V) {
     auto vKey = tuple(v.major, v.minor);
     auto loKey = tuple(lo.major, lo.minor);
     auto hiKey = tuple(hi.major, hi.minor);
@@ -74,7 +75,8 @@ bool inMinorRange(SemVer v, SemVer lo, SemVer hi) @safe pure nothrow {
 }
 
 /// Highest-patch version for each (major, minor). Output sorted descending.
-SemVer[] latestPatchPerMinor(SemVer[] vers) @safe pure {
+V[] latestPatchPerMinor(V)(V[] vers) @safe pure
+if (hasSemVerComponents!V) {
     auto sorted = vers.dup;
     sorted.sort!((a, b) => a > b);
     return sorted
@@ -83,6 +85,10 @@ SemVer[] latestPatchPerMinor(SemVer[] vers) @safe pure {
 }
 
 unittest {
+    import sparkles.versions : SemVer, Dmd;
+
+    // ---- SemVer scheme (LDC-style tags) ----
+
     // isStable.
     assert(SemVer(1, 0, 0).isStable);
     assert(!SemVer(1, 0, 0, "beta1").isStable);
@@ -108,12 +114,29 @@ unittest {
     ];
     assert(latestPatchPerMinor(vs) ==
         [SemVer(2, 0, 0), SemVer(1, 1, 2), SemVer(1, 0, 5)]);
-    // Same minor collapses to whichever has highest patch (stable beats
-    // prerelease at equal patch).
     auto vs2 = [SemVer(1, 0, 0, "rc.1"), SemVer(1, 0, 0)];
     assert(latestPatchPerMinor(vs2) == [SemVer(1, 0, 0)]);
     auto vs3 = [SemVer(1, 0, 0, "rc.2"), SemVer(1, 0, 0, "rc.10")];
     assert(latestPatchPerMinor(vs3) == [SemVer(1, 0, 0, "rc.10")]);
+
+    // ---- Dmd scheme (zero-padded minor) ----
+
+    assert(Dmd(2, 79, 0).isStable);
+    assert(!Dmd(2, 79, 0, "rc.1").isStable);
+
+    auto dlo = Dmd(2, 70, 0);
+    auto dhi = Dmd(2, 100, 0);
+    assert(Dmd(2, 79, 5).inMinorRange(dlo, dhi));
+    assert(Dmd(2, 70, 0).inMinorRange(dlo, dhi));
+    assert(Dmd(2, 100, 0).inMinorRange(dlo, dhi));
+    assert(!Dmd(2, 69, 99).inMinorRange(dlo, dhi));
+    assert(!Dmd(2, 101, 0).inMinorRange(dlo, dhi));
+
+    auto dvs = [
+        Dmd(2, 79, 0), Dmd(2, 79, 1),
+        Dmd(2, 80, 0), Dmd(2, 80, 1),
+    ];
+    assert(latestPatchPerMinor(dvs) == [Dmd(2, 80, 1), Dmd(2, 79, 1)]);
 }
 
 // ---------------------------------------------------------------------------

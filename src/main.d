@@ -15,7 +15,7 @@ import std.stdio : stdout, stderr;
 import std.string : outdent, strip;
 import std.typecons : tuple;
 
-import sparkles.semver : SemVer, SemVerParseMode;
+import sparkles.versions : SemVer, Dmd;
 
 import dlang_nix.utils.commands :
     prefech, Hash, Url,
@@ -95,8 +95,15 @@ void main(string[] args) {
             lastVersion.length > 0 ? lastVersion : "latest",
             compilerInfo.tagsRepo);
 
-        componentVersions = resolveVersionRange(
-            compilerInfo.tagsRepo, firstVersion, lastVersion);
+        // DMD uses a zero-padded 3-digit minor (`2.070.0`); LDC follows
+        // canonical SemVer. Pick the matching scheme so `toString` re-emits
+        // each tag in its native form.
+        componentVersions =
+            (component == Component.dmd || component == Component.dmd_src)
+                ? resolveVersionRange!Dmd(
+                    compilerInfo.tagsRepo, firstVersion, lastVersion)
+                : resolveVersionRange!SemVer(
+                    compilerInfo.tagsRepo, firstVersion, lastVersion);
         enforce(componentVersions.length > 0,
             "No stable releases found in range " ~
                 firstVersion ~ ".." ~
@@ -392,21 +399,25 @@ unittest {
 /// the given GitHub repo and returns the highest-patch stable release for
 /// each minor, as `Version` strings sorted ascending. An empty `last`
 /// means "latest available stable tag".
-Version[] resolveVersionRange(string tagsRepo, string first, string last) {
+///
+/// Parameterised over a sparkles:versions scheme (e.g. `SemVer` for LDC's
+/// canonical tags, `Dmd` for DMD's zero-padded minor convention). The
+/// returned strings use the scheme's `toString`, so DMD comes back as
+/// `"2.079.0"` and LDC as `"1.42.0"`.
+Version[] resolveVersionRange(Scheme)(string tagsRepo, string first, string last) {
     // `.value` on a parse-failed Expected throws — what we want for user
     // input.
-    const lo = SemVer.parse(first, SemVerParseMode.loose).value;
+    const lo = Scheme.parseLoose(first).value;
 
     auto stable = fetchTags(tagsRepo)
-        .map!(s => SemVer.parse(s, SemVerParseMode.loose))
-        .filter!(p => !p.hasError)
-        .map!(p => p.value)
+        .map!(s => Scheme.parseLoose(s))
+        .joiner
         .filter!isStable
         .array;
     enforce(stable.length > 0, "No stable tags found in repo " ~ tagsRepo);
 
     const hi = last.length > 0
-        ? SemVer.parse(last, SemVerParseMode.loose).value
+        ? Scheme.parseLoose(last).value
         : stable.maxElement;
     enforce(lo <= hi,
         "--first-version " ~ first ~ " must not be greater than " ~

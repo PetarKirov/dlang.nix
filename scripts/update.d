@@ -1,7 +1,7 @@
 import std;
 import std.file : isFile;
 
-import sparkles.semver : SemVer, SemVerParseMode;
+import sparkles.versions : SemVer;
 
 import dlang_nix.utils.commands :
     fetchTags, isStable, latestPatchPerMinor;
@@ -124,9 +124,8 @@ string[] getTags(string repoUrl, ushort maxCount, bool includePrereleases = fals
     enforce(parts[0] == "github", "Unsupported protocol: " ~ parts[0]);
 
     auto vers = fetchTags(parts[2])
-        .map!(s => SemVer.parse(s, SemVerParseMode.loose))
-        .filter!(p => !p.hasError)
-        .map!(p => p.value)
+        .map!(s => SemVer.parseLoose(s))
+        .joiner
         .filter!(v => includePrereleases || v.isStable)
         .array;
 
