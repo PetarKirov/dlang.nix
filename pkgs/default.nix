@@ -25,7 +25,7 @@ in
           ldc-bootstrap = self'.packages."ldc-binary-1_25_0";
           ldc = self'.packages."ldc-1_30_0";
 
-          dub = self'.packages."dub-1_30_0";
+          dub = self'.packages."dub-1_42_0-beta_1";
         }
         // (genPkgVersions "ldc").flattened "binary"
         // (genPkgVersions "ldc").flattened "source"

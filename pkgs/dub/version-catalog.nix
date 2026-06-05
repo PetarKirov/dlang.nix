@@ -11,8 +11,11 @@ lib: rec {
     let
       componentHashes = supportedVersions.source."${version}";
     in
-    import ./default.nix {
-      inherit version;
-      dubSha256 = componentHashes.dub;
-    };
+    import ./default.nix (
+      {
+        inherit version;
+        dubSha256 = componentHashes.dub;
+      }
+      // lib.optionalAttrs (componentHashes ? rev) { inherit (componentHashes) rev; }
+    );
 }

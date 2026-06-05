@@ -1,5 +1,15 @@
 {
   "1.30.0": {
     "dub": "sha256-iVl7bjblvIxvrUX7Phq6h4AIAmZjNVkGYYFA1hhsE7c="
+  },
+  "1.41.0": {
+    "dub": "sha256-86TzaRdu+CFM0Ld2fXxjaUUT9dl37MYPdmsvxE4ZUkE="
+  },
+  "1.42.0-beta.1": {
+    "dub": "sha256-vxaDC47QdjSpWon5FltcIJsmDwUsUmJc5A1Lbdw6W7w="
+  },
+  "1.43.0-alpha-5efed36": {
+    "dub": "sha256-mQgOKjdPk/0XG20ZknUvTnguWdMJcwF1xuHEqCdEWjQ=",
+    "rev": "5efed360e1c9342453bc5dd19339c75981526d83"
   }
 }
