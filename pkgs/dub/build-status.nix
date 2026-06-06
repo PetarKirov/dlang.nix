@@ -6,19 +6,19 @@ let
     listToAttrs
     ;
 
+  versionUtils = import ../../lib/version-utils.nix { };
+  inherit (versionUtils) versionBetweenInclusive;
+
   supportedVersions = builtins.attrNames (lib.importJSON ./supported-source-versions.json);
 
-  latestVersion = lib.last supportedVersions;
+  latestVersion = versionUtils.latestVersion supportedVersions;
 
   mergeVersions = attrs: lib.foldl lib.recursiveUpdate { } attrs;
 
   between =
     start: end: func:
     lib.pipe supportedVersions [
-      (builtins.filter (
-        version:
-        ((builtins.compareVersions version start) >= 0) && ((builtins.compareVersions version end) <= 0)
-      ))
+      (builtins.filter (versionBetweenInclusive start end))
       (builtins.map (version: nameValuePair version (func version)))
       listToAttrs
     ];
