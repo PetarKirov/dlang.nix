@@ -22,8 +22,8 @@ in
         {
           # NOTE: This is only the default. The bootstrap compiler in the
           # version catalog will override this.
-          ldc-bootstrap = self'.packages."ldc-binary-1_25_0";
-          ldc = self'.packages."ldc-1_30_0";
+          ldc-bootstrap = self'.packages."ldc-binary-1_42_0";
+          ldc = self'.packages."ldc-1_42_0";
 
           # DUB is released alongside DMD. When DMD 2.112.0 shipped, upstream
           # appears to have forgotten to bump DUB from 1.42.0-beta.1 to the
