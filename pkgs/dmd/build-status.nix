@@ -7,13 +7,15 @@ let
     listToAttrs
     ;
 
-  versionBetween =
-    after: before: version:
-    ((builtins.compareVersions version after) >= 0) && ((builtins.compareVersions version before) <= 0);
+  versionUtils = import ../../lib/version-utils.nix { };
+  # This file's `versionBetween` is inclusive on both ends; the lib helper of
+  # the same name is exclusive on the upper bound, so we bind the inclusive one.
+  inherit (versionUtils) versionBetweenInclusive;
+  versionBetween = versionBetweenInclusive;
 
   supportedVersions = builtins.attrNames (lib.importJSON ./supported-source-versions.json);
 
-  latestVersion = lib.last supportedVersions;
+  latestVersion = versionUtils.latestVersion supportedVersions;
 
   mergeVersions = attrs: lib.foldl lib.recursiveUpdate { } attrs;
 
