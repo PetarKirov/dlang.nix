@@ -6,12 +6,22 @@ import std.conv : to;
 import std.format : format;
 import std.path : buildNormalizedPath, dirName;
 
-import dlang_nix.utils.commands : Hash, Url;
+import sparkles.versions : SemVer, Dmd;
 
-@safe pure:
+import dlang_nix.utils.commands : Hash, Url, resolveVersionRange;
 
 alias Version = string;
 alias Platform = string;
+
+/// Resolves a `[first, last]` minor range into an explicit version list,
+/// emitting each version in the component's native tag form. DMD uses a
+/// zero-padded 3-digit minor (`2.070.0`); LDC follows canonical SemVer.
+/// Impure (`@system`) since it shells out for tag discovery, hence declared
+/// outside the module's `@safe pure:` region.
+alias VersionRangeResolver =
+    Version[] function(string tagsRepo, string first, string last);
+
+@safe pure:
 
 enum Component { dmd, dmd_src, ldc, ldc_src };
 
@@ -27,6 +37,8 @@ struct ComponentInfo {
     UnpackingNeeded unpackingNeed;
     string supportedVersionsFile;
     string tagsRepo;   // "owner/repo" on GitHub for tag discovery
+    Version[] defaultVersions;  // fetched when no versions are requested
+    VersionRangeResolver resolveVersions;
 }
 
 string suffix(Platform p) => p.startsWith("windows") ? "7z" : "tar.xz";
@@ -44,6 +56,8 @@ enum ComponentInfo[Component] supportedPlatforms = [
         unpackingNeed: UnpackingNeeded.no,
         supportedVersionsFile: pkgsDir.buildNormalizedPath("dmd", "supported-binary-versions.json"),
         tagsRepo: "dlang/dmd",
+        defaultVersions: [ "2.105.0" ],
+        resolveVersions: &resolveVersionRange!Dmd,
     ),
     Component.dmd_src: ComponentInfo(
         urlFormatter: (platform, compilerVersion) =>
@@ -57,6 +71,8 @@ enum ComponentInfo[Component] supportedPlatforms = [
         unpackingNeed: UnpackingNeeded.yes,
         supportedVersionsFile: pkgsDir.buildNormalizedPath("dmd", "supported-source-versions.json"),
         tagsRepo: "dlang/dmd",
+        defaultVersions: [ "2.105.0" ],
+        resolveVersions: &resolveVersionRange!Dmd,
     ),
     Component.ldc: ComponentInfo(
         urlFormatter: (platform, compilerVersion) =>
@@ -72,6 +88,8 @@ enum ComponentInfo[Component] supportedPlatforms = [
         unpackingNeed: UnpackingNeeded.no,
         supportedVersionsFile: pkgsDir.buildNormalizedPath("ldc", "supported-binary-versions.json"),
         tagsRepo: "ldc-developers/ldc",
+        defaultVersions: [ "1.35.0" ],
+        resolveVersions: &resolveVersionRange!SemVer,
     ),
     Component.ldc_src: ComponentInfo(
         urlFormatter: (platform, compilerVersion) =>
@@ -83,5 +101,7 @@ enum ComponentInfo[Component] supportedPlatforms = [
         unpackingNeed: UnpackingNeeded.no,
         supportedVersionsFile: pkgsDir.buildNormalizedPath("ldc", "supported-source-versions.json"),
         tagsRepo: "ldc-developers/ldc",
+        defaultVersions: [ "1.35.0" ],
+        resolveVersions: &resolveVersionRange!SemVer,
     ),
 ];
