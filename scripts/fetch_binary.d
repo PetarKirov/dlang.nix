@@ -134,15 +134,16 @@ void main(string[] args) {
         : [ "2.105.0" ];
 
     const compilerInfo = supportedPlatforms[compiler];
-    const platforms = compilerVersions.map!(vers =>
-        compilerInfo.platforms(vers)
-    ).uniq.adjoin!(
-        versArrays => enforce(versArrays.walkLength(2) == 1,
-            "Requested versions differ in set of platforms they support. " ~
+    const platforms = compilerVersions
+        .map!(vers => compilerInfo.platforms(vers))
+        .uniq
+        .adjoin!(
+            versArrays => enforce(versArrays.walkLength(2) == 1,
+                "Requested versions differ in set of platforms they support. " ~
                 "Please specify a set of versions with a common set of " ~
                 "supported platforms."),
-        versArrays => versArrays.front
-    )[1];
+            versArrays => versArrays.front
+        )[1];
 
     const getUrl = compilerInfo.urlFormatter;
 
