@@ -1,6 +1,5 @@
-import std.algorithm : filter, joiner, map, maxElement, sort, startsWith, uniq;
-import std.array : array, split;
-import std.conv : to;
+import std.algorithm : joiner, map, uniq;
+import std.array : array;
 import std.exception : enforce;
 static import std.file;
 import std.format : format;
@@ -14,11 +13,7 @@ import std.stdio : stdout, stderr;
 import std.string : strip;
 import std.typecons : tuple;
 
-import sparkles.versions : SemVer, Dmd;
-
-import dlang_nix.utils.commands :
-    prefech, Hash, Url,
-    fetchTags, inMinorRange, isStable, latestPatchPerMinor;
+import dlang_nix.utils.commands : prefech, Hash;
 import dlang_nix.utils.json : hashesToJsonValue, mergeHashesIntoJson, toSortedPrettyJson;
 import dlang_nix.components : Platform, Version, Component, supportedPlatforms, ComponentInfo;
 
@@ -95,15 +90,8 @@ void main(string[] args) {
             lastVersion.length > 0 ? lastVersion : "latest",
             compilerInfo.tagsRepo);
 
-        // DMD uses a zero-padded 3-digit minor (`2.070.0`); LDC follows
-        // canonical SemVer. Pick the matching scheme so `toString` re-emits
-        // each tag in its native form.
-        componentVersions =
-            (component == Component.dmd || component == Component.dmd_src)
-                ? resolveVersionRange!Dmd(
-                    compilerInfo.tagsRepo, firstVersion, lastVersion)
-                : resolveVersionRange!SemVer(
-                    compilerInfo.tagsRepo, firstVersion, lastVersion);
+        componentVersions = compilerInfo.resolveVersions(
+            compilerInfo.tagsRepo, firstVersion, lastVersion);
         enforce(componentVersions.length > 0,
             "No stable releases found in range " ~
                 firstVersion ~ ".." ~
@@ -115,9 +103,7 @@ void main(string[] args) {
     {
         componentVersions = componentVersions.length
             ? componentVersions
-            : component == Component.ldc
-            ? [ "1.35.0" ]
-            : [ "2.105.0" ];
+            : compilerInfo.defaultVersions.dup;
     }
 
     const platforms = componentVersions
@@ -185,41 +171,4 @@ void main(string[] args) {
     stdout.writeln(
         toSortedPrettyJson(hashesToJsonValue(hashes))
     );
-}
-
-/// Resolves an inclusive `[first, last]` minor range against the tags of
-/// the given GitHub repo and returns the highest-patch stable release for
-/// each minor, as `Version` strings sorted ascending. An empty `last`
-/// means "latest available stable tag".
-///
-/// Parameterised over a sparkles:versions scheme (e.g. `SemVer` for LDC's
-/// canonical tags, `Dmd` for DMD's zero-padded minor convention). The
-/// returned strings use the scheme's `toString`, so DMD comes back as
-/// `"2.079.0"` and LDC as `"1.42.0"`.
-Version[] resolveVersionRange(Scheme)(string tagsRepo, string first, string last) {
-    // `.value` on a parse-failed Expected throws — what we want for user
-    // input.
-    const lo = Scheme.parseLoose(first).value;
-
-    auto stable = fetchTags(tagsRepo)
-        .map!(s => Scheme.parseLoose(s))
-        .joiner
-        .filter!isStable
-        .array;
-    enforce(stable.length > 0, "No stable tags found in repo " ~ tagsRepo);
-
-    const hi = last.length > 0
-        ? Scheme.parseLoose(last).value
-        : stable.maxElement;
-    enforce(lo <= hi,
-        "--first-version " ~ first ~ " must not be greater than " ~
-            (last.length > 0 ? "--last-version " ~ last : "latest tag " ~ hi.to!string));
-
-    auto vers = stable
-        .filter!(v => v.inMinorRange(lo, hi))
-        .array
-        .latestPatchPerMinor;
-
-    vers.sort!((a, b) => a < b);  // ascending for user display
-    return vers.map!(v => v.to!string).array;
 }

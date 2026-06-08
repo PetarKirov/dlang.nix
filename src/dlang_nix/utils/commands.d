@@ -1,7 +1,8 @@
 module dlang_nix.utils.commands;
 
-import std.algorithm : filter, map, sort, startsWith, endsWith, uniq;
+import std.algorithm : filter, joiner, map, maxElement, sort, startsWith, endsWith, uniq;
 import std.array : array;
+import std.conv : to;
 import std.exception : enforce;
 import std.file : exists;
 import std.format : format;
@@ -154,6 +155,43 @@ string[] fetchTags(string repo) {
     const result = executeShell(cmd, null, Config.stderrPassThrough);
     enforce(result.status == 0, "git ls-remote failed: " ~ repo);
     return parseGitLsRemoteTags(result.output);
+}
+
+/// Resolves an inclusive `[first, last]` minor range against the tags of
+/// the given GitHub repo and returns the highest-patch stable release for
+/// each minor, as version strings sorted ascending. An empty `last` means
+/// "latest available stable tag".
+///
+/// Parameterised over a sparkles:versions scheme (e.g. `SemVer` for LDC's
+/// canonical tags, `Dmd` for DMD's zero-padded minor convention). The
+/// returned strings use the scheme's `toString`, so DMD comes back as
+/// `"2.079.0"` and LDC as `"1.42.0"`.
+string[] resolveVersionRange(Scheme)(string tagsRepo, string first, string last) {
+    // `.value` on a parse-failed Expected throws — what we want for user
+    // input.
+    const lo = Scheme.parseLoose(first).value;
+
+    auto stable = fetchTags(tagsRepo)
+        .map!(s => Scheme.parseLoose(s))
+        .joiner
+        .filter!isStable
+        .array;
+    enforce(stable.length > 0, "No stable tags found in repo " ~ tagsRepo);
+
+    const hi = last.length > 0
+        ? Scheme.parseLoose(last).value
+        : stable.maxElement;
+    enforce(lo <= hi,
+        "--first-version " ~ first ~ " must not be greater than " ~
+            (last.length > 0 ? "--last-version " ~ last : "latest tag " ~ hi.to!string));
+
+    auto vers = stable
+        .filter!(v => v.inMinorRange(lo, hi))
+        .array
+        .latestPatchPerMinor;
+
+    vers.sort!((a, b) => a < b);  // ascending for user display
+    return vers.map!(v => v.to!string).array;
 }
 
 /// Pure: parses the output of `git ls-remote --tags [--refs] <url>` into
