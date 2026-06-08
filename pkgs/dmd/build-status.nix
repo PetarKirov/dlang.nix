@@ -105,18 +105,26 @@ let
                   "${dmdTestDir}/runnable/test17868b.d"
                 ]
             else if versionAtLeast version "2.100.0" then
-              if versionOlder version "2.106.0" then
-                [
-                  "${dmdTestDir}/runnable/objc_class.d"
-                  "${dmdTestDir}/runnable/objc_self_test.d"
-                ]
-              else
-                [
-                  "${dmdTestDir}/runnable/objc_class.d"
-                  "${dmdTestDir}/runnable/objc_self_test.d"
-                  "${dmdTestDir}/runnable/closure.d"
-                  "${dmdTestDir}/runnable/eh.d"
-                ]
+              (
+                if versionOlder version "2.106.0" then
+                  [
+                    "${dmdTestDir}/runnable/objc_class.d"
+                    "${dmdTestDir}/runnable/objc_self_test.d"
+                  ]
+                else
+                  [
+                    "${dmdTestDir}/runnable/objc_class.d"
+                    "${dmdTestDir}/runnable/objc_self_test.d"
+                    "${dmdTestDir}/runnable/closure.d"
+                    "${dmdTestDir}/runnable/eh.d"
+                  ]
+              )
+              # test15779 is a long-standing darwin-flaky test (already skipped
+              # for 2.092-2.097); it also fails on the macos-26 runner for
+              # 2.100+. testline checks __LINE__ handling and fails there on
+              # 2.112.
+              ++ [ "${dmdTestDir}/runnable/test15779.d" ]
+              ++ lib.optional (versionAtLeast version "2.112.0") "${dmdTestDir}/runnable/testline.d"
             else
               [ ]
           );
