@@ -206,6 +206,26 @@ stdenv.mkDerivation rec {
         sha256 = "sha256-JO52sxliPFjCe4qyo/eyWhDTg1x5bh1+7gPj1SYXIh8=";
       })
     ]
+    ++ lib.optionals (versionBetween "2.100.0" "2.110.0" version) [
+      # `cod1.d`'s getlvalue() has three `goto Lptr;` that jump over a labelled
+      # `regm_t idxregs;` declaration. The 2.110 frontend made that a hard error
+      # (the same PR #16510 that introduced the check also fixed the backend).
+      # This commit turns the `Lptr:` label into a nested function and the gotos
+      # into `return Lptr();`, so pre-2.110 source builds with a >= 2.110 host.
+      # See: https://github.com/dlang/dmd/commit/032a2c69a9
+      (fetchpatch {
+        url = "https://github.com/dlang/dmd/commit/032a2c69a9a951e0a5b91b75aa274947eb2609fb.patch";
+        # The commit is post-monorepo (path `compiler/src/...`); pre-2.101 source
+        # lays it out under `dmd/src/...`, so it needs one extra strip level.
+        stripLen = if druntimeRepo then 2 else 1;
+        extraPrefix = "dmd/";
+        sha256 =
+          if druntimeRepo then
+            "sha256-fml35iIL8uE5hfYSpp32CU5fma8p6RX3Lk4BWhuxob8="
+          else
+            "sha256-9mimT3mpQeMG2qzAcPv/mWnR2EGRIdWabKwQ2YtKh0U=";
+      })
+    ]
     ++ lib.optionals (versionBetween "2.102.2" "2.104.0" version) [
       (fetchpatch {
         # Fix for: https://issues.dlang.org/show_bug.cgi?id=23846
@@ -289,7 +309,11 @@ stdenv.mkDerivation rec {
     lib.optionalString (lib.versionAtLeast hostDCInfo.frontendVersion "2.092.0") ''
       substituteInPlace ${dmdPrefix}/src/build.d --replace '"-dip25"' ""
     ''
-    + lib.optionalString (versionBetween "2.092.0" "2.103.0" version) ''
+    # Building old DMD source with a much newer host frontend (>= 2.110)
+    # surfaces many new `cast`/`@system` deprecations; `build.d` compiles the
+    # compiler with `-w -de`, turning them fatal. Strip those flags for the
+    # whole pre-2.110 range so the source still builds with a recent host.
+    + lib.optionalString (versionBetween "2.092.0" "2.110.0" version) ''
       substituteInPlace ${dmdPrefix}/src/build.d --replace '"-w", "-de",' ""
     ''
     + ''
