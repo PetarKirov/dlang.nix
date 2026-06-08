@@ -152,4 +152,15 @@ mergeVersions [
       check = false;
     };
   }
+  # DMD <= 2.098 must be bootstrapped by an old LDC host (ldc-binary 1.21 /
+  # 1.28; see supported-source-versions.json). Those ~2020-2021 osx binaries
+  # segfault on the `macos-26-intel` CI runner, and no frontend-compatible
+  # host is new enough to run on macOS 26, so these cannot be built on
+  # x86_64-darwin. (2.100+ use ldc-1.42, which runs fine there.)
+  (between "2.084.0" "2.099.0" (_version: {
+    x86_64-darwin = {
+      build = false;
+      check = false;
+    };
+  }))
 ]
