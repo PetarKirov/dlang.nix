@@ -8,7 +8,7 @@ import std.path : buildNormalizedPath, dirName;
 
 import sparkles.versions : SemVer, Dmd;
 
-import dlang_nix.utils.commands : Hash, Url, resolveVersionRange;
+import dlang_nix.utils.commands : Hash, Url, resolveTagRevs, resolveVersionRange;
 
 alias Version = string;
 alias Platform = string;
@@ -21,9 +21,15 @@ alias Platform = string;
 alias VersionRangeResolver =
     Version[] function(string tagsRepo, string first, string last);
 
+/// Resolves each requested version to the commit hash its release tag
+/// points to (for fetchers that pin an explicit `rev`). Impure
+/// (`@system`) since it shells out to `git ls-remote`.
+alias RevResolver =
+    Hash[Version] function(string tagsRepo, const Version[] versions);
+
 @safe pure:
 
-enum Component { dmd, dmd_src, ldc, ldc_src };
+enum Component { dmd, dmd_src, ldc, ldc_src, dub };
 
 alias UrlFormatter = Url function(Platform platform, Version compilerVersion);
 
@@ -39,6 +45,7 @@ struct ComponentInfo {
     string tagsRepo;   // "owner/repo" on GitHub for tag discovery
     Version[] defaultVersions;  // fetched when no versions are requested
     VersionRangeResolver resolveVersions;
+    RevResolver resolveRevs;  // set when the nix fetcher pins an explicit rev
 }
 
 string suffix(Platform p) => p.startsWith("windows") ? "7z" : "tar.xz";
@@ -103,5 +110,19 @@ enum ComponentInfo[Component] supportedPlatforms = [
         tagsRepo: "ldc-developers/ldc",
         defaultVersions: [ "1.35.0" ],
         resolveVersions: &resolveVersionRange!SemVer,
+    ),
+    Component.dub: ComponentInfo(
+        urlFormatter: (platform, compilerVersion) =>
+            "https://github.com/dlang/%s/archive/refs/tags/v%s.tar.gz"
+                .format(platform, compilerVersion),
+        platforms: compVersion => [
+            "dub"
+        ],
+        unpackingNeed: UnpackingNeeded.yes,
+        supportedVersionsFile: pkgsDir.buildNormalizedPath("dub", "supported-source-versions.json"),
+        tagsRepo: "dlang/dub",
+        defaultVersions: [ "1.41.0" ],
+        resolveVersions: &resolveVersionRange!SemVer,
+        resolveRevs: &resolveTagRevs,
     ),
 ];

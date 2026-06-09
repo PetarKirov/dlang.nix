@@ -42,7 +42,7 @@ void main(string[] args) {
             "component",
                 // Ideally we would generate the list of allowed values as
                 // opposed to this hardcoding
-                "What component to fetch. dmd | dmd_src | ldc | ldc_src, " ~
+                "What component to fetch. dmd | dmd_src | ldc | ldc_src | dub, " ~
                     "default ldc",
                 &component,
             "dry-run",
@@ -68,7 +68,7 @@ void main(string[] args) {
         defaultGetoptFormatter(
             w,
             "dlang-nix-fetcher - " ~
-                "tool for fetching source and binary releases of DMD and LDC",
+                "tool for fetching source and binary releases of DMD, LDC and dub",
             parseCLI(args[0 .. 1]).options,
         );
         return;
@@ -105,6 +105,13 @@ void main(string[] args) {
             ? componentVersions
             : compilerInfo.defaultVersions.dup;
     }
+
+    // Pin the commit each release tag points to, for components whose nix
+    // fetcher takes an explicit `rev` alongside the hash.
+    Hash[Version] revs;
+    if (compilerInfo.resolveRevs !is null)
+        revs = compilerInfo.resolveRevs(
+            compilerInfo.tagsRepo, componentVersions);
 
     const platforms = componentVersions
         .map!(vers => compilerInfo.platforms(vers))
@@ -147,6 +154,9 @@ void main(string[] args) {
     Hash[Platform][Version] hashes;
     foreach (i; 0 .. jobs.length) {
         hashes[jobs[i][0]][jobs[i][1]] = results[i];
+    }
+    foreach (compilerVersion, rev; revs) {
+        hashes[compilerVersion]["rev"] = rev;
     }
 
     if (!liveRun) {
