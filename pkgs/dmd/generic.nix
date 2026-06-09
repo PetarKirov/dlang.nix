@@ -32,6 +32,7 @@
   installShellFiles,
   git,
   unzip,
+  darwinMinVersionHook,
   hostDCompiler,
 }:
 let
@@ -40,6 +41,11 @@ let
   inherit (import ../../lib/dc.nix { inherit lib; }) getDCInfo;
 
   hostDCInfo = getDCInfo hostDCompiler;
+
+  # Minimum macOS version every Darwin compiler/linker invocation should target.
+  # Only forced under `stdenv.isDarwin` guards, so it stays lazy on Linux where
+  # the attribute is absent.
+  darwinTarget = stdenv.hostPlatform.darwinMinVersion;
 
   buildStatus = getBuildStatus "dmd" version stdenv.system;
 
@@ -316,15 +322,21 @@ stdenv.mkDerivation rec {
     + lib.optionalString (versionBetween "2.092.0" "2.110.0" version) ''
       substituteInPlace ${dmdPrefix}/src/build.d --replace '"-w", "-de",' ""
     ''
-    # DMD's build/druntime makefiles hardcode `MACOSX_DEPLOYMENT_TARGET=10.9`.
-    # Binaries built for 10.9 segfault at runtime on recent macOS (the old
-    # TLS/dyld ABI), which fails the test suite on the macos-26 runner. Bump
-    # every occurrence to the toolchain's min version so the runtime libs and
-    # the compiled test binaries target a macOS the runner can execute.
+    # druntime and phobos hardcode `export MACOSX_DEPLOYMENT_TARGET=10.9` in
+    # their makefiles. That is a GNU make assignment, which overrides the
+    # inherited environment, so patching the file is the only way to change it
+    # for those library builds. Binaries stamped for 10.9 segfault at runtime on
+    # recent macOS (the old TLS/dyld ABI), failing the test suite on the
+    # macos-26 runner; rewrite the value to the toolchain's min version. The
+    # makefile is `posix.mak` in older releases and `Makefile` from 2.112 on, so
+    # cover both: the guard skips files a given version doesn't ship and
+    # `--replace-quiet` tolerates the line being absent.
     + lib.optionalString stdenv.isDarwin ''
-      grep -rlF 'MACOSX_DEPLOYMENT_TARGET=10.9' . | while read -r mk; do
-        substituteInPlace "$mk" \
-          --replace 'MACOSX_DEPLOYMENT_TARGET=10.9' 'MACOSX_DEPLOYMENT_TARGET=${stdenv.hostPlatform.darwinMinVersion}'
+      for mk in ${druntimePrefix}/posix.mak ${druntimePrefix}/Makefile phobos/posix.mak phobos/Makefile; do
+        if [ -e "$mk" ]; then
+          substituteInPlace "$mk" \
+            --replace-quiet 'MACOSX_DEPLOYMENT_TARGET=10.9' 'MACOSX_DEPLOYMENT_TARGET=${darwinTarget}'
+        fi
       done
     ''
     + ''
@@ -360,10 +372,19 @@ stdenv.mkDerivation rec {
     installShellFiles
   ] ++ lib.optional (lib.versionOlder version "2.088.0") git;
 
-  buildInputs = [
-    curl
-    tzdata
-  ] ++ lib.optional stdenv.isDarwin Foundation;
+  buildInputs =
+    [
+      curl
+      tzdata
+    ]
+    ++ lib.optionals stdenv.isDarwin [
+      Foundation
+      # Exports MACOSX_DEPLOYMENT_TARGET for every build/check phase. Covers the
+      # compiler invocations the druntime/phobos makefiles don't drive (building
+      # dmd itself, the test harness) — without it DMD's codegen falls back to its
+      # hardcoded 10.9 default (compiler/src/dmd/backend/machobj.d).
+      (darwinMinVersionHook darwinTarget)
+    ];
 
   nativeCheckInputs = [ gdb ] ++ lib.optional (lib.versionOlder version "2.089.0") unzip;
 
@@ -403,7 +424,7 @@ stdenv.mkDerivation rec {
   checkPhase = ''
     runHook preCheck
     ${lib.optionalString (buildStatus.skippedTests != [ ]) (
-      lib.concatMapStringsSep "\n" (test: ''rm -v ${test}'') buildStatus.skippedTests
+      lib.concatMapStringsSep "\n" (test: "rm -v ${test}") buildStatus.skippedTests
     )}
     export checkJobs=$NIX_BUILD_CORES
     if [ -z $enableParallelChecking ]; then
@@ -443,7 +464,7 @@ stdenv.mkDerivation rec {
 
     wrapProgram $out/bin/dmd \
       --prefix PATH ":" "${targetPackages.stdenv.cc}/bin" \
-      --set-default CC "${targetPackages.stdenv.cc}/bin/cc"
+      --set-default CC "${targetPackages.stdenv.cc}/bin/cc"${lib.optionalString stdenv.isDarwin " \\\n      --set-default MACOSX_DEPLOYMENT_TARGET \"${darwinTarget}\""}
 
     substitute ${dmdConfFile} "$out/bin/dmd.conf" --subst-var out
 
