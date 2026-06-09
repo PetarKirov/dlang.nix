@@ -147,19 +147,22 @@ mergeVersions [
       skippedTests = (getInfo version).darwinSkippedTests;
     };
   }))
+  # x86_64-darwin builds (2.100+) but the test suite cannot run on the
+  # `macos-26-intel` CI runner: with `MACOSX_DEPLOYMENT_TARGET` fixed (see
+  # generic.nix) the dmd test suite now executes, but the phobos/druntime
+  # concurrency unittests (fiber-based `std.concurrency`, `core.thread`) either
+  # segfault or deadlock there — empirically the job either crashes or runs
+  # into GitHub's hard 6-hour job timeout (which fails CI). Disable `check` on
+  # darwin so the package still builds (the primary goal); full checks remain
+  # enabled on x86_64-linux. `skippedTests` is kept so `check` can be flipped
+  # back on per-version once the runner/test situation is resolved.
   (between "2.098.0" latestVersion (version: {
     x86_64-darwin = {
       build = true;
-      check = true;
+      check = false;
       skippedTests = (getInfo version).darwinSkippedTests;
     };
   }))
-  {
-    "2.111.0".x86_64-darwin = {
-      build = true;
-      check = false;
-    };
-  }
   # DMD <= 2.098 must be bootstrapped by an old LDC host (ldc-binary 1.21 /
   # 1.28; see supported-source-versions.json). Those ~2020-2021 osx binaries
   # segfault on the `macos-26-intel` CI runner, and no frontend-compatible
