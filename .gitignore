@@ -17,3 +17,8 @@ bin/
 
 # https://github.com/cachix/git-hooks.nix
 .pre-commit-config.yaml
+
+# local dmd build-driving scratch (not for commit)
+result.jsonl
+logs/
+build-one.sh
