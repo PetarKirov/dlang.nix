@@ -3,7 +3,8 @@
     "dub": "sha256-iVl7bjblvIxvrUX7Phq6h4AIAmZjNVkGYYFA1hhsE7c="
   },
   "1.41.0": {
-    "dub": "sha256-86TzaRdu+CFM0Ld2fXxjaUUT9dl37MYPdmsvxE4ZUkE="
+    "dub": "sha256-86TzaRdu+CFM0Ld2fXxjaUUT9dl37MYPdmsvxE4ZUkE=",
+    "rev": "59c08ed1c788db1c02807c6b3cdad846c342efd2"
   },
   "1.42.0-beta.1": {
     "dub": "sha256-vxaDC47QdjSpWon5FltcIJsmDwUsUmJc5A1Lbdw6W7w="
