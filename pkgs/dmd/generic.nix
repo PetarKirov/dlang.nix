@@ -316,6 +316,17 @@ stdenv.mkDerivation rec {
     + lib.optionalString (versionBetween "2.092.0" "2.110.0" version) ''
       substituteInPlace ${dmdPrefix}/src/build.d --replace '"-w", "-de",' ""
     ''
+    # DMD's build/druntime makefiles hardcode `MACOSX_DEPLOYMENT_TARGET=10.9`.
+    # Binaries built for 10.9 segfault at runtime on recent macOS (the old
+    # TLS/dyld ABI), which fails the test suite on the macos-26 runner. Bump
+    # every occurrence to the toolchain's min version so the runtime libs and
+    # the compiled test binaries target a macOS the runner can execute.
+    + lib.optionalString stdenv.isDarwin ''
+      grep -rlF 'MACOSX_DEPLOYMENT_TARGET=10.9' . | while read -r mk; do
+        substituteInPlace "$mk" \
+          --replace 'MACOSX_DEPLOYMENT_TARGET=10.9' 'MACOSX_DEPLOYMENT_TARGET=${stdenv.hostPlatform.darwinMinVersion}'
+      done
+    ''
     + ''
       patchShebangs ${dmdPrefix}/test/{runnable,fail_compilation,compilable,tools}{,/extra-files}/*.sh
 
