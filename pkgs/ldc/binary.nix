@@ -85,6 +85,7 @@ stdenv.mkDerivation {
 
   meta = with lib; {
     description = "The LLVM-based D Compiler";
+    mainProgram = "ldc2";
     homepage = "https://github.com/ldc-developers/ldc";
     # from https://github.com/ldc-developers/ldc/blob/master/LICENSE
     license = with licenses; [
