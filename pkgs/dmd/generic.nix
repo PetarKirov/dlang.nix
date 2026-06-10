@@ -104,19 +104,58 @@ let
     ++ lib.optional enableProfile "ENABLE_PROFILE=1"
     ++ lib.optional enableUnittest "ENABLE_UNITTEST=1"
     ++ lib.optional enableCoverage "ENABLE_COVERAGE=1";
-in
-stdenv.mkDerivation rec {
-  pname = "dmd";
-  inherit version;
 
-  passthru = {
-    inherit buildStatus;
+  sharedMeta = with lib; {
+    description = "Official reference compiler for the D language";
+    homepage = "https://dlang.org/";
+    license = licenses.boost;
+    maintainers = with maintainers; [
+      ThomasMader
+      lionello
+      dukc
+    ];
+    platforms = [
+      "x86_64-linux"
+      "i686-linux"
+      "x86_64-darwin"
+    ];
   };
 
-  enableParallelBuilding = true;
+  # Inputs shared by the test stages and the final install (the heavy build
+  # below carries its own copies).
+  testNativeBuildInputs = [ which ] ++ lib.optional (lib.versionOlder version "2.088.0") git;
+  installNativeBuildInputs = [
+    makeWrapper
+    which
+    installShellFiles
+  ];
+  buildInputs' = [
+    curl
+    tzdata
+  ]
+  ++ lib.optionals stdenv.isDarwin [
+    Foundation
+    (darwinMinVersionHook darwinTarget)
+  ];
+  nativeCheckInputs' = [ gdb ] ++ lib.optional (lib.versionOlder version "2.089.0") unzip;
+  checkInputs' = lib.optional stdenv.isDarwin Foundation;
 
-  srcs =
-    [
+  # The single, heavy from-source build. It runs no tests; its $out is the whole
+  # post-build working tree, which the test stages and the final install below
+  # restore and reuse (so the compiler is compiled exactly once).
+  untested = stdenv.mkDerivation rec {
+    pname = "dmd-untested";
+    inherit version;
+
+    passthru = {
+      buildStatus = buildStatus // {
+        check = false;
+      };
+    };
+
+    enableParallelBuilding = true;
+
+    srcs = [
       (fetchFromGitHub {
         owner = "dlang";
         repo = "dmd";
@@ -149,231 +188,231 @@ stdenv.mkDerivation rec {
       })
     ];
 
-  sourceRoot = ".";
+    sourceRoot = ".";
 
-  # https://issues.dlang.org/show_bug.cgi?id=19553
-  hardeningDisable = [ "fortify" ];
+    # https://issues.dlang.org/show_bug.cgi?id=19553
+    hardeningDisable = [ "fortify" ];
 
-  patches =
-    lib.optionals (lib.versionOlder version "2.088.0") [
-      # Migrates D1-style operator overloads in DMD source, to allow building with
-      # a newer DMD
-      (fetchpatch {
-        url = "https://github.com/dlang/dmd/commit/c4d33e5eb46c123761ac501e8c52f33850483a8a.patch";
-        stripLen = 1;
-        extraPrefix = "dmd/";
-        sha256 = "sha256-N21mAPfaTo+zGCip4njejasraV5IsWVqlGR5eOdFZZE=";
-      })
-    ]
-    ++ lib.optionals (lib.versionOlder version "2.091.0") [
-      # Patches deprecated printf formats in dmd backend
-      (fetchpatch {
-        url = "https://github.com/dlang/dmd/commit/efe6d473c30c07074461f3de0b7a8ba1343c5429.patch";
-        stripLen = 1;
-        extraPrefix = "dmd/";
-        sha256 = "sha256-DdAIHK42q4vyVJsuTN0nRZAAjWXRBZHY8oUidW4pMwI=";
-      })
-    ]
-    ++ lib.optionals (lib.versionOlder version "2.092.2") [
-      # Fixes C++ tests that compiled on older C++ but not on the current one
-      (fetchpatch {
-        url = "https://github.com/dlang/druntime/commit/438990def7e377ca1f87b6d28246673bb38022ab.patch";
-        stripLen = 1;
-        extraPrefix = "druntime/";
-        sha256 = "sha256-/pPKK7ZK9E/mBrxm2MZyBNhYExE8p9jz8JqBdZSE6uY=";
-      })
-    ]
-    ++ lib.optionals (lib.versionOlder version "2.096.1") [
-      # Stop using feature deprecated from 2.097.0 on, link:
-      # https://dlang.org/changelog/2.097.0.html#fqn-bypass-deprecation
-      (fetchpatch {
-        url = "https://github.com/dlang/dmd/commit/5198eedf6ef4e113773c15eff42de195be438fa1.patch";
-        stripLen = 1;
-        extraPrefix = "dmd/";
-        sha256 = "sha256-4Bd3YD14jzMelVvR2t738Dtrf7xMlWJM6AdsB34wKyM=";
-      })
-    ]
-    ++ lib.optionals (lib.versionOlder version "2.099.1") [
-      # Issue 22942: Bugged section headers in Mach-obj output that happened
-      # to work in contemporary linker but not in the current version.
-      ./patches/fix-22942.patch
-    ]
-    ++ lib.optionals (versionBetween "2.092.0" "2.101.0" version) [
-      # `src/dmd/backend/cg.d` and `src/dmd/backend/var.d` contained arrays defined as
-      # result from IIFE at CT. These function expressions were inside a
-      # `extern (C++):` block, however they were returning static arrays, which
-      # is not allowed in C++. This patch marks them as `extern (D)`, to avoid
-      # this issue.
-      # See: https://github.com/dlang/dmd/pull/14127
-      (fetchpatch {
-        url = "https://github.com/dlang/dmd/commit/c4cea697e8658f103a69967587e75dd130506304.patch";
-        stripLen = 1;
-        extraPrefix = "dmd/";
-        sha256 = "sha256-JO52sxliPFjCe4qyo/eyWhDTg1x5bh1+7gPj1SYXIh8=";
-      })
-    ]
-    ++ lib.optionals (versionBetween "2.100.0" "2.110.0" version) [
-      # `cod1.d`'s getlvalue() has three `goto Lptr;` that jump over a labelled
-      # `regm_t idxregs;` declaration. The 2.110 frontend made that a hard error
-      # (the same PR #16510 that introduced the check also fixed the backend).
-      # This commit turns the `Lptr:` label into a nested function and the gotos
-      # into `return Lptr();`, so pre-2.110 source builds with a >= 2.110 host.
-      # See: https://github.com/dlang/dmd/commit/032a2c69a9
-      (fetchpatch {
-        url = "https://github.com/dlang/dmd/commit/032a2c69a9a951e0a5b91b75aa274947eb2609fb.patch";
-        # The commit is post-monorepo (path `compiler/src/...`); pre-2.101 source
-        # lays it out under `dmd/src/...`, so it needs one extra strip level.
-        stripLen = if druntimeRepo then 2 else 1;
-        extraPrefix = "dmd/";
-        sha256 =
-          if druntimeRepo then
-            "sha256-fml35iIL8uE5hfYSpp32CU5fma8p6RX3Lk4BWhuxob8="
-          else
-            "sha256-9mimT3mpQeMG2qzAcPv/mWnR2EGRIdWabKwQ2YtKh0U=";
-      })
-    ]
-    ++ lib.optionals (versionBetween "2.102.2" "2.104.0" version) [
-      (fetchpatch {
-        # Fix for: https://issues.dlang.org/show_bug.cgi?id=23846
-        # Implemented in: https://github.com/dlang/dmd/pull/15139
-        url = "https://github.com/dlang/dmd/commit/deaf1b81986c57d31a1b1163301ca4d157505220.patch";
-        stripLen = 1;
-        extraPrefix = "dmd/";
-        sha256 = "sha256-xgaIraFH3ZfIn99ms148MP7cKV63JgU90yEYq21noRw=";
-      })
-    ]
-    ++ lib.optionals (lib.versionOlder version "2.108.0") [
-      # Fixes a latent ZLib C header bug. In DMD, it is fixed for 2.108.0
-      # by upgrading ZLib to 1.3.1 but we don't do that here because it would
-      # be less faithful to the langauge as it existed before that.
-      ./patches/zlib-darwin-header.patch
-    ]
-    ++ lib.optionals (versionBetween "2.099.0" "2.110.0" version) [
-      # GCC started giving warnings on preprocessor undefinitons
-      # that were implicitly added to every C file by DMD.
-      (fetchpatch {
-        url = "https://github.com/dlang/dmd/commit/9773c41a1323642cce6ce47810a6c8b5ec31e5c6.patch";
-        stripLen = 2;
-        extraPrefix = druntimePrefix + "/";
-        sha256 =
-          if druntimeRepo then
-            "sha256-wfFSqg38YbNZI7kUbvwyMs7RjydS4e0CpIKsjvZGTWU="
-          else
-            "sha256-nvq2JWbdNOuEfNOqZOw5ymB8OYEdR87EbqbQU7J60QE=";
-      })
-    ]
-    ++ lib.optionals (lib.versionOlder version "2.111.0" && !druntimeRepo) [
-      (fetchpatch {
-        # Linker started demangling a D symbol in an error message,
-        # breaking this test before a patch.
-        url = "https://github.com/dlang/dmd/commit/dfe0f34b2aa59e6cf4526c9af8069e08638149bc.patch";
-        stripLen = 1;
-        extraPrefix = "dmd/";
-        hash = "sha256-Uccb8rBPBLAEPWbOYWgdR5xN3wJoIkKKhLGu58IK1sM=";
-      })
-    ]
-    ++ lib.optionals (versionBetween "2.101.0" "2.112.0" version) [
-      # MacOS 15.4 silently changed thread-local storage ABI breaking all DRuntimes
-      # built with compilers starting from 2.099.0
-      # https://github.com/dlang/dmd/issues/21126
-      (fetchpatch {
-        url = "https://github.com/dlang/dmd/commit/5febad2e92dbabcd797abae13b6f9a392e3783f6.patch";
-        stripLen = 1;
-        extraPrefix = "dmd/";
-        sha256 = "sha256-In6YndwS4tDASo0AQ6aUBYDf8SSx7E2TqwuE8tpwjfM=";
-      })
-    ]
-    ++ lib.optionals (version == "2.111.0") [
-      # Sarif JSON writer didn't strip newline out of the VERSION file without
-      # this patch, causing its output to mismatch the expectation in Sarif
-      # tests.
-      # See: https://github.com/dlang/dmd/pull/21127#issuecomment-2766083584
-      (fetchpatch {
-        url = "https://github.com/dlang/dmd/pull/21127/commits/ae919e01f9e270d8980466b508ea3381ce51a88d.patch";
-        stripLen = 1;
-        extraPrefix = "dmd/";
-        sha256 = "sha256-XmK/4MaJYShho0r7er7/+ugsD7IEg4wXJP2qNIkCCec=";
-      })
-    ]
-    ++ lib.optionals (versionBetween "2.112.0" "2.112.2" version) [
-      # 2.112.0 started to recognise env var TZVAR
-      # (https://github.com/dlang/phobos/pull/10776), but malfunctions if the
-      # variable lacks a trailing slash, which is the case on NixOS.
-      # See: https://github.com/dlang/phobos/pull/11011
-      (fetchpatch {
-        url = "https://github.com/dlang/phobos/commit/3581244dbcb71d6ae640843b700dfcff8354bb5c.patch";
-        stripLen = 1;
-        extraPrefix = "phobos/";
-        sha256 = "sha256-oM0OGSkbjqSxXLpPU3bA6Wfkv40SwUOJp8MK25/cUFU=";
-      })
-    ];
+    patches =
+      lib.optionals (lib.versionOlder version "2.088.0") [
+        # Migrates D1-style operator overloads in DMD source, to allow building with
+        # a newer DMD
+        (fetchpatch {
+          url = "https://github.com/dlang/dmd/commit/c4d33e5eb46c123761ac501e8c52f33850483a8a.patch";
+          stripLen = 1;
+          extraPrefix = "dmd/";
+          sha256 = "sha256-N21mAPfaTo+zGCip4njejasraV5IsWVqlGR5eOdFZZE=";
+        })
+      ]
+      ++ lib.optionals (lib.versionOlder version "2.091.0") [
+        # Patches deprecated printf formats in dmd backend
+        (fetchpatch {
+          url = "https://github.com/dlang/dmd/commit/efe6d473c30c07074461f3de0b7a8ba1343c5429.patch";
+          stripLen = 1;
+          extraPrefix = "dmd/";
+          sha256 = "sha256-DdAIHK42q4vyVJsuTN0nRZAAjWXRBZHY8oUidW4pMwI=";
+        })
+      ]
+      ++ lib.optionals (lib.versionOlder version "2.092.2") [
+        # Fixes C++ tests that compiled on older C++ but not on the current one
+        (fetchpatch {
+          url = "https://github.com/dlang/druntime/commit/438990def7e377ca1f87b6d28246673bb38022ab.patch";
+          stripLen = 1;
+          extraPrefix = "druntime/";
+          sha256 = "sha256-/pPKK7ZK9E/mBrxm2MZyBNhYExE8p9jz8JqBdZSE6uY=";
+        })
+      ]
+      ++ lib.optionals (lib.versionOlder version "2.096.1") [
+        # Stop using feature deprecated from 2.097.0 on, link:
+        # https://dlang.org/changelog/2.097.0.html#fqn-bypass-deprecation
+        (fetchpatch {
+          url = "https://github.com/dlang/dmd/commit/5198eedf6ef4e113773c15eff42de195be438fa1.patch";
+          stripLen = 1;
+          extraPrefix = "dmd/";
+          sha256 = "sha256-4Bd3YD14jzMelVvR2t738Dtrf7xMlWJM6AdsB34wKyM=";
+        })
+      ]
+      ++ lib.optionals (lib.versionOlder version "2.099.1") [
+        # Issue 22942: Bugged section headers in Mach-obj output that happened
+        # to work in contemporary linker but not in the current version.
+        ./patches/fix-22942.patch
+      ]
+      ++ lib.optionals (versionBetween "2.092.0" "2.101.0" version) [
+        # `src/dmd/backend/cg.d` and `src/dmd/backend/var.d` contained arrays defined as
+        # result from IIFE at CT. These function expressions were inside a
+        # `extern (C++):` block, however they were returning static arrays, which
+        # is not allowed in C++. This patch marks them as `extern (D)`, to avoid
+        # this issue.
+        # See: https://github.com/dlang/dmd/pull/14127
+        (fetchpatch {
+          url = "https://github.com/dlang/dmd/commit/c4cea697e8658f103a69967587e75dd130506304.patch";
+          stripLen = 1;
+          extraPrefix = "dmd/";
+          sha256 = "sha256-JO52sxliPFjCe4qyo/eyWhDTg1x5bh1+7gPj1SYXIh8=";
+        })
+      ]
+      ++ lib.optionals (versionBetween "2.100.0" "2.110.0" version) [
+        # `cod1.d`'s getlvalue() has three `goto Lptr;` that jump over a labelled
+        # `regm_t idxregs;` declaration. The 2.110 frontend made that a hard error
+        # (the same PR #16510 that introduced the check also fixed the backend).
+        # This commit turns the `Lptr:` label into a nested function and the gotos
+        # into `return Lptr();`, so pre-2.110 source builds with a >= 2.110 host.
+        # See: https://github.com/dlang/dmd/commit/032a2c69a9
+        (fetchpatch {
+          url = "https://github.com/dlang/dmd/commit/032a2c69a9a951e0a5b91b75aa274947eb2609fb.patch";
+          # The commit is post-monorepo (path `compiler/src/...`); pre-2.101 source
+          # lays it out under `dmd/src/...`, so it needs one extra strip level.
+          stripLen = if druntimeRepo then 2 else 1;
+          extraPrefix = "dmd/";
+          sha256 =
+            if druntimeRepo then
+              "sha256-fml35iIL8uE5hfYSpp32CU5fma8p6RX3Lk4BWhuxob8="
+            else
+              "sha256-9mimT3mpQeMG2qzAcPv/mWnR2EGRIdWabKwQ2YtKh0U=";
+        })
+      ]
+      ++ lib.optionals (versionBetween "2.102.2" "2.104.0" version) [
+        (fetchpatch {
+          # Fix for: https://issues.dlang.org/show_bug.cgi?id=23846
+          # Implemented in: https://github.com/dlang/dmd/pull/15139
+          url = "https://github.com/dlang/dmd/commit/deaf1b81986c57d31a1b1163301ca4d157505220.patch";
+          stripLen = 1;
+          extraPrefix = "dmd/";
+          sha256 = "sha256-xgaIraFH3ZfIn99ms148MP7cKV63JgU90yEYq21noRw=";
+        })
+      ]
+      ++ lib.optionals (lib.versionOlder version "2.108.0") [
+        # Fixes a latent ZLib C header bug. In DMD, it is fixed for 2.108.0
+        # by upgrading ZLib to 1.3.1 but we don't do that here because it would
+        # be less faithful to the langauge as it existed before that.
+        ./patches/zlib-darwin-header.patch
+      ]
+      ++ lib.optionals (versionBetween "2.099.0" "2.110.0" version) [
+        # GCC started giving warnings on preprocessor undefinitons
+        # that were implicitly added to every C file by DMD.
+        (fetchpatch {
+          url = "https://github.com/dlang/dmd/commit/9773c41a1323642cce6ce47810a6c8b5ec31e5c6.patch";
+          stripLen = 2;
+          extraPrefix = druntimePrefix + "/";
+          sha256 =
+            if druntimeRepo then
+              "sha256-wfFSqg38YbNZI7kUbvwyMs7RjydS4e0CpIKsjvZGTWU="
+            else
+              "sha256-nvq2JWbdNOuEfNOqZOw5ymB8OYEdR87EbqbQU7J60QE=";
+        })
+      ]
+      ++ lib.optionals (lib.versionOlder version "2.111.0" && !druntimeRepo) [
+        (fetchpatch {
+          # Linker started demangling a D symbol in an error message,
+          # breaking this test before a patch.
+          url = "https://github.com/dlang/dmd/commit/dfe0f34b2aa59e6cf4526c9af8069e08638149bc.patch";
+          stripLen = 1;
+          extraPrefix = "dmd/";
+          hash = "sha256-Uccb8rBPBLAEPWbOYWgdR5xN3wJoIkKKhLGu58IK1sM=";
+        })
+      ]
+      ++ lib.optionals (versionBetween "2.101.0" "2.112.0" version) [
+        # MacOS 15.4 silently changed thread-local storage ABI breaking all DRuntimes
+        # built with compilers starting from 2.099.0
+        # https://github.com/dlang/dmd/issues/21126
+        (fetchpatch {
+          url = "https://github.com/dlang/dmd/commit/5febad2e92dbabcd797abae13b6f9a392e3783f6.patch";
+          stripLen = 1;
+          extraPrefix = "dmd/";
+          sha256 = "sha256-In6YndwS4tDASo0AQ6aUBYDf8SSx7E2TqwuE8tpwjfM=";
+        })
+      ]
+      ++ lib.optionals (version == "2.111.0") [
+        # Sarif JSON writer didn't strip newline out of the VERSION file without
+        # this patch, causing its output to mismatch the expectation in Sarif
+        # tests.
+        # See: https://github.com/dlang/dmd/pull/21127#issuecomment-2766083584
+        (fetchpatch {
+          url = "https://github.com/dlang/dmd/pull/21127/commits/ae919e01f9e270d8980466b508ea3381ce51a88d.patch";
+          stripLen = 1;
+          extraPrefix = "dmd/";
+          sha256 = "sha256-XmK/4MaJYShho0r7er7/+ugsD7IEg4wXJP2qNIkCCec=";
+        })
+      ]
+      ++ lib.optionals (versionBetween "2.112.0" "2.112.2" version) [
+        # 2.112.0 started to recognise env var TZVAR
+        # (https://github.com/dlang/phobos/pull/10776), but malfunctions if the
+        # variable lacks a trailing slash, which is the case on NixOS.
+        # See: https://github.com/dlang/phobos/pull/11011
+        (fetchpatch {
+          url = "https://github.com/dlang/phobos/commit/3581244dbcb71d6ae640843b700dfcff8354bb5c.patch";
+          stripLen = 1;
+          extraPrefix = "phobos/";
+          sha256 = "sha256-oM0OGSkbjqSxXLpPU3bA6Wfkv40SwUOJp8MK25/cUFU=";
+        })
+      ];
 
-  postPatch =
-    # Older compilers use -dip25 in their build flags, but if the build
-    # compiler is 2.092 or newer it doesn't need it anymore, and from
-    # 2.103 on using the flag is a deprecation error.
-    lib.optionalString (lib.versionAtLeast hostDCInfo.frontendVersion "2.092.0") ''
-      substituteInPlace ${dmdPrefix}/src/build.d --replace '"-dip25"' ""
-    ''
-    # Building old DMD source with a much newer host frontend (>= 2.110)
-    # surfaces many new `cast`/`@system` deprecations; `build.d` compiles the
-    # compiler with `-w -de`, turning them fatal. Strip those flags for the
-    # whole pre-2.110 range so the source still builds with a recent host.
-    + lib.optionalString (versionBetween "2.092.0" "2.110.0" version) ''
-      substituteInPlace ${dmdPrefix}/src/build.d --replace '"-w", "-de",' ""
-    ''
-    # druntime and phobos hardcode `export MACOSX_DEPLOYMENT_TARGET=10.9` in
-    # their makefiles. That is a GNU make assignment, which overrides the
-    # inherited environment, so patching the file is the only way to change it
-    # for those library builds. Binaries stamped for 10.9 segfault at runtime on
-    # recent macOS (the old TLS/dyld ABI), failing the test suite on the
-    # macos-26 runner; rewrite the value to the toolchain's min version. The
-    # makefile is `posix.mak` in older releases and `Makefile` from 2.112 on, so
-    # cover both: the guard skips files a given version doesn't ship and
-    # `--replace-quiet` tolerates the line being absent.
-    + lib.optionalString stdenv.isDarwin ''
-      for mk in ${druntimePrefix}/posix.mak ${druntimePrefix}/Makefile phobos/posix.mak phobos/Makefile; do
-        if [ -e "$mk" ]; then
-          substituteInPlace "$mk" \
-            --replace-quiet 'MACOSX_DEPLOYMENT_TARGET=10.9' 'MACOSX_DEPLOYMENT_TARGET=${darwinTarget}'
-        fi
-      done
-    ''
-    + ''
-      patchShebangs ${dmdPrefix}/test/{runnable,fail_compilation,compilable,tools}{,/extra-files}/*.sh
+    postPatch =
+      # Older compilers use -dip25 in their build flags, but if the build
+      # compiler is 2.092 or newer it doesn't need it anymore, and from
+      # 2.103 on using the flag is a deprecation error.
+      lib.optionalString (lib.versionAtLeast hostDCInfo.frontendVersion "2.092.0") ''
+        substituteInPlace ${dmdPrefix}/src/build.d --replace '"-dip25"' ""
+      ''
+      # Building old DMD source with a much newer host frontend (>= 2.110)
+      # surfaces many new `cast`/`@system` deprecations; `build.d` compiles the
+      # compiler with `-w -de`, turning them fatal. Strip those flags for the
+      # whole pre-2.110 range so the source still builds with a recent host.
+      + lib.optionalString (versionBetween "2.092.0" "2.110.0" version) ''
+        substituteInPlace ${dmdPrefix}/src/build.d --replace '"-w", "-de",' ""
+      ''
+      # druntime and phobos hardcode `export MACOSX_DEPLOYMENT_TARGET=10.9` in
+      # their makefiles. That is a GNU make assignment, which overrides the
+      # inherited environment, so patching the file is the only way to change it
+      # for those library builds. Binaries stamped for 10.9 segfault at runtime on
+      # recent macOS (the old TLS/dyld ABI), failing the test suite on the
+      # macos-26 runner; rewrite the value to the toolchain's min version. The
+      # makefile is `posix.mak` in older releases and `Makefile` from 2.112 on, so
+      # cover both: the guard skips files a given version doesn't ship and
+      # `--replace-quiet` tolerates the line being absent.
+      + lib.optionalString stdenv.isDarwin ''
+        for mk in ${druntimePrefix}/posix.mak ${druntimePrefix}/Makefile phobos/posix.mak phobos/Makefile; do
+          if [ -e "$mk" ]; then
+            substituteInPlace "$mk" \
+              --replace-quiet 'MACOSX_DEPLOYMENT_TARGET=10.9' 'MACOSX_DEPLOYMENT_TARGET=${darwinTarget}'
+          fi
+        done
+      ''
+      + ''
+        patchShebangs ${dmdPrefix}/test/{runnable,fail_compilation,compilable,tools}{,/extra-files}/*.sh
 
-      # Grep'd string changed with gdb 12
-      #   https://issues.dlang.org/show_bug.cgi?id=23198
-      # And seem to have changed back since then.
-      # Yes I know backslashes don't work in single quotes.
-      # They are there because the substituted text is inside double quotes
-      substituteInPlace ${druntimePrefix}/test/exceptions/Makefile \
-        --replace 'D main (' '\(D main\|_Dmain\) ('
+        # Grep'd string changed with gdb 12
+        #   https://issues.dlang.org/show_bug.cgi?id=23198
+        # And seem to have changed back since then.
+        # Yes I know backslashes don't work in single quotes.
+        # They are there because the substituted text is inside double quotes
+        substituteInPlace ${druntimePrefix}/test/exceptions/Makefile \
+          --replace 'D main (' '\(D main\|_Dmain\) ('
 
-      # We're using gnused on all platforms
-      substituteInPlace ${druntimePrefix}/test/coverage/Makefile \
-        --replace 'freebsd osx' 'none'
-    ''
-    + lib.optionalString (lib.versionAtLeast version "2.092.2") ''
-      substituteInPlace ${dmdPrefix}/test/dshell/test6952.d --replace "/usr/bin/env bash" "${bash}/bin/bash"
-    ''
-    # This test causes a linking failure before
-    # https://github.com/dlang/dmd/commit/cab51f946a8b2d3f0fcb856cf6c52a18a6779930
-    + lib.optionalString stdenv.isLinux ''
-      substituteInPlace phobos/std/socket.d --replace "assert(ih.addrList[0] == 0x7F_00_00_01);" ""
-    ''
-    + lib.optionalString stdenv.isDarwin ''
-      substituteInPlace phobos/std/socket.d --replace "foreach (name; names)" "names = []; foreach (name; names)"
-    '';
+        # We're using gnused on all platforms
+        substituteInPlace ${druntimePrefix}/test/coverage/Makefile \
+          --replace 'freebsd osx' 'none'
+      ''
+      + lib.optionalString (lib.versionAtLeast version "2.092.2") ''
+        substituteInPlace ${dmdPrefix}/test/dshell/test6952.d --replace "/usr/bin/env bash" "${bash}/bin/bash"
+      ''
+      # This test causes a linking failure before
+      # https://github.com/dlang/dmd/commit/cab51f946a8b2d3f0fcb856cf6c52a18a6779930
+      + lib.optionalString stdenv.isLinux ''
+        substituteInPlace phobos/std/socket.d --replace "assert(ih.addrList[0] == 0x7F_00_00_01);" ""
+      ''
+      + lib.optionalString stdenv.isDarwin ''
+        substituteInPlace phobos/std/socket.d --replace "foreach (name; names)" "names = []; foreach (name; names)"
+      '';
 
-  nativeBuildInputs = [
-    makeWrapper
-    which
-    installShellFiles
-  ] ++ lib.optional (lib.versionOlder version "2.088.0") git;
+    nativeBuildInputs = [
+      makeWrapper
+      which
+      installShellFiles
+    ]
+    ++ lib.optional (lib.versionOlder version "2.088.0") git;
 
-  buildInputs =
-    [
+    buildInputs = [
       curl
       tzdata
     ]
@@ -386,43 +425,59 @@ stdenv.mkDerivation rec {
       (darwinMinVersionHook darwinTarget)
     ];
 
-  nativeCheckInputs = [ gdb ] ++ lib.optional (lib.versionOlder version "2.089.0") unzip;
+    nativeCheckInputs = [ gdb ] ++ lib.optional (lib.versionOlder version "2.089.0") unzip;
 
-  dontConfigure = true;
+    dontConfigure = true;
 
-  buildFlags = commonBuildFlags { forMake = true; };
-  dmdFlags = buildFlags ++ lib.optional (lib.versionOlder version "2.092.0") "";
+    # Export the build tree raw: the test stages restore it and run the suite the
+    # way the old monolithic checkPhase did (before any strip/patchelf), and the
+    # final install runs its own fixup on the copied-out binaries.
+    dontFixup = true;
 
-  # Build and install are based on http://wiki.dlang.org/Building_DMD
-  buildPhase = ''
-    runHook preBuild
+    buildFlags = commonBuildFlags { forMake = true; };
+    dmdFlags = buildFlags ++ lib.optional (lib.versionOlder version "2.092.0") "";
 
-    export buildJobs=$NIX_BUILD_CORES
-    if [ -z $enableParallelBuilding ]; then
-      buildJobs=1
-    fi
-    export MAKEFLAGS="-j$buildJobs"
+    # Build and install are based on http://wiki.dlang.org/Building_DMD
+    buildPhase = ''
+      runHook preBuild
 
-    make -C dmd $buildFlags
-    ${lib.optionalString druntimeRepo "make -C druntime $buildFlags"}
-    make -C phobos $buildFlags DFLAGS="${phobosDflags}"
-    make -C tools $buildFlags
+      export buildJobs=$NIX_BUILD_CORES
+      if [ -z $enableParallelBuilding ]; then
+        buildJobs=1
+      fi
+      export MAKEFLAGS="-j$buildJobs"
 
-    runHook postBuild
+      make -C dmd $buildFlags
+      ${lib.optionalString druntimeRepo "make -C druntime $buildFlags"}
+      make -C phobos $buildFlags DFLAGS="${phobosDflags}"
+      make -C tools $buildFlags
+
+      runHook postBuild
+    '';
+
+    installPhase = ''
+      runHook preInstall
+
+      mkdir -p $out
+      cp -r dmd phobos tools ${lib.optionalString druntimeRepo "druntime"} $out/
+
+      runHook postInstall
+    '';
+
+    meta = sharedMeta;
+  };
+
+  # Restore the exported build tree into $NIX_BUILD_TOP so the make/run.d
+  # invocations (which reference $(NIX_BUILD_TOP)/dmd/...) resolve exactly as they
+  # did in the original build.
+  restoreTree = ''
+    runHook preUnpack
+    cp -a ${untested}/. ./
+    chmod -R u+w .
+    runHook postUnpack
   '';
 
-  doCheck = buildStatus.check;
-
-  checkInputs = lib.optional stdenv.isDarwin Foundation;
-
-  checkFlagsMake = commonBuildFlags { forMake = true; } ++ [ "N=$(checkJobs)" ];
-  checkFlagsRunD = commonBuildFlags { forMake = false; };
-
-  # many tests are disbled because they are failing
-  # NOTE: Purity check is disabled for checkPhase because it doesn't fare well
-  # with the DMD linker. See https://github.com/NixOS/nixpkgs/issues/97420
-  checkPhase = ''
-    runHook preCheck
+  checkPreamble = ''
     ${lib.optionalString (buildStatus.skippedTests != [ ]) (
       lib.concatMapStringsSep "\n" (test: "rm -v ${test}") buildStatus.skippedTests
     )}
@@ -432,62 +487,159 @@ stdenv.mkDerivation rec {
     fi
 
     export MAKEFLAGS="-j$checkJobs"
+  '';
 
-    # This will also test DRuntime for versions without
-    # a separate DRuntime repo
+  # NOTE: Purity check is disabled because it doesn't fare well with the DMD
+  # linker. See https://github.com/NixOS/nixpkgs/issues/97420
+  runDBody = targets: ''
     (NIX_ENFORCE_PURITY= \
-      cd ${dmdPrefix}/test && env $checkFlagsRunD ${hostDCompiler + /bin/rdmd} run.d -j $checkJobs all)
-
-    ${lib.optionalString druntimeRepo ''
-      NIX_ENFORCE_PURITY= \
-        make -C druntime unittest $checkFlagsMake
-    ''}
-
-    NIX_ENFORCE_PURITY= \
-      make -C phobos unittest $checkFlagsMake DFLAGS="${phobosDflags}"
-
-    runHook postCheck
+      cd ${dmdPrefix}/test && env $checkFlagsRunD ${hostDCompiler + /bin/rdmd} run.d -j $checkJobs ${targets})
   '';
 
-  installPhase = ''
-    runHook preInstall
+  # Each test stage restores the untested build tree and runs only one part of
+  # the suite. The union of all stages equals the old monolithic checkPhase
+  # (run.d `all` + druntime + phobos unittests).
+  mkTest =
+    { namePart, body }:
+    stdenv.mkDerivation {
+      pname = "dmd-${namePart}";
+      inherit version;
 
-    install -Dm755 dmd/${buildPath}/dmd $out/bin/dmd
+      src = untested;
+      sourceRoot = ".";
+      unpackPhase = restoreTree;
 
-    installManPage dmd/docs/man/man*/*
+      dontPatch = true;
+      dontConfigure = true;
+      dontBuild = true;
 
-    mkdir -p $out/include/dmd
-    cp -r {${druntimePrefix}/import/*,phobos/{std,etc}} $out/include/dmd/
+      hardeningDisable = [ "fortify" ];
 
-    mkdir $out/lib
-    cp phobos/${buildPath}/libphobos2.* $out/lib/
+      nativeBuildInputs = testNativeBuildInputs;
+      buildInputs = buildInputs';
+      nativeCheckInputs = nativeCheckInputs';
+      checkInputs = checkInputs';
 
-    wrapProgram $out/bin/dmd \
-      --prefix PATH ":" "${targetPackages.stdenv.cc}/bin" \
-      --set-default CC "${targetPackages.stdenv.cc}/bin/cc"${lib.optionalString stdenv.isDarwin " \\\n      --set-default MACOSX_DEPLOYMENT_TARGET \"${darwinTarget}\""}
+      checkFlagsMake = commonBuildFlags { forMake = true; } ++ [ "N=$(checkJobs)" ];
+      checkFlagsRunD = commonBuildFlags { forMake = false; };
 
-    substitute ${dmdConfFile} "$out/bin/dmd.conf" --subst-var out
+      doCheck = true;
+      checkPhase = ''
+        runHook preCheck
+        ${checkPreamble}
+        ${body}
+        runHook postCheck
+      '';
 
-    for tool in rdmd ddemangle dustmite; do
-      install -Dm755 tools/generated/${os}/${bits}/$tool $out/bin/$tool
-    done
+      installPhase = "touch $out";
 
-    runHook postInstall
-  '';
+      passthru = {
+        inherit buildStatus;
+      };
+      meta = sharedMeta;
+    };
 
-  meta = with lib; {
-    description = "Official reference compiler for the D language";
-    homepage = "https://dlang.org/";
-    license = licenses.boost;
-    maintainers = with maintainers; [
-      ThomasMader
-      lionello
-      dukc
-    ];
-    platforms = [
-      "x86_64-linux"
-      "i686-linux"
-      "x86_64-darwin"
-    ];
+  testStageList = [
+    {
+      namePart = "druntime-tests";
+      body = "NIX_ENFORCE_PURITY= make -C ${druntimePrefix} unittest $checkFlagsMake";
+    }
+    {
+      namePart = "phobos-tests";
+      body = ''NIX_ENFORCE_PURITY= make -C phobos unittest $checkFlagsMake DFLAGS="${phobosDflags}"'';
+    }
+    {
+      namePart = "unittests";
+      body = runDBody "unit_tests";
+    }
+    {
+      namePart = "compilable-tests";
+      body = runDBody "compilable fail_compilation";
+    }
+    {
+      namePart = "runnable-tests";
+      # runnable_cxx (>= 2.092.0) and dshell (>= ~2.089.0) don't exist in older
+      # versions; pass only the test dirs that are present, matching what the
+      # upstream `run.d all` target iterated for each version.
+      body = ''
+        (
+          NIX_ENFORCE_PURITY= cd ${dmdPrefix}/test
+          targets="runnable"
+          for d in runnable_cxx dshell; do
+            [ -d "$d" ] && targets="$targets $d"
+          done
+          env $checkFlagsRunD ${hostDCompiler + /bin/rdmd} run.d -j $checkJobs $targets
+        )
+      '';
+    }
+  ];
+
+  # Test stages (and the final package's gate) only exist when this
+  # version/system is testable. When check is false we reproduce the old
+  # `doCheck = false` behaviour: only the untested build and the final install.
+  testStages = lib.optionals buildStatus.check (
+    map (s: lib.nameValuePair s.namePart (mkTest s)) testStageList
+  );
+  testStageAttrs = lib.listToAttrs testStages;
+  testStageDrvs = map (nv: nv.value) testStages;
+
+  final = stdenv.mkDerivation {
+    pname = "dmd";
+    inherit version;
+
+    src = untested;
+    sourceRoot = ".";
+    unpackPhase = restoreTree;
+
+    dontPatch = true;
+    dontConfigure = true;
+    dontBuild = true;
+    doCheck = false;
+
+    hardeningDisable = [ "fortify" ];
+
+    nativeBuildInputs = installNativeBuildInputs;
+    buildInputs = buildInputs';
+
+    installPhase = ''
+        runHook preInstall
+
+        # Gate: referencing each test stage forces Nix to build (and pass) every
+        # part of the test suite before this package is realised, so building
+        # dmd-${version} still means "everything built and tested".
+        ${lib.concatMapStringsSep "\n" (d: ": ${d}") testStageDrvs}
+
+        install -Dm755 dmd/${buildPath}/dmd $out/bin/dmd
+
+      installManPage dmd/docs/man/man*/*
+
+      mkdir -p $out/include/dmd
+      cp -r {${druntimePrefix}/import/*,phobos/{std,etc}} $out/include/dmd/
+
+      mkdir $out/lib
+      cp phobos/${buildPath}/libphobos2.* $out/lib/
+
+      wrapProgram $out/bin/dmd \
+        --prefix PATH ":" "${targetPackages.stdenv.cc}/bin" \
+        --set-default CC "${targetPackages.stdenv.cc}/bin/cc"${lib.optionalString stdenv.isDarwin " \\\n      --set-default MACOSX_DEPLOYMENT_TARGET \"${darwinTarget}\""}
+
+      substitute ${dmdConfFile} "$out/bin/dmd.conf" --subst-var out
+
+      for tool in rdmd ddemangle dustmite; do
+        install -Dm755 tools/generated/${os}/${bits}/$tool $out/bin/$tool
+      done
+
+      runHook postInstall
+    '';
+
+    passthru = {
+      inherit buildStatus;
+      stages = {
+        inherit untested;
+      }
+      // testStageAttrs;
+    };
+    meta = sharedMeta;
   };
-}
+in
+final

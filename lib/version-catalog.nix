@@ -11,7 +11,13 @@ let
     map
     mapAttrs
     ;
-  inherit (lib) nameValuePair pipe optional;
+  inherit (lib)
+    nameValuePair
+    pipe
+    optional
+    concatMap
+    mapAttrsToList
+    ;
 
   inherit (pkgs) callPackage;
 
@@ -50,11 +56,20 @@ in
           nameSuffix = if type == "binary" then "-binary" else "";
         in
         pipe (attrNames supportedVersions."${type}") [
-          (map (
+          (concatMap (
             version:
-            nameValuePair "${pkgName}${nameSuffix}-${sanitizeVersion version}" (
-              callWithExtras (getVersion type version)
-            )
+            let
+              drv = callWithExtras (getVersion type version);
+              sv = sanitizeVersion version;
+              # Source builds expose sub-derivations (untested build + one per
+              # test suite) via passthru.stages; lift each to a top-level package
+              # named `${pkgName}-${stage}-${version}`. Binary builds have none.
+              stages = drv.passthru.stages or { };
+            in
+            [ (nameValuePair "${pkgName}${nameSuffix}-${sv}" drv) ]
+            ++ mapAttrsToList (
+              stageName: stageDrv: nameValuePair "${pkgName}-${stageName}-${sv}" stageDrv
+            ) stages
           ))
           listToAttrs
           filterBySystem
