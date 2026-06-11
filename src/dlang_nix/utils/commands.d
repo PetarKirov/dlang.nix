@@ -1,15 +1,16 @@
 module dlang_nix.utils.commands;
 
-import std.algorithm : filter, joiner, map, maxElement, sort, startsWith, endsWith, uniq;
+import std.algorithm : countUntil, filter, find, joiner, map, maxElement, sort, startsWith, endsWith, uniq;
 import std.array : array;
 import std.conv : to;
 import std.exception : enforce;
 import std.file : exists;
 import std.format : format;
 import std.process : executeShell, Config;
+import std.range : empty, front;
 import std.stdio : stderr;
 import std.string : indexOf, outdent, splitLines, strip;
-import std.typecons : tuple;
+import std.typecons : Tuple, tuple;
 
 import sparkles.versions.traits : hasSemVerComponents, supportsPrerelease;
 
@@ -143,18 +144,37 @@ unittest {
 // ---------------------------------------------------------------------------
 // Tag fetcher.
 //
-// Uses `git ls-remote --tags --refs <url>` — no auth required, works for
-// any GitHub repo. `--refs` filters out peeled refs (`^{}`); we strip them
-// defensively too.
+// Uses `git ls-remote --tags <url>` — no auth required, works for any
+// GitHub repo. Peeled refs (`^{}`) are kept during parsing: for annotated
+// tags they carry the commit hash the tag points to (the direct ref only
+// has the tag object's hash).
 // ---------------------------------------------------------------------------
 
-/// Fetches tag names from a GitHub `"owner/repo"` via `git ls-remote`.
-string[] fetchTags(string repo) {
-    const cmd = "git ls-remote --tags --refs https://github.com/" ~ repo;
+alias TagRev = Tuple!(string, "tag", string, "rev");
+
+/// Fetches `(tag name, commit hash)` pairs from a GitHub `"owner/repo"`
+/// via `git ls-remote`.
+TagRev[] fetchTags(string repo) {
+    const cmd = "git ls-remote --tags https://github.com/" ~ repo;
     stderr.writefln(`> %s`, cmd);
     const result = executeShell(cmd, null, Config.stderrPassThrough);
     enforce(result.status == 0, "git ls-remote failed: " ~ repo);
     return parseGitLsRemoteTags(result.output);
+}
+
+/// Resolves each requested version to the commit hash its `v<version>`
+/// release tag points to (for fetchers that pin an explicit `rev`).
+string[string] resolveTagRevs(string tagsRepo, const string[] versions) {
+    const tagRevs = fetchTags(tagsRepo);
+    string[string] revs;
+    foreach (ver; versions) {
+        const tag = "v" ~ ver;
+        auto hit = tagRevs.find!(tr => tr.tag == tag);
+        enforce(!hit.empty,
+            "No tag " ~ tag ~ " found in repo " ~ tagsRepo);
+        revs[ver] = hit.front.rev;
+    }
+    return revs;
 }
 
 /// Resolves an inclusive `[first, last]` minor range against the tags of
@@ -172,7 +192,7 @@ string[] resolveVersionRange(Scheme)(string tagsRepo, string first, string last)
     const lo = Scheme.parseLoose(first).value;
 
     auto stable = fetchTags(tagsRepo)
-        .map!(s => Scheme.parseLoose(s))
+        .map!(tr => Scheme.parseLoose(tr.tag))
         .joiner
         .filter!isStable
         .array;
@@ -194,25 +214,36 @@ string[] resolveVersionRange(Scheme)(string tagsRepo, string first, string last)
     return vers.map!(v => v.to!string).array;
 }
 
-/// Pure: parses the output of `git ls-remote --tags [--refs] <url>` into
-/// a list of tag names (with peeled refs removed).
-string[] parseGitLsRemoteTags(string output) @safe pure {
-    return output.splitLines
-        .map!(line => line.strip)
-        .filter!(line => line.length > 0)
-        .map!((line) {
-            const tabIdx = line.indexOf('\t');
-            return tabIdx < 0 ? "" : line[tabIdx + 1 .. $];
-        })
-        .filter!(refName => refName.startsWith("refs/tags/"))
-        .map!(refName => refName["refs/tags/".length .. $])
-        .filter!(name => !name.endsWith("^{}"))
-        .array;
+/// Pure: parses the output of `git ls-remote --tags <url>` into a list of
+/// `(tag name, commit hash)` pairs in output order. A peeled ref
+/// (`name^{}`) carries the commit an annotated tag points to, so it
+/// overwrites the hash of its already-seen `name` entry; lightweight tags
+/// only have the direct entry.
+TagRev[] parseGitLsRemoteTags(string output) @safe pure {
+    TagRev[] tagRevs;
+    foreach (line; output.splitLines.map!(line => line.strip)) {
+        const tabIdx = line.indexOf('\t');
+        if (tabIdx < 0) continue;
+        const hash = line[0 .. tabIdx];
+        const refName = line[tabIdx + 1 .. $];
+        if (!refName.startsWith("refs/tags/")) continue;
+        auto name = refName["refs/tags/".length .. $];
+        if (name.endsWith("^{}")) {
+            name = name[0 .. $ - "^{}".length];
+            const idx = tagRevs.countUntil!(tr => tr.tag == name);
+            if (idx >= 0) tagRevs[idx].rev = hash;
+        } else {
+            tagRevs ~= TagRev(name, hash);
+        }
+    }
+    return tagRevs;
 }
 
 // editorconfig-checker-disable
 unittest {
-    // Mixed peeled / non-peeled, junk lines, non-version tags.
+    // Mixed peeled / non-peeled, junk lines, non-version tags. The peeled
+    // `^{}` hash replaces the annotated tag object's hash; lightweight
+    // tags (no peeled line) keep their direct hash.
     auto sample = outdent(`
         abc123	refs/tags/v1.0.0
         def456	refs/tags/v1.0.0^{}
@@ -220,7 +251,11 @@ unittest {
         000zzz	refs/tags/CI
         aaabbb	refs/heads/main
     `)[1 .. $];
-    assert(parseGitLsRemoteTags(sample) == ["v1.0.0", "v1.1.0", "CI"]);
+    assert(parseGitLsRemoteTags(sample) == [
+        TagRev("v1.0.0", "def456"),
+        TagRev("v1.1.0", "789ghi"),
+        TagRev("CI", "000zzz"),
+    ]);
     assert(parseGitLsRemoteTags("") == []);
 }
 // editorconfig-checker-enable

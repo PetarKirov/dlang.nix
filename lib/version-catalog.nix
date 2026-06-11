@@ -18,10 +18,16 @@ let
   callWithExtras =
     package:
     let
-      result' = callPackage package {
+      # Only pass each extra argument to functions that declare it: dub's
+      # `dCompiler` must not be forced on dmd/ldc and vice versa. The version
+      # catalogs override these defaults per version by gluing the chosen
+      # compiler onto their result (see e.g. pkgs/dub/version-catalog.nix).
+      extraArgs = {
         hostDCompiler = result'.hostDCompiler or self'.packages.ldc-bootstrap;
+        dCompiler = result'.dCompiler or self'.packages.ldc;
         inherit (pkgs.darwin.apple_sdk.frameworks) Foundation;
       };
+      result' = callPackage package (lib.intersectAttrs (lib.functionArgs package) extraArgs);
     in
     result';
 
