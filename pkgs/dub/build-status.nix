@@ -111,9 +111,24 @@ let
   ];
 
   getSkippedTests =
-    version:
+    version: system:
     baseSkippedTests
-    ++ lib.optionals (versionAtLeast version "1.41.0") [
+    # removed-dub-obj.sh expects `.dub/build/library-*ldc*/obj/test.o*`, but
+    # newer LDCs no longer produce that obj layout; dc-env.sh fails with the
+    # modern host compiler as well. Both were reworked in 1.25.0.
+    ++ lib.optionals (lib.versionOlder version "1.25.0") [
+      "removed-dub-obj.sh"
+      "dc-env.sh"
+    ]
+    # Uses BSD `stat -f '%m'`, but the nix sandbox provides GNU stat on
+    # darwin as well; the test was reworked in 1.25.0.
+    ++ lib.optionals (lib.versionOlder version "1.25.0" && lib.hasSuffix "darwin" system) [
+      "cache-generated-test-config.sh"
+    ]
+    # These tests fail in the nix sandbox from the version they were each
+    # introduced in (1.33/1.34/1.35/1.40); `rm -rf` of the not-yet-existing
+    # directories is a no-op on older versions.
+    ++ lib.optionals (versionAtLeast version "1.33.0") [
       "issue2698-cimportpaths-broken-with-dmd-ldc"
       "pr2642-cache-db"
       "pr2644-describe-artifact-path"
@@ -137,9 +152,36 @@ let
         nameValuePair system {
           build = true;
           check = true;
-          skippedTests = getSkippedTests version;
+          skippedTests = getSkippedTests version system;
         }
       ) systems
     );
 in
-mergeVersions [ (between "1.30.0" latestVersion (version: makeSystemAttrs version)) ]
+mergeVersions [
+  # dub <= 1.19.0 cannot be built with the current packaging:
+  # - 1.0.0 - 1.6.0: postPatch fails (test/fetchzip.sh does not exist yet)
+  # - 1.7.2 - 1.19.0: pre-build.d build system (no ./build.d)
+  (between "1.0.0" "1.19.0" (
+    _version:
+    listToAttrs (
+      map (
+        system:
+        nameValuePair system {
+          build = false;
+          check = false;
+          skippedTests = [ ];
+        }
+      ) systems
+    )
+  ))
+  # 1.20.1 - 1.23.0 use std.xml (removed from newer Phobos), so they pin an
+  # older host compiler via `d-compiler` in supported-source-versions.json.
+  (between "1.20.1" latestVersion (version: makeSystemAttrs version))
+  {
+    "1.23.0" = {
+      x86_64-darwin = {
+        check = false;
+      };
+    };
+  }
+]

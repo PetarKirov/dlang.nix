@@ -6,16 +6,24 @@ lib: rec {
   getBinaryVersion = null; # unsupported
 
   getSourceVersion =
-    pkgs: version:
+    ourPkgs: version:
     assert builtins.hasAttr version supportedVersions.source;
     let
       componentHashes = supportedVersions.source."${version}";
+      package = import ./default.nix (
+        {
+          inherit version;
+          dubSha256 = componentHashes.dub;
+        }
+        // lib.optionalAttrs (componentHashes ? rev) { inherit (componentHashes) rev; }
+      );
     in
-    import ./default.nix (
-      {
-        inherit version;
-        dubSha256 = componentHashes.dub;
+    lib.mirrorFunctionArgs package (
+      nixpkgs:
+      package nixpkgs
+      // {
+        ${if componentHashes ? d-compiler then "dCompiler" else null} =
+          ourPkgs.${componentHashes.d-compiler};
       }
-      // lib.optionalAttrs (componentHashes ? rev) { inherit (componentHashes) rev; }
     );
 }

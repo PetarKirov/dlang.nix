@@ -80,18 +80,22 @@
     "rev": "08ebe85e154dfedcc8ac21fb96bef30beb956209"
   },
   "1.20.1": {
+    "d-compiler": "ldc-binary-1_28_0",
     "dub": "sha256-TpOo5/AVlw0aVeEUJG4Z78ZFbhCwhZWts6oukykRjNM=",
     "rev": "03ea8a03fe3e4e784107d58fce254bec2140bd1b"
   },
   "1.21.0": {
+    "d-compiler": "ldc-binary-1_28_0",
     "dub": "sha256-7pAThfKqamN/sQewPvuaKdi/plzxyuT5FQ2xJSKNEeU=",
     "rev": "fd568a250ae8a5917e551ce1ca87dc4e2d12ffc4"
   },
   "1.22.0": {
+    "d-compiler": "ldc-binary-1_28_0",
     "dub": "sha256-vcADnX3kx0mowKq9w27ytGyIisvbGXAGCob5+cGszrQ=",
     "rev": "8e3d4c13dc95ce5a4cdf9f41fd537e1ea1c77cd9"
   },
   "1.23.0": {
+    "d-compiler": "ldc-binary-1_28_0",
     "dub": "sha256-vqn6QlPMFc/sVbwHeU/eQ/1jB3KRW5PABMDUQDXkRBk=",
     "rev": "4395f8f8fc9a8b3d47fec5e09b002ac75e3b2083"
   },
@@ -120,6 +124,7 @@
     "rev": "f1bddccb1d999b312f4887c85068f9742c2c444e"
   },
   "1.30.0": {
+    "d-compiler": "ldc-binary-1_28_0",
     "dub": "sha256-iVl7bjblvIxvrUX7Phq6h4AIAmZjNVkGYYFA1hhsE7c=",
     "rev": "37656524a8448315331883630f99f305664a9240"
   },
