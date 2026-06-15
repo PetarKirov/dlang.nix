@@ -10,18 +10,16 @@
   curl,
   libevent,
   rsync,
-  ldc,
-  dcompiler ? ldc,
+  dCompiler,
   ...
 }:
-assert dcompiler != null;
 let
   inherit (import ../../lib/build-status.nix { inherit lib; }) getBuildStatus;
   inherit (import ../../lib/dc.nix { inherit lib; }) getDCInfo;
 
   buildStatus = getBuildStatus "dub" version stdenv.system;
 
-  hostDCInfo = getDCInfo dcompiler;
+  hostDCInfo = getDCInfo dCompiler;
 in
 stdenv.mkDerivation rec {
   pname = "dub";
@@ -51,7 +49,7 @@ stdenv.mkDerivation rec {
   '';
 
   nativeBuildInputs = [
-    dcompiler
+    dCompiler
     libevent
     rsync
   ];
