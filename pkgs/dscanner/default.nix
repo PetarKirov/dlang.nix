@@ -1,6 +1,7 @@
 {
   version,
   srcSha256,
+  dubLock,
   rev ? "v${version}",
 }:
 {
@@ -36,7 +37,7 @@ buildDubPackage {
     sha256 = srcSha256;
   };
 
-  dubLock = ./locks/${version}.json;
+  inherit dubLock;
 
   # Newer tags run `$DC -run dubhash.d`, which stamps the version from
   # `git describe --tags`. The source archive carries no `.git`, so init a

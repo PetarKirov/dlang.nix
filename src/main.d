@@ -13,9 +13,12 @@ import std.stdio : stdout, stderr;
 import std.string : strip;
 import std.typecons : tuple;
 
+import std.json : JSONValue;
+
 import dlang_nix.utils.commands : prefech, Hash;
-import dlang_nix.utils.json : hashesToJsonValue, mergeHashesIntoJson, toSortedPrettyJson;
+import dlang_nix.utils.json : hashesToJsonValue, mergeHashesIntoJson, mergeLocksIntoJson, toSortedPrettyJson;
 import dlang_nix.components : Platform, Version, Component, supportedPlatforms, ComponentInfo;
+import dlang_nix.dub_lock : generateDubLock;
 
 void main(string[] args) {
     Version[] componentVersions;
@@ -174,6 +177,41 @@ void main(string[] args) {
         std.file.write(tmpFile, merged);
         std.file.rename(tmpFile, target);
         stderr.writefln("Updated %s", target);
+    }
+
+    // For dub-package components (DCD, dfix, D-Scanner) also regenerate the
+    // combined, version-keyed dub dependency lock that buildDubPackage needs,
+    // using the in-tree dub-to-nix reimplementation.
+    if (compilerInfo.dubLocksFile.length > 0) {
+        stderr.writeln("-----");
+        JSONValue[Version] locks;
+        Version[] lockFailures;
+        foreach (compilerVersion; componentVersions) {
+            stderr.writefln(
+                "* Generating dub lock for %s v%s:", component, compilerVersion);
+            try {
+                auto lock = generateDubLock(
+                    compilerInfo.tagsRepo, compilerVersion, !liveRun);
+                if (liveRun) locks[compilerVersion] = lock;
+            } catch (Exception e) {
+                stderr.writefln("  ! failed: %s", e.msg);
+                lockFailures ~= compilerVersion;
+            }
+        }
+
+        if (liveRun) {
+            const target = compilerInfo.dubLocksFile;
+            const existingJson =
+                std.file.exists(target) ? std.file.readText(target) : "";
+            const merged = mergeLocksIntoJson(existingJson, locks);
+            const tmpFile = target ~ ".tmp";
+            std.file.write(tmpFile, merged);
+            std.file.rename(tmpFile, target);
+            stderr.writefln("Updated %s", target);
+        }
+        if (lockFailures.length > 0)
+            stderr.writefln(
+                "Lock generation failed for: %-(%s, %)", lockFailures);
     }
 
     stderr.writeln("-----");

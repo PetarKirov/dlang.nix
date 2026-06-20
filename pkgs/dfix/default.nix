@@ -1,6 +1,7 @@
 {
   version,
   srcSha256,
+  dubLock,
   rev ? "v${version}",
 }:
 {
@@ -29,7 +30,7 @@ buildDubPackage {
     sha256 = srcSha256;
   };
 
-  dubLock = ./locks/${version}.json;
+  inherit dubLock;
 
   doCheck = buildStatus.check;
 

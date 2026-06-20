@@ -46,6 +46,10 @@ struct ComponentInfo {
     Version[] defaultVersions;  // fetched when no versions are requested
     VersionRangeResolver resolveVersions;
     RevResolver resolveRevs;  // set when the nix fetcher pins an explicit rev
+    // Set for dub-package tools (built via buildDubPackage): the combined,
+    // version-keyed dub dependency lock the fetcher regenerates via its
+    // in-tree `dub-to-nix` reimplementation (see dlang_nix.dub_lock).
+    string dubLocksFile;
 }
 
 string suffix(Platform p) => p.startsWith("windows") ? "7z" : "tar.xz";
@@ -143,6 +147,7 @@ enum ComponentInfo[Component] supportedPlatforms = [
         defaultVersions: [ "0.16.2" ],
         resolveVersions: &resolveVersionRange!SemVer,
         resolveRevs: &resolveTagRevs,
+        dubLocksFile: pkgsDir.buildNormalizedPath("dcd", "dub-locks.json"),
     ),
     Component.dfix: ComponentInfo(
         urlFormatter: (platform, compilerVersion) =>
@@ -157,6 +162,7 @@ enum ComponentInfo[Component] supportedPlatforms = [
         defaultVersions: [ "0.3.5" ],
         resolveVersions: &resolveVersionRange!SemVer,
         resolveRevs: &resolveTagRevs,
+        dubLocksFile: pkgsDir.buildNormalizedPath("dfix", "dub-locks.json"),
     ),
     Component.dscanner: ComponentInfo(
         urlFormatter: (platform, compilerVersion) =>
@@ -171,5 +177,6 @@ enum ComponentInfo[Component] supportedPlatforms = [
         defaultVersions: [ "0.15.2" ],
         resolveVersions: &resolveVersionRange!SemVer,
         resolveRevs: &resolveTagRevs,
+        dubLocksFile: pkgsDir.buildNormalizedPath("dscanner", "dub-locks.json"),
     ),
 ];

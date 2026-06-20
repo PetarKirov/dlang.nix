@@ -9,6 +9,10 @@ mkShell {
     ldc
     dub
     dtools
+    # Used by dlang-nix-fetcher when regenerating the dub-package tools'
+    # source hashes and dub dependency locks (DCD, dfix, D-Scanner).
+    git
+    nix-prefetch-git
 
     (writeShellScriptBin "repl" ''nix repl --file "$REPO_ROOT/repl.nix"'')
   ] ++ lib.optionals stdenv.hostPlatform.isx86 [ dmd ];

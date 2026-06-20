@@ -31,10 +31,11 @@ development environments for the D programming language.
 
 The `dcd`, `dfix` and `dscanner` packages are the [dlang-community][dlang-community]
 developer tools, built with nixpkgs' `buildDubPackage`. `dcd` provides both
-`dcd-client` and `dcd-server`. Their source hashes come from `dlang-nix-fetcher`
-(as for the other packages); the per-version dub dependency locks under
-`pkgs/<tool>/locks/` are regenerated with `scripts/update-dub-locks.sh` via
-nixpkgs' `dub-to-nix`.
+`dcd-client` and `dcd-server`. `dlang-nix-fetcher` produces both their source
+hashes (`pkgs/<tool>/supported-source-versions.json`) and the combined,
+version-keyed dub dependency locks (`pkgs/<tool>/dub-locks.json`) — the latter
+via a small in-tree reimplementation of nixpkgs' `dub-to-nix`, so no external
+tool is needed to refresh them.
 
 [dlang-community]: https://github.com/dlang-community
 
