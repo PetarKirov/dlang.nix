@@ -11,6 +11,18 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
+    # Pinned nixpkgs that ships LLVM 22 (needed by the wasm32-wasip2 LDC fork,
+    # which references llvm::Triple::WASIp1/2/3) plus the wasi32 cross sysroot and
+    # compiler-rt. Matches the LDC WASI dev shell; only the x86_64-linux `ldc-wasm`
+    # packages consume it.
+    nixpkgs-wasm.url = "github:NixOS/nixpkgs/549bd84d6279f9852cae6225e372cc67fb91a4c1";
+
+    # WASI component linker (produces wasm32-wasip2 components).
+    wasm-component-ld = {
+      url = "github:bytecodealliance/wasm-component-ld/v0.5.22";
+      flake = false;
+    };
+
     flake-compat.url = "github:edolstra/flake-compat";
 
     flake-parts = {

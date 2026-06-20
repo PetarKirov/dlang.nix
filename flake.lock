@@ -96,12 +96,47 @@
         "type": "github"
       }
     },
+    "nixpkgs-wasm": {
+      "locked": {
+        "lastModified": 1777954456,
+        "narHash": "sha256-hGdgeU2Nk87RAuZyYjyDjFL6LK7dAZN5RE9+hrDTkDU=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "549bd84d6279f9852cae6225e372cc67fb91a4c1",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "549bd84d6279f9852cae6225e372cc67fb91a4c1",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
         "flake-compat": "flake-compat",
         "flake-parts": "flake-parts",
         "git-hooks-nix": "git-hooks-nix",
-        "nixpkgs": "nixpkgs"
+        "nixpkgs": "nixpkgs",
+        "nixpkgs-wasm": "nixpkgs-wasm",
+        "wasm-component-ld": "wasm-component-ld"
+      }
+    },
+    "wasm-component-ld": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1775250564,
+        "narHash": "sha256-MS1Yy0mNtJ0Q3obuv2xaHsF5ldMMNhpeDM6jTEt8MnA=",
+        "owner": "bytecodealliance",
+        "repo": "wasm-component-ld",
+        "rev": "c9e38b9bc181ce7a4f8b3d21edb48c47ddf197de",
+        "type": "github"
+      },
+      "original": {
+        "owner": "bytecodealliance",
+        "ref": "v0.5.22",
+        "repo": "wasm-component-ld",
+        "type": "github"
       }
     }
   },
