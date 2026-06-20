@@ -40,6 +40,75 @@ in
           ndk = ndkRoot;
         };
       };
+
+      # ---- WebAssembly (wasm32-wasip2) toolchain — x86_64-linux only ----
+      # The fork needs LLVM 22 (it references llvm::Triple::WASIp1/2/3), which
+      # dlang.nix's nixpkgs lacks. Source the whole wasm env from a pinned nixpkgs
+      # that has it, matching the LDC WASI dev shell. Heavy/opt-in, so kept out of
+      # the default set like the android packages.
+      wasmPkgs = import inputs.nixpkgs-wasm { inherit system; };
+
+      # Merged wasilibc tree (libs + headers).
+      wasiSysroot = wasmPkgs.symlinkJoin {
+        name = "wasi-sysroot";
+        paths = [
+          wasmPkgs.pkgsCross.wasi32.wasilibc
+          wasmPkgs.pkgsCross.wasi32.wasilibc.dev
+        ];
+      };
+
+      # WASI component linker.
+      wasmComponentLd = wasmPkgs.rustPlatform.buildRustPackage {
+        pname = "wasm-component-ld";
+        version = "0.5.22";
+        src = inputs.wasm-component-ld;
+        cargoLock.lockFile = "${inputs.wasm-component-ld}/Cargo.lock";
+        doCheck = false;
+      };
+
+      compilerRtWasm32 = "${wasmPkgs.pkgsCross.wasi32.llvmPackages_22.compiler-rt}/lib/wasi/libclang_rt.builtins-wasm32.a";
+      clangUnwrapped = "${wasmPkgs.llvmPackages_22.clang-unwrapped}/bin/clang";
+
+      # The fork tree (ldc + phobos submodule repointed at PetarKirov/phobos, whose
+      # WASI commit is not on upstream), resolved whole via fetchSubmodules.
+      ldcWasmForkSrc = wasmPkgs.fetchFromGitHub {
+        owner = "PetarKirov";
+        repo = "ldc";
+        rev = "f4d2f831c30f63c038999d0818d141539d1246c3";
+        hash = "sha256-NnVWYWff43epvUY3BlTUF0JAQenqs/4mnZ1ZlDHHPE4=";
+        fetchSubmodules = true;
+      };
+
+      ldcWasmCompiler =
+        wasmPkgs.callPackage
+          (import ./ldc/generic.nix {
+            version = "1.42.0";
+            srcOverride = ldcWasmForkSrc;
+            checkOverride = false;
+            llvmPackagesOverride = wasmPkgs.llvmPackages_22;
+          })
+          {
+            hostDCompiler = wasmPkgs.ldc;
+            inherit (wasmPkgs.darwin.apple_sdk.frameworks) Foundation;
+          };
+
+      ldcWasmRuntime = wasmPkgs.callPackage ./ldc/wasm-runtime.nix {
+        ldc = ldcWasmCompiler;
+        inherit wasiSysroot clangUnwrapped;
+      };
+
+      ldcWasm = wasmPkgs.callPackage ./ldc/wasm.nix {
+        ldc = ldcWasmCompiler;
+        wasmRuntime = ldcWasmRuntime;
+        lld = wasmPkgs.llvmPackages_22.lld;
+        inherit wasmComponentLd wasiSysroot compilerRtWasm32;
+      };
+
+      wasmPackages = {
+        ldc-wasm-compiler = ldcWasmCompiler;
+        ldc-wasm-runtime = ldcWasmRuntime;
+        ldc-wasm = ldcWasm;
+      };
     in
     {
       overlayAttrs = self'.packages;
@@ -72,6 +141,6 @@ in
         // (genPkgVersions "dmd").flattened "binary"
         // (genPkgVersions "dmd").flattened "source"
       )
-      // optionalAttrs (system == "x86_64-linux") androidPackages;
+      // optionalAttrs (system == "x86_64-linux") (androidPackages // wasmPackages);
     };
 }
