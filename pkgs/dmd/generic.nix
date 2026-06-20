@@ -24,8 +24,6 @@
   curl,
   tzdata,
   gdb,
-  gcc11,
-  Foundation,
   targetPackages,
   fetchpatch,
   bash,
@@ -88,7 +86,7 @@ let
     [
       "SHELL=${bash}/bin/bash"
       "DMD=$(NIX_BUILD_TOP)/dmd/${buildPath}/dmd"
-      "CC=${if stdenv.isDarwin then stdenv.cc else gcc11}/bin/cc"
+      "CC=${stdenv.cc}/bin/cc"
       "HOST_DMD=${hostDCInfo.dmdWrapper}"
       "PIC=1"
       "BUILD=${buildMode}"
@@ -377,7 +375,6 @@ stdenv.mkDerivation rec {
     tzdata
   ]
   ++ lib.optionals stdenv.isDarwin [
-    Foundation
     # Exports MACOSX_DEPLOYMENT_TARGET for every build/check phase. Covers the
     # compiler invocations the druntime/phobos makefiles don't drive (building
     # dmd itself, the test harness) — without it DMD's codegen falls back to its
@@ -411,8 +408,6 @@ stdenv.mkDerivation rec {
   '';
 
   doCheck = buildStatus.check;
-
-  checkInputs = lib.optional stdenv.isDarwin Foundation;
 
   checkFlagsMake = commonBuildFlags { forMake = true; } ++ [ "N=$(checkJobs)" ];
   checkFlagsRunD = commonBuildFlags { forMake = false; };

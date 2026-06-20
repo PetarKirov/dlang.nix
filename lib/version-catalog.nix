@@ -25,7 +25,6 @@ let
       extraArgs = {
         hostDCompiler = result'.hostDCompiler or self'.packages.ldc-bootstrap;
         dCompiler = result'.dCompiler or self'.packages.ldc;
-        inherit (pkgs.darwin.apple_sdk.frameworks) Foundation;
       };
       result' = callPackage package (lib.intersectAttrs (lib.functionArgs package) extraArgs);
     in

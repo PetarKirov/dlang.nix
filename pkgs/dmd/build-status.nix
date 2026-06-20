@@ -38,6 +38,26 @@ let
       else
         "${dmdTestDir}/runnable";
 
+    # C++ interop / mangling tests. These exercise the C++ ABI, so we want them
+    # running on x86_64-linux (the only platform where dmd `check` is currently
+    # enabled). They are only skipped on darwin for now, where the toolchain
+    # still trips over them; they should be enabled there too once the macOS
+    # runner situation is sorted out.
+    cxxSkippedTests = [
+      "${cxxTestDir}/cpp11.d"
+      "${cxxTestDir}/cpp_stdlib.d"
+      "${cxxTestDir}/cppa.d"
+      "${cxxTestDir}/externmangle2.d"
+      "${cxxTestDir}/cpp_abi_tests.d"
+      "${cxxTestDir}/externmangle.d"
+      "${dmdTestDir}/dshell/dll_cxx.d"
+    ]
+    ++ lib.optionals (versionBetween "2.099.0" latestVersion version) [
+      "${cxxTestDir}/test22287.d"
+      "${cxxTestDir}/test7925.d"
+    ]
+    ++ lib.optionals (versionBetween "2.101.0" latestVersion version) [ "${cxxTestDir}/test23135.d" ];
+
     skippedTests = [
       # Tests that rely on the time of build
       "${dmdTestDir}/compilable/ddocYear.d"
@@ -76,20 +96,7 @@ let
       let
         tests =
           skippedTests
-          ++ [
-            "${cxxTestDir}/cpp11.d"
-            "${cxxTestDir}/cpp_stdlib.d"
-            "${cxxTestDir}/cppa.d"
-            "${cxxTestDir}/externmangle2.d"
-            "${cxxTestDir}/cpp_abi_tests.d"
-            "${cxxTestDir}/externmangle.d"
-            "${dmdTestDir}/dshell/dll_cxx.d"
-          ]
-          ++ lib.optionals (versionBetween "2.099.0" latestVersion version) [
-            "${cxxTestDir}/test22287.d"
-            "${cxxTestDir}/test7925.d"
-          ]
-          ++ lib.optionals (versionBetween "2.101.0" latestVersion version) [ "${cxxTestDir}/test23135.d" ]
+          ++ cxxSkippedTests
           ++ (
             if versionBetween "2.092.1" "2.098.1" version then
               if versionBetween "2.092.1" "2.097.2" version then
