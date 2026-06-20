@@ -7,7 +7,6 @@
   fetchurl,
   cmake,
   ninja,
-  llvmPackages_12,
   llvmPackages_18,
   curl,
   tzdata,
@@ -15,7 +14,6 @@
   lit,
   gdb,
   unzip,
-  darwin,
   xar,
   bash,
   pkg-config,
@@ -31,8 +29,17 @@ let
   buildStatus = getBuildStatus "ldc" version stdenv.system;
 
   # LDC tracks LLVM closely: 1.30 builds against LLVM 12, the 1.4x line needs
-  # LLVM 15-20 (nixpkgs ships 1.40.1 on LLVM 18, so we use 18 here too).
-  llvmPackages = if lib.versionAtLeast version "1.41.0" then llvmPackages_18 else llvmPackages_12;
+  # LLVM 15-20 (nixpkgs ships 1.40.1 on LLVM 18, so we use 18 here too). The
+  # LLVM 12 set comes from a pinned older nixpkgs (see ../llvm-packages.nix).
+  ourLlvmPackages = import ../llvm-packages.nix {
+    inherit (stdenv) system;
+    inherit llvmPackages_18;
+  };
+  llvmPackages =
+    if lib.versionAtLeast version "1.41.0" then
+      ourLlvmPackages.llvmPackages_18
+    else
+      ourLlvmPackages.llvmPackages_12;
 
   pathConfig = runCommand "phobos-tzdata-curl-paths" { } ''
     mkdir $out
@@ -149,7 +156,6 @@ stdenv.mkDerivation rec {
     unzip
     pkg-config
   ]
-  ++ lib.optional stdenv.hostPlatform.isDarwin darwin.apple_sdk.frameworks.Foundation
   # https://github.com/NixOS/nixpkgs/pull/36378#issuecomment-385034818
   ++ lib.optional (!stdenv.hostPlatform.isDarwin) gdb;
 
@@ -180,6 +186,7 @@ stdenv.mkDerivation rec {
       ];
     in
     [
+      "-D CMAKE_POLICY_VERSION_MINIMUM=3.5"
       "-D D_FLAGS=${lib.concatStringsSep ";" dFlags}"
       "-D CMAKE_BUILD_TYPE=Release"
       "-D MULTILIB=OFF"

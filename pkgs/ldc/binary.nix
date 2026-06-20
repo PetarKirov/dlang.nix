@@ -8,6 +8,7 @@
   autoPatchelfHook,
   fixDarwinDylibNames,
   libxml2,
+  runCommand,
   ...
 }:
 let
@@ -45,6 +46,21 @@ let
   tarballSuffix = if hostPlatform.isWindows then "7z" else "tar.xz";
 
   archivePlatform = systemToArchivePlatform."${system}";
+
+  # The pre-built LDC bootstrap binaries are linked against `libxml2.so.2`, but
+  # modern nixpkgs ships libxml2 with a bumped soname (e.g. `libxml2.so.16`), so
+  # autoPatchelfHook cannot satisfy the old `NEEDED libxml2.so.2` entry. libxml2
+  # is only pulled in for a handful of LLVM XML helpers that LDC does not
+  # exercise during bootstrap, so aliasing the new library under the old soname
+  # is safe in practice. Resolve to the real versioned file (rather than the
+  # unversioned `libxml2.so` dev symlink) so this keeps working regardless of
+  # where nixpkgs places the unversioned symlink.
+  libxml2Shim = runCommand "libxml2-shim" { } ''
+    mkdir -p $out/lib
+    real=$(readlink -f ${libxml2.out}/lib/libxml2.so)
+    ln -s "$real" $out/lib/libxml2.so.2
+    ln -s "$real" $out/lib/libxml2.so
+  '';
 in
 stdenv.mkDerivation {
   pname = "ldc-binary";
@@ -68,7 +84,7 @@ stdenv.mkDerivation {
     ++ lib.optional hostPlatform.isDarwin fixDarwinDylibNames;
 
   buildInputs = lib.optionals stdenv.hostPlatform.isLinux [
-    libxml2
+    libxml2Shim
     stdenv.cc.cc
   ];
 
