@@ -29,7 +29,7 @@ alias RevResolver =
 
 @safe pure:
 
-enum Component { dmd, dmd_src, ldc, ldc_src, dub };
+enum Component { dmd, dmd_src, ldc, ldc_src, dub, dcd, dfix, dscanner };
 
 alias UrlFormatter = Url function(Platform platform, Version compilerVersion);
 
@@ -122,6 +122,53 @@ enum ComponentInfo[Component] supportedPlatforms = [
         supportedVersionsFile: pkgsDir.buildNormalizedPath("dub", "supported-source-versions.json"),
         tagsRepo: "dlang/dub",
         defaultVersions: [ "1.41.0" ],
+        resolveVersions: &resolveVersionRange!SemVer,
+        resolveRevs: &resolveTagRevs,
+    ),
+    // dlang-community developer tools, built from their GitHub source archives
+    // with nixpkgs' `buildDubPackage`. Like `dub`, each pins the commit its
+    // release tag points to (`rev`) alongside the unpacked source hash (`src`).
+    // The per-version dub dependency lock (`dub-lock.json`) is produced
+    // separately by `scripts/update-dub-locks.sh` via nixpkgs' `dub-to-nix`.
+    Component.dcd: ComponentInfo(
+        urlFormatter: (platform, compilerVersion) =>
+            "https://github.com/dlang-community/DCD/archive/refs/tags/v%s.tar.gz"
+                .format(compilerVersion),
+        platforms: compVersion => [
+            "src"
+        ],
+        unpackingNeed: UnpackingNeeded.yes,
+        supportedVersionsFile: pkgsDir.buildNormalizedPath("dcd", "supported-source-versions.json"),
+        tagsRepo: "dlang-community/DCD",
+        defaultVersions: [ "0.16.2" ],
+        resolveVersions: &resolveVersionRange!SemVer,
+        resolveRevs: &resolveTagRevs,
+    ),
+    Component.dfix: ComponentInfo(
+        urlFormatter: (platform, compilerVersion) =>
+            "https://github.com/dlang-community/dfix/archive/refs/tags/v%s.tar.gz"
+                .format(compilerVersion),
+        platforms: compVersion => [
+            "src"
+        ],
+        unpackingNeed: UnpackingNeeded.yes,
+        supportedVersionsFile: pkgsDir.buildNormalizedPath("dfix", "supported-source-versions.json"),
+        tagsRepo: "dlang-community/dfix",
+        defaultVersions: [ "0.3.5" ],
+        resolveVersions: &resolveVersionRange!SemVer,
+        resolveRevs: &resolveTagRevs,
+    ),
+    Component.dscanner: ComponentInfo(
+        urlFormatter: (platform, compilerVersion) =>
+            "https://github.com/dlang-community/D-Scanner/archive/refs/tags/v%s.tar.gz"
+                .format(compilerVersion),
+        platforms: compVersion => [
+            "src"
+        ],
+        unpackingNeed: UnpackingNeeded.yes,
+        supportedVersionsFile: pkgsDir.buildNormalizedPath("dscanner", "supported-source-versions.json"),
+        tagsRepo: "dlang-community/D-Scanner",
+        defaultVersions: [ "0.15.2" ],
         resolveVersions: &resolveVersionRange!SemVer,
         resolveRevs: &resolveTagRevs,
     ),

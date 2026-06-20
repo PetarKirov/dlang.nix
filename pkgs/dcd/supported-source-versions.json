@@ -1,0 +1,14 @@
+{
+  "0.13.6": {
+    "rev": "02acaa534b9be65142aed7b202a6a8d5524abf2a",
+    "src": "sha256-uGpZaDDBax22HOM5/z4XcQbX8BHgRn8HwHPJm9Vp88A="
+  },
+  "0.15.2": {
+    "rev": "4946d49abdc35810254151923bab30fb3cc2c004",
+    "src": "sha256-dJ4Ql3P9kPQhQ3ZrNcTAEB5JHSslYn2BN8uqq6vGetY="
+  },
+  "0.16.2": {
+    "rev": "a0441ba8c5c7d841e481413a56a1ebe4f8364811",
+    "src": "sha256-1KRTHRXSXK/TYNDhoMor+amJxN7XGwkaHaHVnqrTyDU="
+  }
+}

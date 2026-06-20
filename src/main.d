@@ -42,8 +42,8 @@ void main(string[] args) {
             "component",
                 // Ideally we would generate the list of allowed values as
                 // opposed to this hardcoding
-                "What component to fetch. dmd | dmd_src | ldc | ldc_src | dub, " ~
-                    "default ldc",
+                "What component to fetch. dmd | dmd_src | ldc | ldc_src | dub | " ~
+                    "dcd | dfix | dscanner, default ldc",
                 &component,
             "dry-run",
                 "Only print what would be done, but don't really act." ~
@@ -68,7 +68,8 @@ void main(string[] args) {
         defaultGetoptFormatter(
             w,
             "dlang-nix-fetcher - " ~
-                "tool for fetching source and binary releases of DMD, LDC and dub",
+                "tool for fetching source and binary releases of DMD, LDC, dub " ~
+                "and the dlang-community tools (DCD, dfix, D-Scanner)",
             parseCLI(args[0 .. 1]).options,
         );
         return;

@@ -25,6 +25,18 @@ development environments for the D programming language.
 | `ldc-binary` | 1.0.0 - 1.42.0 (latest patch per minor) | ✅ Linux x86_64, ✅ macOS x86_64 |
 | `ldc`        | 1.42.0                                 | ✅ Linux x86_64, ✅ macOS aarch64 |
 | `dub`        | 1.30.0, 1.41.0, 1.42.0-beta.1          | ✅ Linux x86_64, ✅ macOS x86_64 |
+| `dcd`        | 0.15.2, 0.16.2                         | ✅ Linux x86_64                 |
+| `dfix`       | 0.3.5                                  | ✅ Linux x86_64                 |
+| `dscanner`   | 0.11.1, 0.12.2, 0.13.0, 0.14.0, 0.15.2 | ✅ Linux x86_64                 |
+
+The `dcd`, `dfix` and `dscanner` packages are the [dlang-community][dlang-community]
+developer tools, built with nixpkgs' `buildDubPackage`. `dcd` provides both
+`dcd-client` and `dcd-server`. Their source hashes come from `dlang-nix-fetcher`
+(as for the other packages); the per-version dub dependency locks under
+`pkgs/<tool>/locks/` are regenerated with `scripts/update-dub-locks.sh` via
+nixpkgs' `dub-to-nix`.
+
+[dlang-community]: https://github.com/dlang-community
 
 ## Usage
 
