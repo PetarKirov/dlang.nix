@@ -38,40 +38,39 @@ let
       else
         "${dmdTestDir}/runnable";
 
-    skippedTests =
-      [
-        # Tests that rely on the time of build
-        "${dmdTestDir}/compilable/ddocYear.d"
+    skippedTests = [
+      # Tests that rely on the time of build
+      "${dmdTestDir}/compilable/ddocYear.d"
 
-        # GDB tests
-        "${dmdTestDir}/runnable/gdb1.d"
-        "${dmdTestDir}/runnable/gdb10311.d"
-        "${dmdTestDir}/runnable/gdb14225.d"
-        "${dmdTestDir}/runnable/gdb14276.d"
-        "${dmdTestDir}/runnable/gdb14313.d"
-        "${dmdTestDir}/runnable/gdb14330.d"
-        "${dmdTestDir}/runnable/gdb15729.sh"
-        "${dmdTestDir}/runnable/gdb4149.d"
-        "${dmdTestDir}/runnable/gdb4181.d"
-      ]
-      # tests that rely on objdump whitespace
-      ++ (
-        if versionAtLeast version "2.087.0" then
-          [
-            "${dmdTestDir}/runnable/cdvecfill.sh"
-            "${dmdTestDir}/compilable/cdcmp.d"
-          ]
-        else
-          [
-            "${dmdTestDir}/runnable/test_cdvecfill.d"
-            "${dmdTestDir}/runnable/test_cdcmp.d"
-          ]
-      )
+      # GDB tests
+      "${dmdTestDir}/runnable/gdb1.d"
+      "${dmdTestDir}/runnable/gdb10311.d"
+      "${dmdTestDir}/runnable/gdb14225.d"
+      "${dmdTestDir}/runnable/gdb14276.d"
+      "${dmdTestDir}/runnable/gdb14313.d"
+      "${dmdTestDir}/runnable/gdb14330.d"
+      "${dmdTestDir}/runnable/gdb15729.sh"
+      "${dmdTestDir}/runnable/gdb4149.d"
+      "${dmdTestDir}/runnable/gdb4181.d"
+    ]
+    # tests that rely on objdump whitespace
+    ++ (
+      if versionAtLeast version "2.087.0" then
+        [
+          "${dmdTestDir}/runnable/cdvecfill.sh"
+          "${dmdTestDir}/compilable/cdcmp.d"
+        ]
+      else
+        [
+          "${dmdTestDir}/runnable/test_cdvecfill.d"
+          "${dmdTestDir}/runnable/test_cdcmp.d"
+        ]
+    )
 
-      ++ lib.optionals (versionBetween "2.089.0" "2.092.2" version) [ "${dmdTestDir}/dshell/test6952.d" ]
-      # This test is patched on it's current path, but would have to patch
-      # the patch to work on the file path before repository unification.
-      ++ lib.optionals (hasDruntimeRepo) [ "${dmdTestDir}/fail_compilation/needspkgmod.d" ];
+    ++ lib.optionals (versionBetween "2.089.0" "2.092.2" version) [ "${dmdTestDir}/dshell/test6952.d" ]
+    # This test is patched on it's current path, but would have to patch
+    # the patch to work on the file path before repository unification.
+    ++ lib.optionals (hasDruntimeRepo) [ "${dmdTestDir}/fail_compilation/needspkgmod.d" ];
 
     darwinSkippedTests =
       let
