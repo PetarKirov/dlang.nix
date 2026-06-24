@@ -99,5 +99,6 @@ stdenv.mkDerivation {
       lionello
     ];
     platforms = supportedSystems;
+    mainProgram = "ldc2";
   };
 }
