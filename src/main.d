@@ -16,8 +16,16 @@ import std.typecons : tuple;
 import dlang_nix.utils.commands : prefech, Hash;
 import dlang_nix.utils.json : hashesToJsonValue, mergeHashesIntoJson, toSortedPrettyJson;
 import dlang_nix.components : Platform, Version, Component, supportedPlatforms, ComponentInfo;
+import dlang_nix.ci.cli : runCi;
 
 void main(string[] args) {
+    // `ci` subcommand: CI build-matrix helpers (see dlang_nix.ci.cli). Anything
+    // else falls through to the default release-prefetcher below.
+    if (args.length >= 2 && args[1] == "ci") {
+        runCi(args[1 .. $]);
+        return;
+    }
+
     Version[] componentVersions;
     Component component = Component.ldc;
     bool liveRun = false;

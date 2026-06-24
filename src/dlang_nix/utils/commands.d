@@ -54,6 +54,24 @@ string executeCommand(bool dryRun, string command) {
     return result.status == 0 ? result.output : null;
 }
 
+import core.time : Duration;
+import std.datetime.stopwatch : StopWatch, AutoStart;
+
+alias TimedResult = Tuple!(int, "status", Duration, "elapsed", string, "output");
+
+/// Runs `command`, capturing its combined output, and returns the exit status,
+/// wall-clock time and output. Used by `calibrate` to measure per-package build
+/// times (the output lets it tell a real build failure from `nix build
+/// --rebuild`'s "may not be deterministic" mismatch, which still timed a real
+/// build).
+TimedResult executeTimed(string command) {
+    stderr.writefln(`> %s`, command);
+    auto sw = StopWatch(AutoStart.yes);
+    const result = executeShell(command, null, Config.none);
+    sw.stop();
+    return TimedResult(result.status, sw.peek, result.output);
+}
+
 // ---------------------------------------------------------------------------
 // Version predicates and selectors.
 //
