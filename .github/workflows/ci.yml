@@ -47,9 +47,8 @@ jobs:
       fail-fast: false
       matrix: ${{fromJSON(needs.generate-matrix.outputs.matrix)}}
 
-    name: ${{ matrix.package }} | ${{ matrix.system }}
+    name: ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
-    continue-on-error: ${{ matrix.allowedToFail }}
 
     steps:
       - uses: actions/checkout@v7
@@ -65,8 +64,11 @@ jobs:
           name: ${{ vars.CACHIX_CACHE }}
           authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
 
-      - name: Build ${{ matrix.package }}
-        run: nix build -L --json --no-link '.#packages.${{ matrix.attrPath }}'
+      # A job may build several packages (small ones are batched together by
+      # `dlang-nix-fetcher ci plan-matrix`). `--keep-going` so one failure still
+      # builds & caches the rest of the batch; the job still fails if any did.
+      - name: Build
+        run: nix build -L --no-link --keep-going ${{ matrix.installables }}
 
   results:
     runs-on: ubuntu-latest
