@@ -158,16 +158,20 @@ let
     );
 in
 mergeVersions [
-  # dub <= 1.19.0 cannot be built with the current packaging:
-  # - 1.0.0 - 1.6.0: postPatch fails (test/fetchzip.sh does not exist yet)
-  # - 1.7.2 - 1.19.0: pre-build.d build system (no ./build.d)
+  # dub <= 1.19.0 use the pre-`build.d` build system (`./build.sh`) and are
+  # compiled with an era-matched `ldc-binary-1_N_*` host pinned via `d-compiler`
+  # in supported-source-versions.json (a modern host compiler rejects their
+  # source). Only x86_64-linux is enabled: those vintage LDC releases only ship
+  # x86_64 binaries (no aarch64 / i686), and the old macOS bootstrap binaries
+  # segfault on the current macOS runner. Their legacy test suites also predate
+  # the current `run-unittest.sh` harness, so `check` is left off.
   (between "1.0.0" "1.19.0" (
     _version:
     listToAttrs (
       map (
         system:
         nameValuePair system {
-          build = false;
+          build = system == "x86_64-linux";
           check = false;
           skippedTests = [ ];
         }

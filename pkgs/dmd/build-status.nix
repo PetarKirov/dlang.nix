@@ -38,59 +38,65 @@ let
       else
         "${dmdTestDir}/runnable";
 
-    skippedTests =
-      [
-        # Tests that rely on the time of build
-        "${dmdTestDir}/compilable/ddocYear.d"
+    # C++ interop / mangling tests. These exercise the C++ ABI, so we want them
+    # running on x86_64-linux (the only platform where dmd `check` is currently
+    # enabled). They are only skipped on darwin for now, where the toolchain
+    # still trips over them; they should be enabled there too once the macOS
+    # runner situation is sorted out.
+    cxxSkippedTests = [
+      "${cxxTestDir}/cpp11.d"
+      "${cxxTestDir}/cpp_stdlib.d"
+      "${cxxTestDir}/cppa.d"
+      "${cxxTestDir}/externmangle2.d"
+      "${cxxTestDir}/cpp_abi_tests.d"
+      "${cxxTestDir}/externmangle.d"
+      "${dmdTestDir}/dshell/dll_cxx.d"
+    ]
+    ++ lib.optionals (versionBetween "2.099.0" latestVersion version) [
+      "${cxxTestDir}/test22287.d"
+      "${cxxTestDir}/test7925.d"
+    ]
+    ++ lib.optionals (versionBetween "2.101.0" latestVersion version) [ "${cxxTestDir}/test23135.d" ];
 
-        # GDB tests
-        "${dmdTestDir}/runnable/gdb1.d"
-        "${dmdTestDir}/runnable/gdb10311.d"
-        "${dmdTestDir}/runnable/gdb14225.d"
-        "${dmdTestDir}/runnable/gdb14276.d"
-        "${dmdTestDir}/runnable/gdb14313.d"
-        "${dmdTestDir}/runnable/gdb14330.d"
-        "${dmdTestDir}/runnable/gdb15729.sh"
-        "${dmdTestDir}/runnable/gdb4149.d"
-        "${dmdTestDir}/runnable/gdb4181.d"
-      ]
-      # tests that rely on objdump whitespace
-      ++ (
-        if versionAtLeast version "2.087.0" then
-          [
-            "${dmdTestDir}/runnable/cdvecfill.sh"
-            "${dmdTestDir}/compilable/cdcmp.d"
-          ]
-        else
-          [
-            "${dmdTestDir}/runnable/test_cdvecfill.d"
-            "${dmdTestDir}/runnable/test_cdcmp.d"
-          ]
-      )
+    skippedTests = [
+      # Tests that rely on the time of build
+      "${dmdTestDir}/compilable/ddocYear.d"
 
-      ++ lib.optionals (versionBetween "2.089.0" "2.092.2" version) [ "${dmdTestDir}/dshell/test6952.d" ]
-      # This test is patched on it's current path, but would have to patch
-      # the patch to work on the file path before repository unification.
-      ++ lib.optionals (hasDruntimeRepo) [ "${dmdTestDir}/fail_compilation/needspkgmod.d" ];
+      # GDB tests
+      "${dmdTestDir}/runnable/gdb1.d"
+      "${dmdTestDir}/runnable/gdb10311.d"
+      "${dmdTestDir}/runnable/gdb14225.d"
+      "${dmdTestDir}/runnable/gdb14276.d"
+      "${dmdTestDir}/runnable/gdb14313.d"
+      "${dmdTestDir}/runnable/gdb14330.d"
+      "${dmdTestDir}/runnable/gdb15729.sh"
+      "${dmdTestDir}/runnable/gdb4149.d"
+      "${dmdTestDir}/runnable/gdb4181.d"
+    ]
+    # tests that rely on objdump whitespace
+    ++ (
+      if versionAtLeast version "2.087.0" then
+        [
+          "${dmdTestDir}/runnable/cdvecfill.sh"
+          "${dmdTestDir}/compilable/cdcmp.d"
+        ]
+      else
+        [
+          "${dmdTestDir}/runnable/test_cdvecfill.d"
+          "${dmdTestDir}/runnable/test_cdcmp.d"
+        ]
+    )
+
+    ++ lib.optionals (versionBetween "2.089.0" "2.092.2" version) [ "${dmdTestDir}/dshell/test6952.d" ]
+    # This test is patched on it's current path, but would have to patch
+    # the patch to work on the file path before repository unification.
+    ++ lib.optionals (hasDruntimeRepo) [ "${dmdTestDir}/fail_compilation/needspkgmod.d" ];
 
     darwinSkippedTests =
       let
         tests =
           skippedTests
-          ++ [
-            "${cxxTestDir}/cpp11.d"
-            "${cxxTestDir}/cpp_stdlib.d"
-            "${cxxTestDir}/cppa.d"
-            "${cxxTestDir}/externmangle2.d"
-            "${cxxTestDir}/cpp_abi_tests.d"
-            "${cxxTestDir}/externmangle.d"
-            "${dmdTestDir}/dshell/dll_cxx.d"
-          ]
-          ++ lib.optionals (versionBetween "2.099.0" latestVersion version) [
-            "${cxxTestDir}/test22287.d"
-            "${cxxTestDir}/test7925.d"
-          ]
-          ++ lib.optionals (versionBetween "2.101.0" latestVersion version) [ "${cxxTestDir}/test23135.d" ]
+          ++ cxxSkippedTests
           ++ (
             if versionBetween "2.092.1" "2.098.1" version then
               if versionBetween "2.092.1" "2.097.2" version then

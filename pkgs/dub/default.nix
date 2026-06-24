@@ -19,6 +19,17 @@ let
 
   buildStatus = getBuildStatus "dub" version stdenv.system;
 
+  # Offer this package only on the systems where the build matrix says it
+  # builds. The pre-1.20 releases pin vintage `ldc-binary` hosts that are only
+  # published for x86_64, so without this they would be surfaced on (and fail to
+  # evaluate on) systems such as aarch64-darwin where no such bootstrap binary
+  # exists.
+  buildPlatforms = lib.attrNames (
+    lib.filterAttrs (_system: status: status.build) (
+      (import ./build-status.nix { inherit lib; }).${version} or { }
+    )
+  );
+
   hostDCInfo = getDCInfo dCompiler;
 in
 stdenv.mkDerivation rec {
@@ -40,12 +51,20 @@ stdenv.mkDerivation rec {
 
   dubvar = "\\$DUB";
   postPatch = ''
-    patchShebangs test
+    patchShebangs .
 
 
     # Can be removed with https://github.com/dlang/dub/pull/1368
-    substituteInPlace test/fetchzip.sh \
-        --replace "dub remove" "\"${dubvar}\" remove"
+    if [ -f test/fetchzip.sh ]; then
+      substituteInPlace test/fetchzip.sh \
+          --replace "dub remove" "\"${dubvar}\" remove"
+    fi
+
+    # Fix a missing comma in dub 1.0.0 that causes implicit string concatenation error
+    ${lib.optionalString (lib.versionOlder version "1.1.0") ''
+      substituteInPlace source/dub/commandline.d \
+          --replace '"This command will convert between JSON and SDLang formatted package recipe files."' '"This command will convert between JSON and SDLang formatted package recipe files.",'
+    ''}
   '';
 
   nativeBuildInputs = [
@@ -67,8 +86,18 @@ stdenv.mkDerivation rec {
       exit "Error: could not find D compiler"
     fi
     echo "$dc_ found and used as D compiler to build $pname"
-    $dc ./build.d
-    ./build
+
+    if [ -f ./build.d ]; then
+      $dc ./build.d
+      ./build
+    elif [ -f ./build.sh ]; then
+      export DMD=$dc
+      export GITVER=v${version}
+      ./build.sh ${lib.optionalString stdenv.hostPlatform.isLinux "-L-no-pie"}
+    else
+      echo "Error: no build script found"
+      exit 1
+    fi
   '';
 
   doCheck = buildStatus.check;
@@ -96,12 +125,6 @@ stdenv.mkDerivation rec {
     homepage = "https://code.dlang.org/";
     license = licenses.mit;
     maintainers = with maintainers; [ ThomasMader ];
-    platforms = [
-      "x86_64-linux"
-      "i686-linux"
-      "aarch64-linux"
-      "x86_64-darwin"
-      "aarch64-darwin"
-    ];
+    platforms = buildPlatforms;
   };
 }

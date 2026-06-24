@@ -7,7 +7,6 @@
   fetchurl,
   cmake,
   ninja,
-  llvmPackages_12,
   llvmPackages_18,
   curl,
   tzdata,
@@ -15,7 +14,6 @@
   lit,
   gdb,
   unzip,
-  darwin,
   xar,
   bash,
   pkg-config,
@@ -31,8 +29,17 @@ let
   buildStatus = getBuildStatus "ldc" version stdenv.system;
 
   # LDC tracks LLVM closely: 1.30 builds against LLVM 12, the 1.4x line needs
-  # LLVM 15-20 (nixpkgs ships 1.40.1 on LLVM 18, so we use 18 here too).
-  llvmPackages = if lib.versionAtLeast version "1.41.0" then llvmPackages_18 else llvmPackages_12;
+  # LLVM 15-20 (nixpkgs ships 1.40.1 on LLVM 18, so we use 18 here too). The
+  # LLVM 12 set comes from a pinned older nixpkgs (see ../llvm-packages.nix).
+  ourLlvmPackages = import ../llvm-packages.nix {
+    inherit (stdenv) system;
+    inherit llvmPackages_18;
+  };
+  llvmPackages =
+    if lib.versionAtLeast version "1.41.0" then
+      ourLlvmPackages.llvmPackages_18
+    else
+      ourLlvmPackages.llvmPackages_12;
 
   pathConfig = runCommand "phobos-tzdata-curl-paths" { } ''
     mkdir $out
@@ -88,26 +95,25 @@ stdenv.mkDerivation rec {
   # https://issues.dlang.org/show_bug.cgi?id=19553
   hardeningDisable = [ "fortify" ];
 
-  postUnpack =
-    ''
-      patchShebangs .
-    ''
-    # The remaining steps only massage the bundled dmd test suite, so they are
-    # only needed when we actually run it. The paths below assume the pre-1.41
-    # layout (`tests/d2/dmd-testsuite/`), which LDC 1.42 relocated to
-    # `tests/dmd/`.
-    + lib.optionalString buildStatus.check ''
-      rm ldc-${version}-src/tests/d2/dmd-testsuite/fail_compilation/mixin_gc.d
-      rm ldc-${version}-src/tests/d2/dmd-testsuite/runnable/xtest46_gc.d
-      rm ldc-${version}-src/tests/d2/dmd-testsuite/runnable/testptrref_gc.d
+  postUnpack = ''
+    patchShebangs .
+  ''
+  # The remaining steps only massage the bundled dmd test suite, so they are
+  # only needed when we actually run it. The paths below assume the pre-1.41
+  # layout (`tests/d2/dmd-testsuite/`), which LDC 1.42 relocated to
+  # `tests/dmd/`.
+  + lib.optionalString buildStatus.check ''
+    rm ldc-${version}-src/tests/d2/dmd-testsuite/fail_compilation/mixin_gc.d
+    rm ldc-${version}-src/tests/d2/dmd-testsuite/runnable/xtest46_gc.d
+    rm ldc-${version}-src/tests/d2/dmd-testsuite/runnable/testptrref_gc.d
 
-      # test depends on current year
-      rm ldc-${version}-src/tests/d2/dmd-testsuite/compilable/ddocYear.d
-    ''
-    + lib.optionalString (buildStatus.check && stdenv.hostPlatform.isDarwin) ''
-      # https://github.com/NixOS/nixpkgs/issues/34817
-      rm -r ldc-${version}-src/tests/plugins/addFuncEntryCall
-    '';
+    # test depends on current year
+    rm ldc-${version}-src/tests/d2/dmd-testsuite/compilable/ddocYear.d
+  ''
+  + lib.optionalString (buildStatus.check && stdenv.hostPlatform.isDarwin) ''
+    # https://github.com/NixOS/nixpkgs/issues/34817
+    rm -r ldc-${version}-src/tests/plugins/addFuncEntryCall
+  '';
 
   patches = lib.optionals (versionBetween "2.092.0" "2.101.0" version) [
     # `src/dmd/backend/cg.d` and `src/dmd/backend/var.d` contained arrays defined as
@@ -138,31 +144,28 @@ stdenv.mkDerivation rec {
     ''
   );
 
-  nativeBuildInputs =
-    [
-      cmake
-      hostDCompiler
-      lit
-      lit.python
-      llvmPackages.llvm.dev
-      llvmPackages.lld.dev
-      makeWrapper
-      ninja
-      unzip
-      pkg-config
-    ]
-    ++ lib.optional stdenv.hostPlatform.isDarwin darwin.apple_sdk.frameworks.Foundation
-    # https://github.com/NixOS/nixpkgs/pull/36378#issuecomment-385034818
-    ++ lib.optional (!stdenv.hostPlatform.isDarwin) gdb;
+  nativeBuildInputs = [
+    cmake
+    hostDCompiler
+    lit
+    lit.python
+    llvmPackages.llvm.dev
+    llvmPackages.lld.dev
+    makeWrapper
+    ninja
+    unzip
+    pkg-config
+  ]
+  # https://github.com/NixOS/nixpkgs/pull/36378#issuecomment-385034818
+  ++ lib.optional (!stdenv.hostPlatform.isDarwin) gdb;
 
-  buildInputs =
-    [
-      curl
-      tzdata
-    ]
-    # LLVM >= 18 reports `-lxar` in its system libs on macOS, and with
-    # LDC_LINK_MANUALLY=ON the linker needs libxar on its search path.
-    ++ lib.optional (stdenv.hostPlatform.isDarwin && lib.versionAtLeast version "1.41.0") xar;
+  buildInputs = [
+    curl
+    tzdata
+  ]
+  # LLVM >= 18 reports `-lxar` in its system libs on macOS, and with
+  # LDC_LINK_MANUALLY=ON the linker needs libxar on its search path.
+  ++ lib.optional (stdenv.hostPlatform.isDarwin && lib.versionAtLeast version "1.41.0") xar;
 
   cmakeFlags =
     let
@@ -171,19 +174,19 @@ stdenv.mkDerivation rec {
       # LDC 1.42 compiler when it compiles the runtime on aarch64-darwin, so
       # the runtime there is built without LTO.
       useLto = !stdenv.hostPlatform.isDarwin;
-      dFlags =
-        [
-          "-d-version=TZDatabaseDir"
-          "-d-version=LibcurlPath"
-          "-J${pathConfig}"
-          "-O"
-        ]
-        ++ lib.optional (!stdenv.hostPlatform.isDarwin) "-linker=gold"
-        ++ [
-          "-defaultlib=${if useLto then "phobos2-ldc-lto,druntime-ldc-lto" else "phobos2-ldc,druntime-ldc"}"
-        ];
+      dFlags = [
+        "-d-version=TZDatabaseDir"
+        "-d-version=LibcurlPath"
+        "-J${pathConfig}"
+        "-O"
+      ]
+      ++ lib.optional (!stdenv.hostPlatform.isDarwin) "-linker=gold"
+      ++ [
+        "-defaultlib=${if useLto then "phobos2-ldc-lto,druntime-ldc-lto" else "phobos2-ldc,druntime-ldc"}"
+      ];
     in
     [
+      "-D CMAKE_POLICY_VERSION_MINIMUM=3.5"
       "-D D_FLAGS=${lib.concatStringsSep ";" dFlags}"
       "-D CMAKE_BUILD_TYPE=Release"
       "-D MULTILIB=OFF"
@@ -228,7 +231,7 @@ stdenv.mkDerivation rec {
 
   checkPhase =
     (lib.optionalString (buildStatus.skippedTests != [ ]) (
-      lib.concatMapStringsSep "\n" (test: ''rm -v ${test}'') buildStatus.skippedTests
+      lib.concatMapStringsSep "\n" (test: "rm -v ${test}") buildStatus.skippedTests
     ))
     + ''
       # Build default lib test runners

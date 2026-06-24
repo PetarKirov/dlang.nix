@@ -11,7 +11,7 @@ mkShell {
     dtools
 
     (writeShellScriptBin "repl" ''nix repl --file "$REPO_ROOT/repl.nix"'')
-  ] ++ lib.optionals stdenv.hostPlatform.isx86 [ dmd ];
+  ];
 
   shellHook = ''
     export REPO_ROOT="$PWD"

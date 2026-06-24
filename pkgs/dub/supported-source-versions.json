@@ -1,81 +1,101 @@
 {
   "1.0.0": {
+    "d-compiler": "ldc-binary-1_0_0",
     "dub": "sha256-EMpbuZDLQxn/Z9zxO0bKGRNSQ1JEku4kiYPJBCsURR8=",
     "rev": "b59af2b8befb4fad4157d8c9cc86dba707b2fc87"
   },
   "1.1.2": {
+    "d-compiler": "ldc-binary-1_1_1",
     "dub": "sha256-M8/lP7rBYzpF+q8UUHIqp1+3ZAwyQSSjBwwZBqD2v2k=",
     "rev": "6353f43d00dafa775d4bbbbcdebc1682f87bbc6f"
   },
   "1.2.2": {
+    "d-compiler": "ldc-binary-1_2_0",
     "dub": "sha256-zdLAnC4rw3hHC2wcBSgjJd+dkjto6DUEZjXkdlEI8LE=",
     "rev": "4fbb1280f0e5d5848bce23a4a0ee6e5d7ffff337"
   },
   "1.3.0": {
+    "d-compiler": "ldc-binary-1_3_0",
     "dub": "sha256-HGbao/MLsyGB6/Txc15kk+moi3oqFE7GWcdoDcFGgnw=",
     "rev": "907c3cae18054ac088cdc2d0a094d0e6a49b06d8"
   },
   "1.4.1": {
+    "d-compiler": "ldc-binary-1_4_0",
     "dub": "sha256-1wkO6dXXxFqG6Zw5TP0EH6EouhRKq1hF15D0o7NW/Uw=",
     "rev": "029ed323555c1f1770314a2b9a8d28cc8f165030"
   },
   "1.5.0": {
+    "d-compiler": "ldc-binary-1_5_0",
     "dub": "sha256-BW8j58NODenBFd7u27xqH433LMTcVty4zPFDGUnPsU4=",
     "rev": "9464a576b2734ec56a476b507db3ecb1c66081a8"
   },
   "1.6.0": {
+    "d-compiler": "ldc-binary-1_6_0",
     "dub": "sha256-85/68o/OGHtNlMN4H5P8E+ADlw++ZwVJY4sOI+4tWfY=",
     "rev": "5f4fe50599da1f5853e6313fd99a0f11f121b766"
   },
   "1.7.2": {
+    "d-compiler": "ldc-binary-1_7_0",
     "dub": "sha256-iZulAWv7cRZ37ZaksAa055jrc9oqSx80ZvC+UN9ecRw=",
     "rev": "208d4f059b7effcedef4ccd4393494e4010e7d16"
   },
   "1.8.1": {
+    "d-compiler": "ldc-binary-1_8_0",
     "dub": "sha256-pinnY8lSIzOII/lCOde+0plcPZK8Gr21lq5spyXpJ5s=",
     "rev": "02cc679762d0cfd3e9f833c8b0a1d71b1f06b37b"
   },
   "1.9.0": {
+    "d-compiler": "ldc-binary-1_9_0",
     "dub": "sha256-PrOtBE2zpX1XMEeAYly0zGmChR1C+Me40GC9SI9pCYk=",
     "rev": "ddf6601ecfb5f2fa9d2b0d4d23281941dca26c5f"
   },
   "1.10.0": {
+    "d-compiler": "ldc-binary-1_10_0",
     "dub": "sha256-xI7QvXP4bz3UfSnWX4z2wsA16C5wg88XlkcQLZm7vQs=",
     "rev": "6b0cdc0288e14c81725af0421f589e9c88df6cea"
   },
   "1.11.0": {
+    "d-compiler": "ldc-binary-1_11_0",
     "dub": "sha256-998kBnG64FNR5AMS4xPemFVbfWaT+1SxhcUqbt9M5tI=",
     "rev": "9065964db9d8e1cf35aff53cb8c16417a754e005"
   },
   "1.12.1": {
+    "d-compiler": "ldc-binary-1_12_0",
     "dub": "sha256-ShT1vDy5GGoNw+7WiptSx/HWsDZyN8i9wbC71zcyiWA=",
     "rev": "6963c4645e727f19b79d8e9620befa24e16851f2"
   },
   "1.13.0": {
+    "d-compiler": "ldc-binary-1_13_0",
     "dub": "sha256-G8ufBIu+JS2eCOtZJT0j+iLxI+AIhbfWGNIptWy7pfE=",
     "rev": "41d1c11bc34d247b1c73b124c90b19bb6a47c0ad"
   },
   "1.14.0": {
+    "d-compiler": "ldc-binary-1_14_0",
     "dub": "sha256-BLlb2TTrSvXazKuqwEuipwMmCCrIMbhg8Cjlmf10Exw=",
     "rev": "05ec4f664d8a626a63d74a0b129a6bb7b38f89d4"
   },
   "1.15.0": {
+    "d-compiler": "ldc-binary-1_15_0",
     "dub": "sha256-u9AvPL/zapMZ3mV4kXjo+tFzUSFNQ5f0oIErndLwKq0=",
     "rev": "5307c86b4916c3dd32c2143475e2b49b56578a1a"
   },
   "1.16.0": {
+    "d-compiler": "ldc-binary-1_16_0",
     "dub": "sha256-fECfb4AgkGcVo/SlcNEfwIQadnIBcJiS7l4fmgnssHE=",
     "rev": "6c8fbaea6ee9d179898166a03727b88e3f91cdf0"
   },
   "1.17.0": {
+    "d-compiler": "ldc-binary-1_17_0",
     "dub": "sha256-7ZXWMvVIypZRE+TQcwBWMMR2G6FAC31zSy3IPZks2mM=",
     "rev": "5815b06d0ef2b30b0746d5ceb3070ac81ae8169c"
   },
   "1.18.0": {
+    "d-compiler": "ldc-binary-1_18_0",
     "dub": "sha256-KE9ku24VG0IaPFI38Y10TvRGzmYI/A2SIgNltAP9uO0=",
     "rev": "2c5e115646cfda4a4496ae8ecd189ed992fece94"
   },
   "1.19.0": {
+    "d-compiler": "ldc-binary-1_19_0",
     "dub": "sha256-se2tm7K2V18kXw4qQItq8CBbBF+uL6VFTk0NGE/8ARo=",
     "rev": "08ebe85e154dfedcc8ac21fb96bef30beb956209"
   },

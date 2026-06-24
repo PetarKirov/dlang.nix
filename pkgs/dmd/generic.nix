@@ -24,8 +24,6 @@
   curl,
   tzdata,
   gdb,
-  gcc11,
-  Foundation,
   targetPackages,
   fetchpatch,
   bash,
@@ -88,7 +86,7 @@ let
     [
       "SHELL=${bash}/bin/bash"
       "DMD=$(NIX_BUILD_TOP)/dmd/${buildPath}/dmd"
-      "CC=${if stdenv.isDarwin then stdenv.cc else gcc11}/bin/cc"
+      "CC=${stdenv.cc}/bin/cc"
       "HOST_DMD=${hostDCInfo.dmdWrapper}"
       "PIC=1"
       "BUILD=${buildMode}"
@@ -115,39 +113,38 @@ stdenv.mkDerivation rec {
 
   enableParallelBuilding = true;
 
-  srcs =
-    [
-      (fetchFromGitHub {
-        owner = "dlang";
-        repo = "dmd";
-        rev = "v${version}";
-        sha256 = dmdSha256;
-        name = "dmd";
-      })
-      (fetchFromGitHub {
-        owner = "dlang";
-        repo = "phobos";
-        rev = "v${version}";
-        sha256 = phobosSha256;
-        name = "phobos";
-      })
-      (fetchFromGitHub {
-        owner = "dlang";
-        repo = "tools";
-        rev = "v${version}";
-        sha256 = toolsSha256;
-        name = "tools";
-      })
-    ]
-    ++ lib.optionals druntimeRepo [
-      (fetchFromGitHub {
-        owner = "dlang";
-        repo = "druntime";
-        rev = "v${version}";
-        sha256 = druntimeSha256;
-        name = "druntime";
-      })
-    ];
+  srcs = [
+    (fetchFromGitHub {
+      owner = "dlang";
+      repo = "dmd";
+      rev = "v${version}";
+      sha256 = dmdSha256;
+      name = "dmd";
+    })
+    (fetchFromGitHub {
+      owner = "dlang";
+      repo = "phobos";
+      rev = "v${version}";
+      sha256 = phobosSha256;
+      name = "phobos";
+    })
+    (fetchFromGitHub {
+      owner = "dlang";
+      repo = "tools";
+      rev = "v${version}";
+      sha256 = toolsSha256;
+      name = "tools";
+    })
+  ]
+  ++ lib.optionals druntimeRepo [
+    (fetchFromGitHub {
+      owner = "dlang";
+      repo = "druntime";
+      rev = "v${version}";
+      sha256 = druntimeSha256;
+      name = "druntime";
+    })
+  ];
 
   sourceRoot = ".";
 
@@ -370,21 +367,20 @@ stdenv.mkDerivation rec {
     makeWrapper
     which
     installShellFiles
-  ] ++ lib.optional (lib.versionOlder version "2.088.0") git;
+  ]
+  ++ lib.optional (lib.versionOlder version "2.088.0") git;
 
-  buildInputs =
-    [
-      curl
-      tzdata
-    ]
-    ++ lib.optionals stdenv.isDarwin [
-      Foundation
-      # Exports MACOSX_DEPLOYMENT_TARGET for every build/check phase. Covers the
-      # compiler invocations the druntime/phobos makefiles don't drive (building
-      # dmd itself, the test harness) — without it DMD's codegen falls back to its
-      # hardcoded 10.9 default (compiler/src/dmd/backend/machobj.d).
-      (darwinMinVersionHook darwinTarget)
-    ];
+  buildInputs = [
+    curl
+    tzdata
+  ]
+  ++ lib.optionals stdenv.isDarwin [
+    # Exports MACOSX_DEPLOYMENT_TARGET for every build/check phase. Covers the
+    # compiler invocations the druntime/phobos makefiles don't drive (building
+    # dmd itself, the test harness) — without it DMD's codegen falls back to its
+    # hardcoded 10.9 default (compiler/src/dmd/backend/machobj.d).
+    (darwinMinVersionHook darwinTarget)
+  ];
 
   nativeCheckInputs = [ gdb ] ++ lib.optional (lib.versionOlder version "2.089.0") unzip;
 
@@ -412,8 +408,6 @@ stdenv.mkDerivation rec {
   '';
 
   doCheck = buildStatus.check;
-
-  checkInputs = lib.optional stdenv.isDarwin Foundation;
 
   checkFlagsMake = commonBuildFlags { forMake = true; } ++ [ "N=$(checkJobs)" ];
   checkFlagsRunD = commonBuildFlags { forMake = false; };
