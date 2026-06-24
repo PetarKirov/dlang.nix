@@ -41,6 +41,27 @@ in
         };
       };
 
+      # 32-bit x86 (i686-linux) cross-compilation toolchain. Opt-in and
+      # x86_64-linux-only. NixOS has no multilib, so we drive the runtime build
+      # and the wrapper's `-gcc=` with `pkgsi686Linux.stdenv.cc` — a gcc that
+      # natively targets i686 with a 32-bit glibc — and link the test programs
+      # static against `pkgsi686Linux.glibc.static` so qemu-i386 can run them
+      # without a 32-bit dynamic loader.
+      i686cc = pkgs.pkgsi686Linux.stdenv.cc;
+      i686GlibcStatic = pkgs.pkgsi686Linux.glibc.static;
+      ldcX86_32Runtime = pkgs.callPackage ./ldc/x86-32-runtime.nix {
+        ldc = self'.packages.ldc;
+        inherit i686cc;
+      };
+      x86_32Packages = {
+        ldc-x86-32-runtime = ldcX86_32Runtime;
+        ldc-x86-32 = pkgs.callPackage ./ldc/x86-32.nix {
+          ldc = self'.packages.ldc;
+          x86_32Runtime = ldcX86_32Runtime;
+          inherit i686cc i686GlibcStatic;
+        };
+      };
+
       # ---- WebAssembly (wasm32-wasip2) toolchain — x86_64-linux only ----
       # The fork needs LLVM 22 (it references llvm::Triple::WASIp1/2/3), which
       # dlang.nix's nixpkgs lacks. Source the whole wasm env from a pinned nixpkgs
@@ -141,6 +162,6 @@ in
         // (genPkgVersions "dmd").flattened "binary"
         // (genPkgVersions "dmd").flattened "source"
       )
-      // optionalAttrs (system == "x86_64-linux") (androidPackages // wasmPackages);
+      // optionalAttrs (system == "x86_64-linux") (androidPackages // wasmPackages // x86_32Packages);
     };
 }
