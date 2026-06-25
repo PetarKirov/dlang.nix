@@ -1,0 +1,20 @@
+{
+  "dependencies": {
+    "expected": {
+      "version": "0.4.1",
+      "sha256": "1ahr7gbjl6dgw1qs9x5yzcwhbzfg7ygdlsm9gw4hgmm1xrfcpri0"
+    },
+    "semver": {
+      "version": "0.5.0",
+      "sha256": "06w7yg5r6xpy8ypykwhzjif5z2fj3jrjzqkzyvrbpih4pgxg5hmg"
+    },
+    "silly": {
+      "version": "1.1.1",
+      "sha256": "0fz7ib715sfk3w69i6xns5pwd4caahvfqjf32v13daxm1ms8xdzz"
+    },
+    "sparkles": {
+      "version": "0.4.0",
+      "sha256": "10dvrqrfw3ckvvdzazy32ys2f3wyv2ri4y414z44rnfdv9nlx93w"
+    }
+  }
+}
