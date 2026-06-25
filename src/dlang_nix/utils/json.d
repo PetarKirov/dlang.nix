@@ -10,14 +10,14 @@ import std.uni : isControl;
 
 import sparkles.versions : SemVer;
 
-import dlang_nix.components : Platform, Version;
+import dlang_nix.components : Platform;
 import dlang_nix.utils.commands : Hash;
 
-/// Converts a `Hash[Platform][Version]` AA into a JSONValue, mapping null
+/// Converts a `Hash[Platform][string]` AA into a JSONValue, mapping null
 /// or empty Hash values to JSON `null`. Done manually because D's std.json
 /// otherwise renders a null `string` as the JSON string `""`, masking the
 /// "unsupported on this platform" sentinel.
-JSONValue hashesToJsonValue(Hash[Platform][Version] hashes) {
+JSONValue hashesToJsonValue(Hash[Platform][string] hashes) {
     JSONValue[string] outer;
     foreach (ver, platforms; hashes) {
         JSONValue[string] inner;
@@ -33,8 +33,8 @@ JSONValue hashesToJsonValue(Hash[Platform][Version] hashes) {
 /// returns the result rendered as pretty JSON with a trailing newline.
 /// New entries overwrite existing version/platform pairs. Existing `null`
 /// or `""` entries are preserved as the null sentinel.
-string mergeHashesIntoJson(string existingJson, Hash[Platform][Version] newHashes) {
-    Hash[Platform][Version] allHashes;
+string mergeHashesIntoJson(string existingJson, Hash[Platform][string] newHashes) {
+    Hash[Platform][string] allHashes;
     if (existingJson.length > 0) {
         auto existing = parseJSON(existingJson);
         foreach (string ver, platforms; existing.object) {
@@ -60,9 +60,10 @@ string mergeHashesIntoJson(string existingJson, Hash[Platform][Version] newHashe
 // drops the leading newline that the backtick-on-its-own-line syntax adds.
 
 // editorconfig-checker-disable
+@("dlang_nix.utils.json.mergeHashesIntoJson")
 unittest {
     // Empty existing JSON: only new hashes appear.
-    Hash[Platform][Version] h1;
+    Hash[Platform][string] h1;
     h1["1.0.0"]["linux"] = "sha256-abc";
     assert(mergeHashesIntoJson("", h1) == outdent(`
         {
@@ -73,7 +74,7 @@ unittest {
     `)[1 .. $]);
 
     // Non-overlapping versions are unioned.
-    Hash[Platform][Version] h2;
+    Hash[Platform][string] h2;
     h2["2.0.0"]["linux"] = "sha256-new";
     assert(mergeHashesIntoJson(
         `{"1.0.0": {"linux": "sha256-old"}}`, h2) == outdent(`
@@ -88,7 +89,7 @@ unittest {
     `)[1 .. $]);
 
     // Overlapping version/platform: new value overwrites existing.
-    Hash[Platform][Version] h3;
+    Hash[Platform][string] h3;
     h3["1.0.0"]["linux"] = "sha256-new";
     assert(mergeHashesIntoJson(
         `{"1.0.0": {"linux": "sha256-old"}}`, h3) == outdent(`
@@ -100,7 +101,7 @@ unittest {
     `)[1 .. $]);
 
     // Same version, disjoint platforms: platforms are merged and sorted.
-    Hash[Platform][Version] h4;
+    Hash[Platform][string] h4;
     h4["1.0.0"]["osx"] = "sha256-osx";
     assert(mergeHashesIntoJson(
         `{"1.0.0": {"linux": "sha256-linux"}}`, h4) == outdent(`
@@ -113,7 +114,7 @@ unittest {
     `)[1 .. $]);
 
     // Null Hash from a failed prefetch renders as JSON null, not `""`.
-    Hash[Platform][Version] h5;
+    Hash[Platform][string] h5;
     h5["1.0.0"]["linux"] = "sha256-linux";
     h5["1.0.0"]["freebsd"] = null;
     assert(mergeHashesIntoJson("", h5) == outdent(`
@@ -126,7 +127,7 @@ unittest {
     `)[1 .. $]);
 
     // Legacy `""` entries in existing JSON are normalized to JSON null.
-    Hash[Platform][Version] h6;
+    Hash[Platform][string] h6;
     assert(mergeHashesIntoJson(
         `{"1.0.0": {"linux": "sha256-linux", "freebsd": ""}}`, h6) == outdent(`
         {
@@ -215,6 +216,7 @@ unittest {
 }
 
 // editorconfig-checker-disable
+@("dlang_nix.utils.json.toSortedPrettyJson")
 unittest {
     import std.json : parseJSON;
 
