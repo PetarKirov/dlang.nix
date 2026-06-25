@@ -14,6 +14,7 @@ import std.typecons : tuple;
 import dlang_nix.utils.commands : prefech, Hash, resolveVersionRange, resolveTagRevs;
 import dlang_nix.utils.json : hashesToJsonValue, mergeHashesIntoJson, toSortedPrettyJson;
 import dlang_nix.components : Platform, Families, familyPinsRev;
+import dlang_nix.ci.cli : runCi;
 
 /// `name1 | name2 | …` over every family — the allowed `--component` tokens.
 string componentNames() {
@@ -131,6 +132,13 @@ void runFetch(F)(string[] versionStrs, string firstVersion, string lastVersion, 
 }
 
 void main(string[] args) {
+    // `ci` subcommand: CI build-matrix helpers (see dlang_nix.ci.cli). Anything
+    // else falls through to the default release-prefetcher below.
+    if (args.length >= 2 && args[1] == "ci") {
+        runCi(args[1 .. $]);
+        return;
+    }
+
     string[] componentVersions;
     string component = "ldc-binary";
     bool liveRun = false;
