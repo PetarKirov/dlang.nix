@@ -19,8 +19,12 @@ in
       owner = "dlang-community";
       repo = "DCD";
       rev = "v${version}";
-      hash = "sha256-3OWTnvDDiUnF8mVM98uUqYqLAJwI4AH+CN5C8WCPDOs=";
-      leaveDotGit = true;
+      # NOTE: do not set `leaveDotGit` here. It makes this fixed-output
+      # derivation non-reproducible (the packed `.git` content depends on the
+      # git-server's behaviour), so the pinned hash drifts and breaks the build.
+      # The build does not need `.git`: it stubs `git` (fakeGit) and seds out
+      # `git describe --tags` in preBuild.
+      hash = "sha256-c5PAUjS2+DvY1QfI+whu0bqFQl0wDUzUUtfHjRFoieA=";
       fetchSubmodules = true;
     };
 
