@@ -16,7 +16,10 @@ in
         { }
         // (genPkgVersions "dmd").hierarchical
         // (genPkgVersions "ldc").hierarchical
-        // (genPkgVersions "dub").hierarchical;
+        // (genPkgVersions "dub").hierarchical
+        // (genPkgVersions "dcd").hierarchical
+        // (genPkgVersions "dfix").hierarchical
+        // (genPkgVersions "dscanner").hierarchical;
 
       packages =
         {
@@ -30,10 +33,18 @@ in
           # final 1.42.0 tag, so the newest released DUB is still this beta.
           # Switch to "dub-1_42_0" once upstream tags the stable release.
           dub = self'.packages."dub-1_42_0-beta_1";
+
+          # dlang-community developer tools (built via nixpkgs' buildDubPackage).
+          dcd = self'.packages."dcd-0_16_2";
+          dfix = self'.packages."dfix-0_3_5";
+          dscanner = self'.packages."dscanner-0_15_2";
         }
         // (genPkgVersions "ldc").flattened "binary"
         // (genPkgVersions "ldc").flattened "source"
         // (genPkgVersions "dub").flattened "source"
+        // (genPkgVersions "dcd").flattened "source"
+        // (genPkgVersions "dfix").flattened "source"
+        // (genPkgVersions "dscanner").flattened "source"
         // optionalAttrs pkgs.hostPlatform.isx86 (
           {
             dmd-bootstrap = self'.packages."dmd-binary-2_098_0";
