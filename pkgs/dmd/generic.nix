@@ -33,6 +33,7 @@
   git,
   unzip,
   darwinMinVersionHook,
+  removeReferencesTo,
   hostDCompiler,
 }:
 let
@@ -474,6 +475,20 @@ stdenv.mkDerivation rec {
 
     runHook postInstall
   '';
+
+  # `dmd` is bootstrapped with `hostDCompiler` (an LDC, e.g. ldc-binary), whose
+  # druntime/phobos are *statically* linked into the resulting compiler binary.
+  # The machine code is copied in, so the bootstrap is not needed at runtime
+  # (empty rpath, no DT_NEEDED on it), but dead path strings to it survive in
+  # the binary and keep the entire host compiler (~480 MiB) in dmd's runtime
+  # closure. Scrub those references, mirroring nixpkgs' upstream dmd, so dmd
+  # consumers don't drag the bootstrap compiler around.
+  preFixup = ''
+    find $out/bin -type f -exec ${removeReferencesTo}/bin/remove-references-to \
+      -t ${hostDCompiler} '{}' +
+  '';
+
+  disallowedReferences = [ hostDCompiler ];
 
   meta = with lib; {
     description = "Official reference compiler for the D language";
