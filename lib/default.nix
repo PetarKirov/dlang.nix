@@ -5,6 +5,7 @@
     dc = import ./dc.nix { inherit lib; };
     inherit (import ./mk-gh-actions-matrix.nix { inherit self lib; })
       allowedToFailMap
+      doCheckMap
       nixSystemToGHPlatform
       ;
     versionUtils = import ./version-utils.nix { };

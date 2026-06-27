@@ -54,6 +54,24 @@ string executeCommand(bool dryRun, string command) {
     return result.status == 0 ? result.output : null;
 }
 
+import core.time : Duration;
+import std.datetime.stopwatch : StopWatch, AutoStart;
+
+alias TimedResult = Tuple!(int, "status", Duration, "elapsed", string, "output");
+
+/// Runs `command`, capturing its combined output, and returns the exit status,
+/// wall-clock time and output. Used by `calibrate` to measure per-package build
+/// times (the output lets it tell a real build failure from `nix build
+/// --rebuild`'s "may not be deterministic" mismatch, which still timed a real
+/// build).
+TimedResult executeTimed(string command) {
+    stderr.writefln(`> %s`, command);
+    auto sw = StopWatch(AutoStart.yes);
+    const result = executeShell(command, null, Config.none);
+    sw.stop();
+    return TimedResult(result.status, sw.peek, result.output);
+}
+
 // ---------------------------------------------------------------------------
 // Version predicates and selectors.
 //
@@ -86,6 +104,7 @@ if (hasSemVerComponents!V) {
         .array;
 }
 
+@("dlang_nix.utils.commands.semverHelpers")
 unittest {
     import sparkles.versions : SemVer, Dmd;
 
@@ -164,29 +183,32 @@ TagRev[] fetchTags(string repo) {
 
 /// Resolves each requested version to the commit hash its `v<version>`
 /// release tag points to (for fetchers that pin an explicit `rev`).
-string[string] resolveTagRevs(string tagsRepo, const string[] versions) {
+/// Parameterised over a `sparkles:versions` scheme; the result is keyed by the
+/// version's canonical `toString` (the JSON/serialization boundary).
+Hash[string] resolveTagRevs(Scheme)(string tagsRepo, const Scheme[] versions) {
     const tagRevs = fetchTags(tagsRepo);
-    string[string] revs;
+    Hash[string] revs;
     foreach (ver; versions) {
-        const tag = "v" ~ ver;
+        const vs = ver.to!string;
+        const tag = "v" ~ vs;
         auto hit = tagRevs.find!(tr => tr.tag == tag);
         enforce(!hit.empty,
             "No tag " ~ tag ~ " found in repo " ~ tagsRepo);
-        revs[ver] = hit.front.rev;
+        revs[vs] = hit.front.rev;
     }
     return revs;
 }
 
 /// Resolves an inclusive `[first, last]` minor range against the tags of
 /// the given GitHub repo and returns the highest-patch stable release for
-/// each minor, as version strings sorted ascending. An empty `last` means
-/// "latest available stable tag".
+/// each minor, as typed `Scheme` versions sorted ascending. An empty `last`
+/// means "latest available stable tag".
 ///
 /// Parameterised over a sparkles:versions scheme (e.g. `SemVer` for LDC's
-/// canonical tags, `Dmd` for DMD's zero-padded minor convention). The
-/// returned strings use the scheme's `toString`, so DMD comes back as
-/// `"2.079.0"` and LDC as `"1.42.0"`.
-string[] resolveVersionRange(Scheme)(string tagsRepo, string first, string last) {
+/// canonical tags, `Dmd` for DMD's zero-padded minor convention). Callers
+/// `toString` at the serialization boundary (DMD renders `"2.079.0"`, LDC
+/// `"1.42.0"`).
+Scheme[] resolveVersionRange(Scheme)(string tagsRepo, string first, string last) {
     // `.value` on a parse-failed Expected throws — what we want for user
     // input.
     const lo = Scheme.parseLoose(first).value;
@@ -211,7 +233,7 @@ string[] resolveVersionRange(Scheme)(string tagsRepo, string first, string last)
         .latestPatchPerMinor;
 
     vers.sort!((a, b) => a < b);  // ascending for user display
-    return vers.map!(v => v.to!string).array;
+    return vers;
 }
 
 /// Pure: parses the output of `git ls-remote --tags <url>` into a list of
@@ -240,6 +262,7 @@ TagRev[] parseGitLsRemoteTags(string output) @safe pure {
 }
 
 // editorconfig-checker-disable
+@("dlang_nix.utils.commands.parseGitLsRemoteTags")
 unittest {
     // Mixed peeled / non-peeled, junk lines, non-version tags. The peeled
     // `^{}` hash replaces the annotated tag object's hash; lightweight
