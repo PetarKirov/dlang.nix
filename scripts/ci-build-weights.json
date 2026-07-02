@@ -1,0 +1,51 @@
+{
+  "aarch64-darwin": {
+    "default": 8,
+    "dub": {
+      "test": 104
+    },
+    "ldc": {
+      "build": 89
+    },
+    "ldc-binary": {
+      "build": 8
+    }
+  },
+  "x86_64-darwin": {
+    "default": 8,
+    "dmd": {
+      "build": 87
+    },
+    "dmd-binary": {
+      "build": 12
+    },
+    "dub": {
+      "test": 210
+    },
+    "ldc": {
+      "build": 152
+    },
+    "ldc-binary": {
+      "build": 8
+    }
+  },
+  "x86_64-linux": {
+    "default": 6,
+    "dmd": {
+      "test": 245
+    },
+    "dmd-binary": {
+      "build": 12
+    },
+    "dub": {
+      "build": 6,
+      "test": 139
+    },
+    "ldc": {
+      "build": 87
+    },
+    "ldc-binary": {
+      "build": 7
+    }
+  }
+}

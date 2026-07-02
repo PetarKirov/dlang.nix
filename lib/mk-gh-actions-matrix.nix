@@ -17,6 +17,16 @@ rec {
     ))
   ];
 
+  # `{ package -> { system -> doCheck } }`, consumed by `dlang-nix-fetcher ci
+  # plan-matrix` to weight each package (test-running builds are heavier than
+  # build-only ones).
+  doCheckMap = lib.pipe (mkGHActionsMatrix.include) [
+    (builtins.groupBy (p: p.package))
+    (builtins.mapAttrs (
+      n: v: builtins.mapAttrs (s: ps: (builtins.head ps).doCheck) (builtins.groupBy (p: p.system) v)
+    ))
+  ];
+
   mkGHActionsMatrix = {
     include = lib.pipe (builtins.attrNames nixSystemToGHPlatform) [
       (builtins.concatMap (
@@ -33,6 +43,7 @@ rec {
             os = platform;
             allowedToFail =
               !(p.passthru.buildStatus or (throw "${package} does not expose build status")).build;
+            doCheck = p.doCheck or false;
             inherit system package;
             attrPath = "packages.${system}.${lib.strings.escapeNixIdentifier package}";
           }

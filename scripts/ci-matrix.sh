@@ -14,21 +14,26 @@ eval_packages_to_json() {
   cachix_url="https://${CACHIX_CACHE}.cachix.org"
 
   nix eval --json .#lib.allowedToFailMap >"${result_dir}/allowed-to-fail.json"
+  nix eval --json .#lib.doCheckMap >"${result_dir}/do-check.json"
   nix eval --json .#lib.nixSystemToGHPlatform >"${result_dir}/system-to-gh-platform.json"
 
   nix_eval_for_all_systems "$flake_attr_pre" "$flake_attr_post" |
-    cat "${result_dir}/allowed-to-fail.json" "${result_dir}/system-to-gh-platform.json" - |
+    cat "${result_dir}/allowed-to-fail.json" "${result_dir}/do-check.json" \
+      "${result_dir}/system-to-gh-platform.json" - |
     jq -sr '
     .[0] as $allowed_to_fail
-    | .[1] as $system_to_gh_platform
-    | .[2:] as $nix_eval_results
+    | .[1] as $do_check
+    | .[2] as $system_to_gh_platform
+    | .[3:] as $nix_eval_results
     | $nix_eval_results
     | map({
       package: .attr,
       attrPath: "\(.system).\(.attr)",
       allowedToFail: $allowed_to_fail[.attr][.system],
+      doCheck: ($do_check[.attr][.system] // false),
       isCached,
       system,
+      outPath: .outputs.out,
       cache_url: .outputs.out
         | "'"$cachix_url"'/\(match("^\/nix\/store\/([^-]+)-").captures[0].string).narinfo",
       os: $system_to_gh_platform[.system]
@@ -38,8 +43,12 @@ eval_packages_to_json() {
 }
 
 save_gh_ci_matrix() {
-  packages_to_build=$(echo "$packages" | jq -c '. | map(select((.isCached | not) and (.allowedToFail | not)))')
-  matrix='{"include":'"$packages_to_build"'}'
+  # Pack the buildable, uncached packages into a job matrix by estimated build
+  # weight (keeps us under GitHub's 256-configuration cap). Packing + filtering
+  # live in the `dlang-nix-fetcher ci` D tool; see src/dlang_nix/ci/.
+  matrix=$(echo "$packages" |
+    jq -c '[ .[] | { attr: .package, system, os, isCached, allowedToFail, doCheck, outPath } ]' |
+    dlang-nix-fetcher ci plan-matrix --weights "$root_dir/scripts/ci-build-weights.json")
   filename=''
   if [ "${IS_INITIAL:-true}" = "true" ]; then
     filename='matrix-pre.json'
