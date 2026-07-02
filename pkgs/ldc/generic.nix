@@ -189,7 +189,10 @@ stdenv.mkDerivation rec {
       "-D MULTILIB=OFF"
       "-D LDC_WITH_LLD=ON"
       "-D LDC_INSTALL_LLVM_RUNTIME_LIBS=ON"
-      "-D BUILD_SHARED_LIBS=ON"
+      # BOTH ships the static druntime/phobos too; default linking stays shared.
+      # Lets consumers static-link the runtime, keeping LDC+LLVM out of their
+      # closure (see pkgs/dub).
+      "-D BUILD_SHARED_LIBS=BOTH"
       "-D LDC_LINK_MANUALLY=ON"
       "-D RT_SUPPORT_SANITIZERS=ON"
     ]
