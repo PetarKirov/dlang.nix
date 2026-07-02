@@ -10,6 +10,7 @@
   curl,
   libevent,
   rsync,
+  removeReferencesTo,
   dCompiler,
   ...
 }:
@@ -52,24 +53,24 @@ stdenv.mkDerivation rec {
     dCompiler
     libevent
     rsync
+    removeReferencesTo
   ];
   buildInputs = [ curl ];
 
-  buildPhase = ''
-    for dc_ in dmd ldmd2 gdmd; do
-      echo "... check for D compiler $dc_ ..."
-      dc=$(type -P $dc_ || echo "")
-      if [ ! "$dc" == "" ]; then
-        break
-      fi
-    done
-    if [ "$dc" == "" ]; then
-      exit "Error: could not find D compiler"
-    fi
-    echo "$dc_ found and used as D compiler to build $pname"
-    $dc ./build.d
-    ./build
-  '';
+  buildPhase =
+    let
+      # Use static linking when building with LDC to keep LDC+LLVM out of the closure
+      dflags = lib.optionalString (hostDCInfo.name == "ldc") "DFLAGS='-link-defaultlib-shared=false'";
+    in
+    ''
+      runHook preBuild
+
+      echo "Building $pname with ${hostDCInfo.dmdWrapper}"
+      ${hostDCInfo.dmdWrapper} ./build.d
+      ${dflags} ./build
+
+      runHook postBuild
+    '';
 
   doCheck = buildStatus.check;
 
@@ -90,6 +91,15 @@ stdenv.mkDerivation rec {
     mkdir -p $out/bin
     cp bin/dub $out/bin
   '';
+
+  # The static link leaves LDC's store path in the binary as a dead string
+  # (default-lib path / debug info); scrub it so it isn't a runtime dependency.
+  preFixup = lib.optionalString stdenv.hostPlatform.isElf ''
+    remove-references-to -t ${dCompiler} $out/bin/dub
+  '';
+
+  # Fail if the LDC+LLVM toolchain leaks into the runtime closure.
+  disallowedReferences = lib.optionals stdenv.hostPlatform.isElf [ dCompiler ];
 
   meta = with lib; {
     description = "Package and build manager for D applications and libraries";
