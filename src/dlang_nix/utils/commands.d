@@ -6,6 +6,7 @@ import std.conv : to;
 import std.exception : enforce;
 import std.file : exists;
 import std.format : format;
+import std.json : parseJSON;
 import std.process : executeShell, Config;
 import std.range : empty, front;
 import std.stdio : stderr;
@@ -41,6 +42,31 @@ Hash prefech(bool dryRun, Url url, bool unpack = false) {
         `nix-hash --to-sri --type sha256 "%s"`.format(hash)
     );
     return sri is null ? null : sri.strip;
+}
+
+/// Prefetches a URL and returns its base32 `sha256` — the exact format the
+/// upstream `dub-to-nix` emits for dub-registry dependencies — or null on a
+/// dry run / failure. Mirrors `nix-prefetch-url --type sha256 <url>`.
+Hash prefetchUrlSha256(bool dryRun, Url url) {
+    const output = executeCommand(
+        dryRun,
+        `nix-prefetch-url --type sha256 "%s"`.format(url)
+    );
+    if (output is null) return null;
+    const lines = output.strip.splitLines;
+    return lines.empty ? null : lines[$ - 1].strip;
+}
+
+/// Prefetches a git revision and returns its `sha256`, or null on a dry run /
+/// failure. Mirrors `nix-prefetch-git <url> <rev>` and reads the `sha256`
+/// field of its JSON output (used for git-based dub dependencies).
+Hash prefetchGit(bool dryRun, string url, string rev) {
+    const output = executeCommand(
+        dryRun,
+        `nix-prefetch-git "%s" "%s"`.format(url, rev)
+    );
+    if (output is null) return null;
+    return parseJSON(output)["sha256"].str;
 }
 
 string executeCommand(bool dryRun, string command) {

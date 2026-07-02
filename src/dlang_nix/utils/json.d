@@ -55,6 +55,42 @@ string mergeHashesIntoJson(string existingJson, Hash[Platform][Version] newHashe
     return toSortedPrettyJson(hashesToJsonValue(allHashes)) ~ "\n";
 }
 
+/// Parses `existingJson` (if any), overlays `newLocks` (a version-keyed map
+/// of dub lock objects) onto it, and returns pretty JSON with a trailing
+/// newline. Backs the combined per-tool `dub-locks.json`, which keys each
+/// release's dependency lock by version (mirroring supported-source-versions.json).
+string mergeLocksIntoJson(string existingJson, JSONValue[Version] newLocks) {
+    JSONValue root = existingJson.length > 0 ? parseJSON(existingJson) : parseJSON("{}");
+    foreach (ver, lock; newLocks) {
+        root[ver] = lock;
+    }
+    return toSortedPrettyJson(root) ~ "\n";
+}
+
+// editorconfig-checker-disable
+unittest {
+    // New locks are added; existing versions are preserved and overwritten.
+    JSONValue[Version] locks;
+    locks["0.16.2"] = parseJSON(`{"dependencies": {"libdparse": {"version": "0.25.1", "sha256": "x"}}}`);
+    assert(mergeLocksIntoJson(
+        `{"0.15.0": {"dependencies": {}}}`, locks) == outdent(`
+        {
+          "0.15.0": {
+            "dependencies": {}
+          },
+          "0.16.2": {
+            "dependencies": {
+              "libdparse": {
+                "sha256": "x",
+                "version": "0.25.1"
+              }
+            }
+          }
+        }
+    `)[1 .. $]);
+}
+// editorconfig-checker-enable
+
 // `outdent` strips the leading whitespace common to every non-blank line,
 // letting the JSON literals below be indented for readability. `[1 .. $]`
 // drops the leading newline that the backtick-on-its-own-line syntax adds.

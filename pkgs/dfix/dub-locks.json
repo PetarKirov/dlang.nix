@@ -1,0 +1,14 @@
+{
+  "0.3.5": {
+    "dependencies": {
+      "libdparse": {
+        "sha256": "1fc27mqrbrai1rnamjkpjq227hv56p5wzcgz9ljddswlj8v6b4xn",
+        "version": "0.8.8"
+      },
+      "stdx-allocator": {
+        "sha256": "1g8382wr49sjyar0jay8j7y2if7h1i87dhapkgxphnizp24d7kaj",
+        "version": "2.77.5"
+      }
+    }
+  }
+}

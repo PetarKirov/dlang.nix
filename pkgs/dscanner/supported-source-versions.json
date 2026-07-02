@@ -1,0 +1,22 @@
+{
+  "0.11.1": {
+    "rev": "7809598da0e06a319d35d3b6edb4277710fa776b",
+    "src": "sha256-NA8c/ccjF6qf9IMlqf2MJ03+V7TCWUES6MQEz243WXI="
+  },
+  "0.12.2": {
+    "rev": "8761fa1e38c4461e0dda1782b859d46172cc3676",
+    "src": "sha256-BbCQ/dqo/QmhYiswe7WPwJPxm3oXcUYXi1hcfwyljxA="
+  },
+  "0.13.0": {
+    "rev": "e94c4fad77b69e3a741b8747058755fbcc204b9f",
+    "src": "sha256-MwDTR4UvGYf3O2kHQO4g2GFTsvK85TSM9Ul70l+Umv8="
+  },
+  "0.14.0": {
+    "rev": "d5d6920502bf1bfdb29474007a59fd606df0aadc",
+    "src": "sha256-UMaSe9D+mZNh3p18yRzXxDqr6YHZpk2PTekbBJ4inx4="
+  },
+  "0.15.2": {
+    "rev": "1201a68f662a300eacae4f908a87d4cd57f2032e",
+    "src": "sha256-7lZhYlK07VWpSRnzawJ2RL69/U/AH/qPyQY4VfbnVn4="
+  }
+}

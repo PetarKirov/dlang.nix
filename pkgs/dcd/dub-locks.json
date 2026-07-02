@@ -1,0 +1,74 @@
+{
+  "0.13.6": {
+    "dependencies": {
+      "dsymbol": {
+        "sha256": "0flnh8b1hc97hlm86ilb0kc194vib5cpqf8abxfbv24czxp6gfv7",
+        "version": "0.11.3"
+      },
+      "emsi_containers": {
+        "sha256": "0mjpqqb8l2953fnf0sfcfq2vxh0ac8x82rn43964pjq9fad88x8d",
+        "version": "0.8.1"
+      },
+      "libdparse": {
+        "sha256": "1bzq0s6xl5wssn79yc104bx8js0mv1gaj5l8as7gsjzs02bd5355",
+        "version": "0.15.4"
+      },
+      "msgpack-d": {
+        "sha256": "1b6v667ymns90n0ssg7bd8fny1ashv5axpa8xf461ghzqnkkh05d",
+        "version": "1.0.1"
+      },
+      "stdx-allocator": {
+        "sha256": "1g8382wr49sjyar0jay8j7y2if7h1i87dhapkgxphnizp24d7kaj",
+        "version": "2.77.5"
+      }
+    }
+  },
+  "0.15.2": {
+    "dependencies": {
+      "dsymbol": {
+        "sha256": "0vh65w6v7am2krc8fhj2snsh7dzqjvfkccvwynsgfbwp9fdxcldq",
+        "version": "0.14.1"
+      },
+      "emsi_containers": {
+        "sha256": "1viz1fjh6jhfvl0d25bb1q7aclm1hrs0d7hhcx1d9c0gg5k6lcpm",
+        "version": "0.9.0"
+      },
+      "libdparse": {
+        "sha256": "0i1lsp9k45pqkksg47ivpj85wb4waz2cfz43hsip7a136pxzaqq0",
+        "version": "0.21.1"
+      },
+      "msgpack-d": {
+        "sha256": "1y2iihxsxpgbwns6r2b4xvw82szakgnv1i61y4d3i6qsakxm7yid",
+        "version": "1.0.4"
+      },
+      "stdx-allocator": {
+        "sha256": "1g8382wr49sjyar0jay8j7y2if7h1i87dhapkgxphnizp24d7kaj",
+        "version": "2.77.5"
+      }
+    }
+  },
+  "0.16.2": {
+    "dependencies": {
+      "dsymbol": {
+        "sha256": "0vh65w6v7am2krc8fhj2snsh7dzqjvfkccvwynsgfbwp9fdxcldq",
+        "version": "0.14.1"
+      },
+      "emsi_containers": {
+        "sha256": "1viz1fjh6jhfvl0d25bb1q7aclm1hrs0d7hhcx1d9c0gg5k6lcpm",
+        "version": "0.9.0"
+      },
+      "libdparse": {
+        "sha256": "0cs1xavf4ziv6zwxcca56mfihwqi28pylc2r5xpc3ipg9dwqqjvh",
+        "version": "0.25.1"
+      },
+      "msgpack-d": {
+        "sha256": "1gndqjs17pkgmqvwra9wbvvmvlr1kaj443j3x7xl6jb320hk9dbn",
+        "version": "1.0.5"
+      },
+      "stdx-allocator": {
+        "sha256": "1g8382wr49sjyar0jay8j7y2if7h1i87dhapkgxphnizp24d7kaj",
+        "version": "2.77.5"
+      }
+    }
+  }
+}
