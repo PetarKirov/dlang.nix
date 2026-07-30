@@ -1,8 +1,9 @@
-# LDC druntime + phobos cross-built for Android (aarch64), from the same LDC
-# source tarball as the host compiler, using `ldc-build-runtime` driving the
-# NDK's CMake toolchain file. The resulting static libraries are consumed by
-# the `ldc-android` wrapper (see ./android.nix), which registers an
-# `aarch64-.*-linux-android` section in ldc2.conf pointing `lib-dirs` here.
+# LDC druntime + phobos cross-built for Android, from the same LDC source
+# tarball as the host compiler, using `ldc-build-runtime` driving the NDK's
+# CMake toolchain file. Instantiated once per target arch (aarch64, x86_64).
+# The resulting static libraries are consumed by the `ldc-android` wrapper
+# (see ./android.nix), which registers an `<arch>-.*-linux-android` section
+# per runtime in ldc2.conf pointing `lib-dirs` here.
 #
 # Recipe per the LDC "Cross-compiling with LDC" / "Build D for Android" notes:
 #   ldc-build-runtime --ninja \
@@ -21,13 +22,20 @@
   ndk,
   abi ? "arm64-v8a",
   apiLevel ? "21",
-  # LLVM target triple LDC matches against the `aarch64-.*-linux-android`
+  # LLVM target triple LDC matches against the `<arch>-.*-linux-android`
   # config section. The empty vendor field (double dash) matches upstream docs.
   mtriple ? "aarch64--linux-android",
 }:
 
+let
+  # "aarch64--linux-android" -> "aarch64"; "x86_64--linux-android" -> "x86_64".
+  # The triples here always use the empty vendor field (double dash), so the
+  # arch is everything before it.
+  archTag = lib.head (lib.splitString "--" mtriple);
+  buildDir = "build-android-${archTag}";
+in
 stdenv.mkDerivation {
-  pname = "ldc-android-runtime-aarch64";
+  pname = "ldc-android-runtime-${archTag}";
   inherit (ldc) version;
 
   # Reuse the exact source the host LDC was built from, so the cross-built
@@ -55,7 +63,7 @@ stdenv.mkDerivation {
     # (`-link-defaultlib-shared=false`), so the shared variants are dead weight.
     ldc-build-runtime --ninja \
       --ldcSrcDir="$PWD" \
-      --buildDir="$PWD/build-android-aarch64" \
+      --buildDir="$PWD/${buildDir}" \
       --dFlags="-mtriple=${mtriple}" \
       --targetSystem="Android;Linux;UNIX" \
       BUILD_SHARED_LIBS=OFF \
@@ -70,13 +78,13 @@ stdenv.mkDerivation {
     runHook preInstall
 
     mkdir -p $out/lib
-    cp -v build-android-aarch64/lib/*.a $out/lib/ 2>/dev/null || true
+    cp -v ${buildDir}/lib/*.a $out/lib/ 2>/dev/null || true
     # Some configurations also emit shared objects; ship them if present.
-    cp -v build-android-aarch64/lib/*.so $out/lib/ 2>/dev/null || true
+    cp -v ${buildDir}/lib/*.so $out/lib/ 2>/dev/null || true
 
     if [ -z "$(ls -A $out/lib)" ]; then
-      echo "error: no runtime libraries produced in build-android-aarch64/lib" >&2
-      find build-android-aarch64 -name '*.a' -o -name '*.so' >&2 || true
+      echo "error: no runtime libraries produced in ${buildDir}/lib" >&2
+      find ${buildDir} -name '*.a' -o -name '*.so' >&2 || true
       exit 1
     fi
 
@@ -84,7 +92,7 @@ stdenv.mkDerivation {
   '';
 
   meta = with lib; {
-    description = "LDC druntime + phobos cross-built for Android aarch64";
+    description = "LDC druntime + phobos cross-built for Android ${archTag}";
     homepage = "https://github.com/ldc-developers/ldc";
     license = with licenses; [
       bsd3

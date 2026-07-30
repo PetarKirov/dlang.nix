@@ -28,15 +28,40 @@ in
       };
       ndkBundle = (androidPkgs.androidenv.composeAndroidPackages { includeNDK = true; }).ndk-bundle;
       ndkRoot = "${ndkBundle}/libexec/android-sdk/ndk/${ndkBundle.version}";
-      ldcAndroidRuntime = pkgs.callPackage ./ldc/android-runtime.nix {
-        ldc = self'.packages.ldc;
-        ndk = ndkRoot;
+      mkAndroidRuntime =
+        args:
+        pkgs.callPackage ./ldc/android-runtime.nix (
+          {
+            ldc = self'.packages.ldc;
+            ndk = ndkRoot;
+          }
+          // args
+        );
+      # aarch64 = physical devices; x86_64 = emulator system images.
+      ldcAndroidRuntimeAarch64 = mkAndroidRuntime { };
+      ldcAndroidRuntimeX86_64 = mkAndroidRuntime {
+        abi = "x86_64";
+        mtriple = "x86_64--linux-android";
       };
       androidPackages = {
-        ldc-android-runtime = ldcAndroidRuntime;
+        # Back-compat alias for the original single-target attr name.
+        ldc-android-runtime = ldcAndroidRuntimeAarch64;
+        ldc-android-runtime-aarch64 = ldcAndroidRuntimeAarch64;
+        ldc-android-runtime-x86_64 = ldcAndroidRuntimeX86_64;
         ldc-android = pkgs.callPackage ./ldc/android.nix {
           ldc = self'.packages.ldc;
-          androidRuntime = ldcAndroidRuntime;
+          androidRuntimes = [
+            {
+              triplePattern = "aarch64-.*-linux-android";
+              clangPrefix = "aarch64-linux-android";
+              runtime = ldcAndroidRuntimeAarch64;
+            }
+            {
+              triplePattern = "x86_64-.*-linux-android";
+              clangPrefix = "x86_64-linux-android";
+              runtime = ldcAndroidRuntimeX86_64;
+            }
+          ];
           ndk = ndkRoot;
         };
       };
