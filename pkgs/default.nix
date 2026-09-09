@@ -108,7 +108,14 @@ in
         pname = "wasm-component-ld";
         version = "0.5.22";
         src = inputs.wasm-component-ld;
-        cargoLock.lockFile = "${inputs.wasm-component-ld}/Cargo.lock";
+        # `cargoHash` (fetchCargoVendor) rather than `cargoLock` (importCargoLock):
+        # the latter downloads each crate with `fetchurl`, and crates.io now
+        # answers 403 to Nix's `curl/…` user agent on
+        # `/api/v1/crates/<name>/<version>/download`, so an uncached build of
+        # this linker died fetching `wasmparser`. fetchCargoVendor fetches the
+        # same tarballs through its own client, which crates.io still serves.
+        # One hash for the vendored set; bump it with the Cargo.lock.
+        cargoHash = "sha256-ERAx3o8QiOUb8Plv35HZXSYKIPjLdQzjG9EOdzNzf6I=";
         doCheck = false;
       };
 
