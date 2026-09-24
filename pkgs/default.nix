@@ -162,6 +162,46 @@ in
         ldc-wasm-runtime = ldcWasmRuntime;
         ldc-wasm = ldcWasm;
       };
+
+      # ---- Vulkan / SPIR-V shaders (dcompute) — Linux only ----
+      # LDC master + ldc-developers/ldc#5132 (dcompute's Vulkan compute target)
+      # + graphics shader stages (`@fragment`, `@input`/`@uniform`, `Sampler2D`),
+      # against LLVM main with the SPIR-V backend (./llvm-spirv). Consumed by
+      # sparkles' `shader-compile`, which turns single-source D shaders into
+      # SPIR-V and, via spirv-cross, GLSL. Opt-in and heavy (LLVM from source).
+      llvmSpirvVulkan = pkgs.callPackage ./llvm-spirv { };
+
+      ldcVulkanSrc = pkgs.fetchFromGitHub {
+        owner = "PetarKirov";
+        repo = "ldc";
+        # sparkles/vulkan-shaders
+        rev = "6a57aafa2867b365619a052b84d3f3afa56490bc";
+        hash = "sha256-y1CfBq3+1WLG2DHzHfF4i99NCt7nipzTvQ/vFCjXdmk=";
+        fetchSubmodules = true;
+      };
+
+      vulkanPackages = {
+        llvm-spirv-vulkan = llvmSpirvVulkan;
+        ldc-vulkan =
+          pkgs.callPackage
+            (import ./ldc/generic.nix {
+              version = "1.43.0-vulkan";
+              srcOverride = ldcVulkanSrc;
+              # The fork's lit tests need an LLVM with FileCheck and the
+              # spirv-tools; the release test suite assumes a tarball layout.
+              checkOverride = false;
+              llvmPackagesOverride = {
+                llvm = llvmSpirvVulkan;
+                lld = llvmSpirvVulkan;
+              };
+            })
+            {
+              # The upstream binary release, as the version catalog bootstraps
+              # with: the source-built `ldc`'s config links `ldc_rt.dso.o` a second
+              # time into LDC's own executables (duplicate `rt.dso` symbols).
+              hostDCompiler = self'.packages.ldc-bootstrap;
+            };
+      };
     in
     {
       overlayAttrs = self'.packages;
@@ -171,29 +211,31 @@ in
         // (genPkgVersions "ldc").hierarchical
         // (genPkgVersions "dub").hierarchical;
 
-      packages = {
-        # NOTE: This is only the default. The bootstrap compiler in the
-        # version catalog will override this.
-        ldc-bootstrap = self'.packages."ldc-binary-1_42_0";
-        ldc = self'.packages."ldc-1_42_0";
-
-        # DUB is released alongside DMD. When DMD 2.112.0 shipped, upstream
-        # appears to have forgotten to bump DUB from 1.42.0-beta.1 to the
-        # final 1.42.0 tag, so the newest released DUB is still this beta.
-        # Switch to "dub-1_42_0" once upstream tags the stable release.
-        dub = self'.packages."dub-1_42_0-beta_1";
-      }
-      // (genPkgVersions "ldc").flattened "binary"
-      // (genPkgVersions "ldc").flattened "source"
-      // (genPkgVersions "dub").flattened "source"
-      // optionalAttrs pkgs.hostPlatform.isx86 (
+      packages =
         {
-          dmd-bootstrap = self'.packages."dmd-binary-2_098_0";
-          dmd = self'.packages."dmd-2_112_0";
+          # NOTE: This is only the default. The bootstrap compiler in the
+          # version catalog will override this.
+          ldc-bootstrap = self'.packages."ldc-binary-1_42_0";
+          ldc = self'.packages."ldc-1_42_0";
+
+          # DUB is released alongside DMD. When DMD 2.112.0 shipped, upstream
+          # appears to have forgotten to bump DUB from 1.42.0-beta.1 to the
+          # final 1.42.0 tag, so the newest released DUB is still this beta.
+          # Switch to "dub-1_42_0" once upstream tags the stable release.
+          dub = self'.packages."dub-1_42_0-beta_1";
         }
-        // (genPkgVersions "dmd").flattened "binary"
-        // (genPkgVersions "dmd").flattened "source"
-      )
-      // optionalAttrs (system == "x86_64-linux") (androidPackages // wasmPackages // x86_32Packages);
+        // (genPkgVersions "ldc").flattened "binary"
+        // (genPkgVersions "ldc").flattened "source"
+        // (genPkgVersions "dub").flattened "source"
+        // optionalAttrs pkgs.hostPlatform.isx86 (
+          {
+            dmd-bootstrap = self'.packages."dmd-binary-2_098_0";
+            dmd = self'.packages."dmd-2_112_0";
+          }
+          // (genPkgVersions "dmd").flattened "binary"
+          // (genPkgVersions "dmd").flattened "source"
+        )
+        // optionalAttrs (system == "x86_64-linux") (androidPackages // wasmPackages // x86_32Packages)
+        // optionalAttrs pkgs.hostPlatform.isLinux vulkanPackages;
     };
 }

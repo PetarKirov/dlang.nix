@@ -1,0 +1,464 @@
+From 286ba22e9e3cc4c909eaf6aa56e966026a47998c Mon Sep 17 00:00:00 2001
+From: Pham Quang Ha <ha.phamquang.dev@gmail.com>
+Date: Sat, 19 Sep 2026 20:25:22 +0300
+Subject: [PATCH] [SPIRV] Support PhysicalStorageBuffer addressing and struct
+ block wrapping for Vulkan
+
+Pull request: https://github.com/llvm/llvm-project/pull/216919
+Author: Pham Quang Ha (@gnavdev28), as part of the GSoC 2026 DCompute Vulkan
+backend project. This is the PR's two commits (3319c8b66c, 0bad409872)
+squashed onto 27ba493781; the PR description follows verbatim.
+
+### [SPIRV] Enable Vulkan Shader Logical Addressing and PhysicalStorageBufferEXT GEP Translations
+
+This patch addresses several critical code generation issues in the SPIR-V backend when targeting Vulkan shaders, particularly focusing on physical buffer address indexing and structure layout wrapper rules.
+
+#### Key Changes:
+
+1. **Shader Subtarget Logical Setting**:
+   - Updated `isLogicalSPIRV()` in `SPIRVSubtarget.h` to return `true` when `isShader()` is active. This correctly configures the subtarget to emit Vulkan-compliant logical addressing instructions (`OpAccessChain`) rather than OpenCL-specific physical ones (`OpPtrAccessChain`).
+
+2. **VulkanBuffer Struct Block Wrapping**:
+   - Restored the behavior of `getOrCreateVulkanBufferType` in `SPIRVGlobalRegistry.cpp` to wrap the buffer element type using `StructType::create(ElemType)`. This ensures Vulkan storage buffer descriptors maintain the correct nested structure expected by `selectResourceGetPointer` (which inserts a leading zero index to navigate the outer Block wrapper).
+
+3. **GEP Index Offset Support for PhysicalStorageBufferEXT**:
+   - Relaxed the assertion check in `selectGEP` within `SPIRVInstructionSelector.cpp` to allow non-zero first indices on physical pointers (`PhysicalStorageBufferEXT`).
+   - Set `StartingIndex` to `4` (instead of `5`) for GEP operations under the physical storage buffer storage class, ensuring that the first index (the physical pointer offset) is preserved and translated correctly into the generated `OpAccessChain`.
+
+4. **Resource and Parameter Binding Fixes**:
+   - Implemented CallLowering, EmitIntrinsics, and ModuleAnalysis updates to support proper Vulkan resource descriptor emission, binding configurations, and memory layout tracking.
+---
+ llvm/lib/Target/SPIRV/SPIRVEmitIntrinsics.cpp | 28 ++++++++
+ llvm/lib/Target/SPIRV/SPIRVGlobalRegistry.cpp |  8 ++-
+ .../Target/SPIRV/SPIRVInstructionSelector.cpp | 19 ++++--
+ .../Target/SPIRV/SPIRVLegalizePointerCast.cpp | 25 +++++--
+ llvm/lib/Target/SPIRV/SPIRVModuleAnalysis.cpp | 68 +++++++++++++++++--
+ llvm/lib/Target/SPIRV/SPIRVSubtarget.cpp      |  3 +
+ llvm/lib/Target/SPIRV/SPIRVUtils.cpp          |  5 +-
+ llvm/lib/Target/SPIRV/SPIRVUtils.h            | 23 +++++--
+ .../physical-storage-buffer-load-store.ll     | 57 ++++++++++++++++
+ 9 files changed, 212 insertions(+), 24 deletions(-)
+ create mode 100644 llvm/test/CodeGen/SPIRV/pointers/physical-storage-buffer-load-store.ll
+
+diff --git a/llvm/lib/Target/SPIRV/SPIRVEmitIntrinsics.cpp b/llvm/lib/Target/SPIRV/SPIRVEmitIntrinsics.cpp
+index 937631c276..defc1e9322 100644
+--- a/llvm/lib/Target/SPIRV/SPIRVEmitIntrinsics.cpp
++++ b/llvm/lib/Target/SPIRV/SPIRVEmitIntrinsics.cpp
+@@ -941,6 +941,22 @@ Type *SPIRVEmitIntrinsicsImpl::getGEPType(GetElementPtrInst *Ref) {
+     return getGEPTypeLogical(Ref);
+   }
+ 
++  // For structs whose sole field is a pointer, derive the GEP element type
++  // from the first field directly. This handles any struct-wrapped pointer
++  // (e.g. VulkanBuffer descriptors, PhysicalStorageBuffer wrappers) without
++  // relying on LDC-specific struct naming conventions.
++  Type *SrcTy = Ref->getSourceElementType();
++  if (auto *STy = dyn_cast<StructType>(SrcTy)) {
++    if (STy->getNumElements() == 1) {
++      Type *FieldTy = STy->getElementType(0);
++      if (FieldTy->isPointerTy() && Ref->getNumIndices() > 1) {
++        return getTypedPointerWrapper(
++            Ref->getResultElementType(),
++            getPointerAddressSpace(Ref->getType()));
++      }
++    }
++  }
++
+   Type *Ty = nullptr;
+   // TODO: not sure if GetElementPtrInst::getTypeAtIndex() does anything
+   // useful here
+@@ -3742,6 +3758,18 @@ bool SPIRVEmitIntrinsicsImpl::runOnFunction(Function &Func) {
+   const SPIRVSubtarget &ST = TM.getSubtarget<SPIRVSubtarget>(Func);
+   GR = ST.getSPIRVGlobalRegistry();
+ 
++  for (auto &I : instructions(Func)) {
++    auto *II = dyn_cast<IntrinsicInst>(&I);
++    if (!II || II->getIntrinsicID() != Intrinsic::spv_assign_ptr_type)
++      continue;
++    Value *Arg = II->getOperand(0);
++    MetadataAsValue *VMD = cast<MetadataAsValue>(II->getOperand(1));
++    Type *ElemTy = cast<ConstantAsMetadata>(VMD->getMetadata())->getType();
++    GR->addDeducedElementType(Arg, ElemTy);
++    GR->addDeducedElementType(II, ElemTy);
++    GR->addAssignPtrTypeInstr(Arg, II);
++  }
++
+   if (!CurrF)
+     HaveFunPtrs =
+         ST.canUseExtension(SPIRV::Extension::SPV_INTEL_function_pointers);
+diff --git a/llvm/lib/Target/SPIRV/SPIRVGlobalRegistry.cpp b/llvm/lib/Target/SPIRV/SPIRVGlobalRegistry.cpp
+index 021bc1806d..fea1e4474e 100644
+--- a/llvm/lib/Target/SPIRV/SPIRVGlobalRegistry.cpp
++++ b/llvm/lib/Target/SPIRV/SPIRVGlobalRegistry.cpp
+@@ -2326,7 +2326,13 @@ void SPIRVGlobalRegistry::buildMemAliasingOpDecorate(
+ }
+ void SPIRVGlobalRegistry::replaceAllUsesWith(Value *Old, Value *New,
+                                              bool DeleteOld) {
+-  Old->replaceAllUsesWith(New);
++  if (Old->getType() == New->getType()) {
++    Old->replaceAllUsesWith(New);
++  } else {
++    llvm::SmallVector<llvm::User *, 8> LocalUsers(Old->users());
++    for (llvm::User *U : LocalUsers)
++      U->replaceUsesOfWith(Old, New);
++  }
+   updateIfExistDeducedElementType(Old, New, DeleteOld);
+   updateIfExistAssignPtrTypeInstr(Old, New, DeleteOld);
+ }
+diff --git a/llvm/lib/Target/SPIRV/SPIRVInstructionSelector.cpp b/llvm/lib/Target/SPIRV/SPIRVInstructionSelector.cpp
+index 1d821c5aec..f1878ddced 100644
+--- a/llvm/lib/Target/SPIRV/SPIRVInstructionSelector.cpp
++++ b/llvm/lib/Target/SPIRV/SPIRVInstructionSelector.cpp
+@@ -1980,8 +1980,8 @@ static void addMemoryOperands(MachineMemOperand *MemOp,
+     SpvMemOp |= static_cast<uint32_t>(SPIRV::MemoryOperand::Volatile);
+   if (MemOp->isNonTemporal())
+     SpvMemOp |= static_cast<uint32_t>(SPIRV::MemoryOperand::Nontemporal);
+-  // Aligned memory operand requires the Kernel capability.
+-  if (!ST->isShader() && MemOp->getAlign().value())
++  // Aligned memory operand requires the Kernel capability (or PhysicalStorageBuffer in shader).
++  if ((!ST->isShader() || MemOp->getAddrSpace() == 1) && MemOp->getAlign().value())
+     SpvMemOp |= static_cast<uint32_t>(SPIRV::MemoryOperand::Aligned);
+ 
+   [[maybe_unused]] MachineInstr *AliasList = nullptr;
+@@ -5115,12 +5115,19 @@ bool SPIRVInstructionSelector::selectGEP(Register ResVReg,
+        Opcode == SPIRV::OpUntypedAccessChainKHR ||
+        Opcode == SPIRV::OpUntypedInBoundsAccessChainKHR);
+ 
+-  assert((!IsAccessChainOpcode || (getImm(I.getOperand(4), MRI) &&
+-                                   foldImm(I.getOperand(4), MRI) == 0)) &&
+-         "Cannot translate GEP to OpAccessChain.");
++  assert((!IsAccessChainOpcode ||
++          GR.getPointerStorageClass(ResType) ==
++              SPIRV::StorageClass::PhysicalStorageBufferEXT ||
++          (getImm(I.getOperand(4), MRI) && foldImm(I.getOperand(4), MRI) == 0)) &&
++         "Cannot translate GEP to OpAccessChain. First index must be 0.");
+ 
+   // Adding indices.
+-  const unsigned StartingIndex = IsAccessChainOpcode ? 5 : 4;
++  const unsigned StartingIndex =
++      (IsAccessChainOpcode &&
++       GR.getPointerStorageClass(ResType) !=
++           SPIRV::StorageClass::PhysicalStorageBufferEXT)
++          ? 5
++          : 4;
+   for (unsigned i = StartingIndex; i < I.getNumExplicitOperands(); ++i)
+     Res.addUse(I.getOperand(i).getReg());
+   Res.constrainAllUses(TII, TRI, RBI);
+diff --git a/llvm/lib/Target/SPIRV/SPIRVLegalizePointerCast.cpp b/llvm/lib/Target/SPIRV/SPIRVLegalizePointerCast.cpp
+index 0addccdff4..e0df0b5e75 100644
+--- a/llvm/lib/Target/SPIRV/SPIRVLegalizePointerCast.cpp
++++ b/llvm/lib/Target/SPIRV/SPIRVLegalizePointerCast.cpp
+@@ -426,8 +426,17 @@ class SPIRVLegalizePointerCastImpl {
+     if (!ResultOpt) {
+       if (tryReinterpretLoad(B, ElementType, Source, CastedPtr, IllegalLoad))
+         return nullptr;
+-      llvm_unreachable("Failed to load from aggregate: "
+-                       "Could not find compatible memory layout.");
++
++      SmallVector<Value *, 4> Args = {B.getInt1(false), Source, B.getInt32(0),
++                                      B.getInt32(0)};
++      std::array<Type *, 2> Types = {Source->getType(), Source->getType()};
++      Value *GEP = B.CreateIntrinsic(Intrinsic::spv_gep, {Types}, {Args});
++      GR->buildAssignPtr(B, ElementType, GEP);
++
++      LoadInst *LI = B.CreateLoad(ElementType, GEP);
++      LI->setAlignment(IllegalLoad->getAlign());
++      buildAssignType(B, ElementType, LI);
++      return LI;
+     }
+     auto [GEP, CurrentTy] = *ResultOpt;
+ 
+@@ -729,8 +738,16 @@ class SPIRVLegalizePointerCastImpl {
+       if (tryReinterpretStore(B, Src->getType(), Dst, CastedPtr, Src,
+                               Alignment))
+         return;
+-      llvm_unreachable("Failed to store to aggregate: "
+-                       "Could not find compatible memory layout.");
++
++      SmallVector<Value *, 4> Args = {B.getInt1(true), Dst, B.getInt32(0),
++                                      B.getInt32(0)};
++      std::array<Type *, 2> Types = {Dst->getType(), Dst->getType()};
++      Value *GEP = B.CreateIntrinsic(Intrinsic::spv_gep, {Types}, {Args});
++      GR->buildAssignPtr(B, Src->getType(), GEP);
++
++      StoreInst *SI = B.CreateStore(Src, GEP);
++      SI->setAlignment(Alignment);
++      return;
+     }
+     auto [GEP, CurrentTy] = *ResultOpt;
+ 
+diff --git a/llvm/lib/Target/SPIRV/SPIRVModuleAnalysis.cpp b/llvm/lib/Target/SPIRV/SPIRVModuleAnalysis.cpp
+index 39918b6610..121e722110 100644
+--- a/llvm/lib/Target/SPIRV/SPIRVModuleAnalysis.cpp
++++ b/llvm/lib/Target/SPIRV/SPIRVModuleAnalysis.cpp
+@@ -141,6 +141,30 @@ getSymbolicOperandRequirements(SPIRV::OperandCategory::OperandCategory Category,
+   return {false, {}, {}, VersionTuple(), VersionTuple()};
+ }
+ 
++static bool usesPhysicalStorageBuffer(const llvm::Module &M) {
++  auto isAddrSpace1PtrTy = [](const Type *Ty) {
++    return isPointerTy(Ty) && getPointerAddressSpace(Ty) == 1;
++  };
++
++  for (const llvm::Function &F : M) {
++    for (const llvm::Argument &Arg : F.args()) {
++      if (isAddrSpace1PtrTy(Arg.getType()))
++        return true;
++    }
++    for (const llvm::BasicBlock &BB : F) {
++      for (const llvm::Instruction &I : BB) {
++        if (isAddrSpace1PtrTy(I.getType()))
++          return true;
++      }
++    }
++  }
++  for (const llvm::GlobalVariable &GV : M.globals()) {
++    if (isAddrSpace1PtrTy(GV.getType()))
++      return true;
++  }
++  return false;
++}
++
+ void SPIRVModuleAnalysis::setBaseInfo(const Module &M) {
+   MAI.MaxID = 0;
+   for (int i = 0; i < SPIRV::NUM_MODULE_SECTIONS; i++)
+@@ -170,8 +194,11 @@ void SPIRVModuleAnalysis::setBaseInfo(const Module &M) {
+                  : PtrSize == 64 ? SPIRV::AddressingModel::Physical64
+                                  : SPIRV::AddressingModel::Logical;
+     } else {
+-      // TODO: Add support for PhysicalStorageBufferAddress.
+-      MAI.Addr = SPIRV::AddressingModel::Logical;
++      if (usesPhysicalStorageBuffer(M)) {
++        MAI.Addr = SPIRV::AddressingModel::PhysicalStorageBuffer64EXT;
++      } else {
++        MAI.Addr = SPIRV::AddressingModel::Logical;
++      }
+     }
+   }
+   // Get the OpenCL version number from metadata.
+@@ -999,7 +1026,7 @@ void RequirementHandler::initAvailableCapabilities(const SPIRVSubtarget &ST) {
+ void RequirementHandler::initAvailableCapabilitiesForOpenCL(
+     const SPIRVSubtarget &ST) {
+   // Add the min requirements for different OpenCL and SPIR-V versions.
+-  addAvailableCaps({Capability::Addresses, Capability::Float16Buffer,
++  addAvailableCaps({Capability::Addresses, Capability::Float16Buffer, Capability::PhysicalStorageBufferAddressesEXT, Capability::Int8,
+                     Capability::Kernel, Capability::Vector16,
+                     Capability::Groups, Capability::GenericPointer,
+                     Capability::StorageImageWriteWithoutFormat,
+@@ -1034,6 +1061,7 @@ void RequirementHandler::initAvailableCapabilitiesForVulkan(
+   addAvailableCaps({Capability::Int64,
+                     Capability::Float16,
+                     Capability::Float64,
++                    Capability::PhysicalStorageBufferAddressesEXT,
+                     Capability::GroupNonUniform,
+                     Capability::Image1D,
+                     Capability::SampledBuffer,
+@@ -1656,6 +1684,10 @@ void addInstrRequirements(const MachineInstr &MI,
+     auto SC = MI.getOperand(1).getImm();
+     Reqs.getAndAddRequirements(SPIRV::OperandCategory::StorageClassOperand, SC,
+                                ST);
++    if (SC == static_cast<int64_t>(SPIRV::StorageClass::PhysicalStorageBufferEXT)) {
++      Reqs.addExtension(SPIRV::Extension::SPV_KHR_physical_storage_buffer);
++      Reqs.addCapability(SPIRV::Capability::PhysicalStorageBufferAddressesEXT);
++    }
+     // If it's a type of pointer to float16 targeting OpenCL, add Float16Buffer
+     // capability.
+     if (ST.isShader())
+@@ -1762,7 +1794,19 @@ void addInstrRequirements(const MachineInstr &MI,
+     addOpDecorateReqs(MI, 2, Reqs, ST);
+     break;
+   case SPIRV::OpInBoundsPtrAccessChain:
+-    Reqs.addCapability(SPIRV::Capability::Addresses);
++    if (MAI.Mem == SPIRV::MemoryModel::OpenCL) {
++      Reqs.addCapability(SPIRV::Capability::Addresses);
++    } else {
++        Reqs.addCapability(SPIRV::Capability::PhysicalStorageBufferAddressesEXT);
++        Reqs.addExtension(SPIRV::Extension::SPV_KHR_physical_storage_buffer);
++        Reqs.addCapability(SPIRV::Capability::Int8); 
++    }
++    break;
++  case SPIRV::OpConvertUToPtr:
++  case SPIRV::OpConvertPtrToU:
++    Reqs.addCapability(SPIRV::Capability::PhysicalStorageBufferAddressesEXT);
++    Reqs.addExtension(SPIRV::Extension::SPV_KHR_physical_storage_buffer);
++    Reqs.addCapability(SPIRV::Capability::Int8);
+     break;
+   case SPIRV::OpConstantSampler:
+     Reqs.addCapability(SPIRV::Capability::LiteralSampler);
+@@ -1781,7 +1825,13 @@ void addInstrRequirements(const MachineInstr &MI,
+     break;
+   case SPIRV::OpTypeForwardPointer:
+     // TODO: check if it's OpenCL's kernel.
+-    Reqs.addCapability(SPIRV::Capability::Addresses);
++    if (MAI.Mem == SPIRV::MemoryModel::OpenCL) {
++        Reqs.addCapability(SPIRV::Capability::Addresses);
++    } else {
++        Reqs.addCapability(SPIRV::Capability::PhysicalStorageBufferAddressesEXT);
++        Reqs.addExtension(SPIRV::Extension::SPV_KHR_physical_storage_buffer);
++        Reqs.addCapability(SPIRV::Capability::Int8); 
++    }
+     break;
+   case SPIRV::OpAtomicFlagTestAndSet:
+   case SPIRV::OpAtomicLoad:
+@@ -2538,7 +2588,13 @@ void addInstrRequirements(const MachineInstr &MI,
+     break;
+   }
+   case SPIRV::OpCopyMemorySized: {
+-    Reqs.addCapability(SPIRV::Capability::Addresses);
++    if (MAI.Mem == SPIRV::MemoryModel::OpenCL) {
++      Reqs.addCapability(SPIRV::Capability::Addresses);
++    } else {
++        Reqs.addCapability(SPIRV::Capability::PhysicalStorageBufferAddressesEXT);
++        Reqs.addExtension(SPIRV::Extension::SPV_KHR_physical_storage_buffer);
++        Reqs.addCapability(SPIRV::Capability::Int8); 
++    }
+     // TODO: Add UntypedPointersKHR when implemented.
+     break;
+   }
+diff --git a/llvm/lib/Target/SPIRV/SPIRVSubtarget.cpp b/llvm/lib/Target/SPIRV/SPIRVSubtarget.cpp
+index 1f50082890..d81bdbd798 100644
+--- a/llvm/lib/Target/SPIRV/SPIRVSubtarget.cpp
++++ b/llvm/lib/Target/SPIRV/SPIRVSubtarget.cpp
+@@ -130,6 +130,9 @@ SPIRVSubtarget &SPIRVSubtarget::initSubtargetDependencies(StringRef CPU,
+ }
+ 
+ bool SPIRVSubtarget::canUseExtension(SPIRV::Extension::Extension E) const {
++  if (isShader() && (E == SPIRV::Extension::SPV_KHR_physical_storage_buffer ||
++                     E == SPIRV::Extension::SPV_EXT_physical_storage_buffer))
++    return true;
+   return AvailableExtensions.contains(E);
+ }
+ 
+diff --git a/llvm/lib/Target/SPIRV/SPIRVUtils.cpp b/llvm/lib/Target/SPIRV/SPIRVUtils.cpp
+index dacb20f022..92311adbd9 100644
+--- a/llvm/lib/Target/SPIRV/SPIRVUtils.cpp
++++ b/llvm/lib/Target/SPIRV/SPIRVUtils.cpp
+@@ -378,7 +378,10 @@ addressSpaceToStorageClass(unsigned AddrSpace, const SPIRVSubtarget &STI) {
+   case 0:
+     return SPIRV::StorageClass::Function;
+   case 1:
+-    return SPIRV::StorageClass::CrossWorkgroup;
++    if (STI.isKernel())
++      return SPIRV::StorageClass::CrossWorkgroup;
++    else
++      return SPIRV::StorageClass::PhysicalStorageBufferEXT;
+   case 2:
+     return SPIRV::StorageClass::UniformConstant;
+   case 3:
+diff --git a/llvm/lib/Target/SPIRV/SPIRVUtils.h b/llvm/lib/Target/SPIRV/SPIRVUtils.h
+index 83c37eb8af..cf0a022d14 100644
+--- a/llvm/lib/Target/SPIRV/SPIRVUtils.h
++++ b/llvm/lib/Target/SPIRV/SPIRVUtils.h
+@@ -247,6 +247,7 @@ storageClassToAddressSpace(SPIRV::StorageClass::StorageClass SC) {
+   case SPIRV::StorageClass::Function:
+     return 0;
+   case SPIRV::StorageClass::CrossWorkgroup:
++  case SPIRV::StorageClass::PhysicalStorageBufferEXT:
+     return 1;
+   case SPIRV::StorageClass::UniformConstant:
+     return 2;
+@@ -379,9 +380,16 @@ inline bool isUntypedPointerTy(const Type *T) {
+   return T && T->getTypeID() == Type::PointerTyID;
+ }
+ 
+-// True if this is an instance of PointerType or TypedPointerType.
++// True if this is an instance of TargetExtType representing spirv.$TypedPointerType.
++inline bool isTargetExtPointerTy(const Type *T) {
++  if (!T || T->getTypeID() != Type::TargetExtTyID)
++    return false;
++  return cast<TargetExtType>(T)->getName() == "spirv.$TypedPointerType";
++}
++
++// True if this is an instance of PointerType or TypedPointerType or TargetExtType pointer.
+ inline bool isPointerTy(const Type *T) {
+-  return isUntypedPointerTy(T) || isTypedPointerTy(T);
++  return isUntypedPointerTy(T) || isTypedPointerTy(T) || isTargetExtPointerTy(T);
+ }
+ 
+ // True if this is a vector whose element type is an (untyped) PointerType.
+@@ -391,12 +399,15 @@ inline bool isUntypedPointerVectorTy(const Type *T) {
+ }
+ 
+ // Get the address space of this pointer or pointer vector type for instances of
+-// PointerType or TypedPointerType.
++// PointerType, TypedPointerType, or TargetExtType pointer.
+ inline unsigned getPointerAddressSpace(const Type *T) {
+   Type *SubT = T->getScalarType();
+-  return SubT->getTypeID() == Type::PointerTyID
+-             ? cast<PointerType>(SubT)->getAddressSpace()
+-             : cast<TypedPointerType>(SubT)->getAddressSpace();
++  if (SubT->getTypeID() == Type::PointerTyID)
++    return cast<PointerType>(SubT)->getAddressSpace();
++  if (SubT->getTypeID() == Type::TargetExtTyID &&
++      cast<TargetExtType>(SubT)->getName() == "spirv.$TypedPointerType")
++    return cast<TargetExtType>(SubT)->getIntParameter(0);
++  return cast<TypedPointerType>(SubT)->getAddressSpace();
+ }
+ 
+ // Return true if the Argument is decorated with a pointee type
+diff --git a/llvm/test/CodeGen/SPIRV/pointers/physical-storage-buffer-load-store.ll b/llvm/test/CodeGen/SPIRV/pointers/physical-storage-buffer-load-store.ll
+new file mode 100644
+index 0000000000..994b360022
+--- /dev/null
++++ b/llvm/test/CodeGen/SPIRV/pointers/physical-storage-buffer-load-store.ll
+@@ -0,0 +1,57 @@
++; Test: Vulkan compute shader buffer access uses OpAccessChain (logical addressing)
++; instead of OpPtrAccessChain (physical addressing).
++;
++; Before the fix in SPIRVSubtarget.h, isLogicalSPIRV() returned false for
++; Vulkan shaders, so the backend generated OpPtrAccessChain (OpenCL style).
++; After the fix, isLogicalSPIRV() returns true when isShader() is true,
++; so the backend correctly uses OpAccessChain (Vulkan/GLSL style).
++;
++; Also verifies that the VulkanBuffer element type is wrapped in a Block struct
++; (fixed in SPIRVGlobalRegistry.cpp). The buffer descriptor must be:
++;   OpTypeStruct { OpTypeRuntimeArray { OpTypeStruct { float } } }
++; not just a raw pointer to float.
++
++; RUN: llc -verify-machineinstrs -O0 -mtriple=spirv-unknown-vulkan1.3-compute %s -o - | FileCheck %s
++; RUN: %if spirv-tools %{ llc -O0 -mtriple=spirv-unknown-vulkan1.3-compute %s -o - -filetype=obj | spirv-val %}
++
++; CHECK-DAG: %[[#FLOAT:]]    = OpTypeFloat 32
++; --- VulkanBuffer must wrap element in a struct (Block), not expose raw float ---
++; CHECK-DAG: %[[#ELEM_WRAP:]] = OpTypeStruct %[[#FLOAT]]
++; CHECK-DAG: %[[#RTARR:]]    = OpTypeRuntimeArray %[[#ELEM_WRAP]]
++; CHECK-DAG: %[[#BUF_TY:]]   = OpTypeStruct %[[#RTARR]]
++
++; --- Access must use OpAccessChain, NOT OpPtrAccessChain ---
++; CHECK: OpAccessChain
++; CHECK-NOT: OpPtrAccessChain
++
++%struct.elem = type { float }
++
++define void @main() #0 {
++entry:
++  ; Bind a VulkanBuffer of floats at set=0, binding=0
++  %buf = call target("spirv.VulkanBuffer", [0 x %struct.elem], 12, 0)
++      @llvm.spv.resource.handlefrombinding.tspirv.VulkanBuffer_a0s_struct.elems_12_0t(
++          i32 0, i32 0, i32 1, i32 0, ptr null)
++
++  ; Get pointer to element [0] of the buffer
++  %ptr = call noundef align 4 dereferenceable(4) ptr addrspace(11)
++      @llvm.spv.resource.getpointer.p11.tspirv.VulkanBuffer_a0s_struct.elems_12_0t(
++          target("spirv.VulkanBuffer", [0 x %struct.elem], 12, 0) %buf, i32 0)
++
++  ; Load the float value
++  %val = load float, ptr addrspace(11) %ptr, align 4
++
++  ; Store it back (write back test)
++  store float %val, ptr addrspace(11) %ptr, align 4
++
++  ret void
++}
++
++declare target("spirv.VulkanBuffer", [0 x %struct.elem], 12, 0)
++    @llvm.spv.resource.handlefrombinding.tspirv.VulkanBuffer_a0s_struct.elems_12_0t(i32, i32, i32, i32, ptr)
++
++declare ptr addrspace(11)
++    @llvm.spv.resource.getpointer.p11.tspirv.VulkanBuffer_a0s_struct.elems_12_0t(
++        target("spirv.VulkanBuffer", [0 x %struct.elem], 12, 0), i32)
++
++attributes #0 = { "hlsl.numthreads"="1,1,1" "hlsl.shader"="compute" }
+-- 
+2.51.2
+
