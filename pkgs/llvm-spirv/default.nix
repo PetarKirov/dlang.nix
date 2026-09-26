@@ -78,6 +78,6 @@ stdenv.mkDerivation (finalAttrs: {
     description = "LLVM main with the SPIR-V backend and the Vulkan PhysicalStorageBuffer fixes, for ldc-vulkan";
     homepage = "https://github.com/llvm/llvm-project/pull/216919";
     license = lib.licenses.ncsa;
-    platforms = lib.platforms.linux;
+    platforms = lib.platforms.linux ++ lib.platforms.darwin;
   };
 })

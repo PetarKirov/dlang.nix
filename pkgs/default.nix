@@ -163,7 +163,7 @@ in
         ldc-wasm = ldcWasm;
       };
 
-      # ---- Vulkan / SPIR-V shaders (dcompute) — Linux only ----
+      # ---- Vulkan / SPIR-V shaders (dcompute) — Linux and macOS ----
       # LDC master + ldc-developers/ldc#5132 (dcompute's Vulkan compute target)
       # + graphics shader stages (`@fragment`, `@input`/`@uniform`, `Sampler2D`),
       # against LLVM main with the SPIR-V backend (./llvm-spirv). Consumed by
@@ -183,7 +183,7 @@ in
       vulkanPackages = {
         llvm-spirv-vulkan = llvmSpirvVulkan;
         ldc-vulkan =
-          pkgs.callPackage
+          (pkgs.callPackage
             (import ./ldc/generic.nix {
               version = "1.43.0-vulkan";
               srcOverride = ldcVulkanSrc;
@@ -200,7 +200,23 @@ in
               # with: the source-built `ldc`'s config links `ldc_rt.dso.o` a second
               # time into LDC's own executables (duplicate `rt.dso` symbols).
               hostDCompiler = self'.packages.ldc-bootstrap;
-            };
+            }
+          ).overrideAttrs
+            (old: {
+              # The bootstrap compiler's druntime asserts bake `__FILE__` paths
+              # into LDC's own D code: dead strings, but enough to keep the
+              # ~470 MiB bootstrap in the closure of every shader build (the
+              # same leak `dmd` had). Scrub, and assert it stays gone.
+              nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ pkgs.removeReferencesTo ];
+              preFixup =
+                (old.preFixup or "")
+                + ''
+                  find "$out" -type f -exec remove-references-to -t ${self'.packages.ldc-bootstrap} '{}' +
+                '';
+              disallowedReferences = (old.disallowedReferences or [ ]) ++ [
+                self'.packages.ldc-bootstrap
+              ];
+            });
       };
     in
     {
@@ -236,6 +252,6 @@ in
           // (genPkgVersions "dmd").flattened "source"
         )
         // optionalAttrs (system == "x86_64-linux") (androidPackages // wasmPackages // x86_32Packages)
-        // optionalAttrs pkgs.hostPlatform.isLinux vulkanPackages;
+        // optionalAttrs (pkgs.hostPlatform.isLinux || pkgs.hostPlatform.isDarwin) vulkanPackages;
     };
 }
