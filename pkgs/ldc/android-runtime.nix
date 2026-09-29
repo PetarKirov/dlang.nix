@@ -51,6 +51,12 @@ stdenv.mkDerivation {
   # ldc-build-runtime does the configure/build itself; skip stdenv's phases.
   dontConfigure = true;
 
+  # The archives are Android (ELF) code, and stdenv's fixup would run the
+  # HOST strip and ranlib over them. On macOS that is cctools' ranlib, which
+  # rewrites each ELF archive with a Mach-O style `__.SYMDEF SORTED` symbol
+  # table that lld then rejects as "truncated or malformed".
+  dontStrip = true;
+
   buildPhase = ''
     runHook preBuild
 
