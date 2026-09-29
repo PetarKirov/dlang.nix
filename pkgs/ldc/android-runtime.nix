@@ -18,7 +18,8 @@
   ninja,
   ldc,
   # NDK *root* (the directory containing build/cmake/android.toolchain.cmake and
-  # toolchains/llvm/prebuilt/linux-x86_64), not the ndk-bundle store root.
+  # toolchains/llvm/prebuilt/<host>), not the ndk-bundle store root. The NDK's
+  # CMake toolchain file finds the build host's prebuilt directory itself.
   ndk,
   abi ? "arm64-v8a",
   apiLevel ? "21",
@@ -104,6 +105,10 @@ stdenv.mkDerivation {
       bsd3
       boost
     ];
-    platforms = [ "x86_64-linux" ];
+    platforms = [
+      "x86_64-linux"
+      "x86_64-darwin"
+      "aarch64-darwin"
+    ];
   };
 }

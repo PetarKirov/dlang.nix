@@ -15,10 +15,24 @@ in
     let
       inherit (import ../lib/version-catalog.nix { inherit lib pkgs self'; }) genPkgVersions;
 
-      # Android NDK cross-compilation toolchain. Opt-in and Linux/x86_64-only
-      # (that is the only host the NDK ships prebuilt for here), and it pulls in
-      # the *unfree* Android SDK NDK, so it is kept out of the default package
-      # set and only materialises when `ldc-android` is built explicitly.
+      # Android NDK cross-compilation toolchain. Opt-in: it pulls in the
+      # *unfree* Android SDK NDK, so it is kept out of the default package set
+      # and only materialises when `ldc-android` is built explicitly.
+      #
+      # The build hosts it exists on are the hosts the NDK ships a prebuilt
+      # toolchain for, keyed by the directory name the NDK files it under
+      # (`toolchains/llvm/prebuilt/<tag>`). The macOS toolchain is one
+      # universal (x86_64 + arm64) build, so both Mac hosts share the
+      # `darwin-x86_64` tag and run it natively. There is no Linux arm64 NDK,
+      # so `aarch64-linux` has no entry: the absence is the answer, and
+      # everything downstream reads it from whether `ldc-android` exists.
+      ndkHostTag =
+        {
+          x86_64-linux = "linux-x86_64";
+          x86_64-darwin = "darwin-x86_64";
+          aarch64-darwin = "darwin-x86_64";
+        }
+        .${system} or null;
       androidPkgs = import inputs.nixpkgs {
         inherit system;
         config = {
@@ -63,6 +77,7 @@ in
             }
           ];
           ndk = ndkRoot;
+          inherit ndkHostTag;
         };
       };
 
@@ -251,7 +266,8 @@ in
           // (genPkgVersions "dmd").flattened "binary"
           // (genPkgVersions "dmd").flattened "source"
         )
-        // optionalAttrs (system == "x86_64-linux") (androidPackages // wasmPackages // x86_32Packages)
+        // optionalAttrs (ndkHostTag != null) androidPackages
+        // optionalAttrs (system == "x86_64-linux") (wasmPackages // x86_32Packages)
         // optionalAttrs (pkgs.hostPlatform.isLinux || pkgs.hostPlatform.isDarwin) vulkanPackages;
     };
 }

@@ -29,12 +29,19 @@
   #   clangPrefix   — NDK clang basename prefix (apiLevel + "-clang" appended)
   #   runtime       — the cross-built druntime/phobos (./android-runtime.nix)
   androidRuntimes,
-  # NDK root (dir containing toolchains/llvm/prebuilt/linux-x86_64).
+  # NDK root (dir containing toolchains/llvm/prebuilt/<ndkHostTag>).
   ndk,
+  # The build host's prebuilt-toolchain directory name (`linux-x86_64`,
+  # `darwin-x86_64`); see `ndkHostTag` in ../default.nix.
+  ndkHostTag,
   apiLevel ? "21",
 }:
 
 let
+  # The NDK's LLVM toolchain for this build host: clang (the C compiler and
+  # link driver of every Android target), lld, and the llvm binutils.
+  ndkToolchain = "${ndk}/toolchains/llvm/prebuilt/${ndkHostTag}";
+
   # A section appended after the host sections. `~=` appends to the default
   # switches; `lib-dirs`/`rpath` are overwritten so the host runtime is never
   # searched for an Android link. `-link-defaultlib-shared=false` selects the
@@ -54,7 +61,7 @@ let
           switches ~= [
               "-defaultlib=phobos2-ldc,druntime-ldc",
               "-link-defaultlib-shared=false",
-              "-gcc=${ndk}/toolchains/llvm/prebuilt/linux-x86_64/bin/${clangPrefix}${apiLevel}-clang",
+              "-gcc=${ndkToolchain}/bin/${clangPrefix}${apiLevel}-clang",
           ];
           lib-dirs = [
               "${runtime}/lib",
@@ -90,10 +97,20 @@ symlinkJoin {
     # Back-compat alias: the aarch64 runtime (the first registered target).
     androidRuntime = (lib.head androidRuntimes).runtime;
     ndkRoot = ndk;
+    # Consumers that drive the NDK themselves (native C deps, the sysroot
+    # headers) take the host-specific paths from here rather than
+    # re-deriving the host tag.
+    inherit ndkHostTag ndkToolchain;
   };
   meta = ldc.meta // {
     description = "LDC configured to cross-compile for Android (aarch64 + x86_64)";
     mainProgram = "ldc2";
-    platforms = [ "x86_64-linux" ];
+    # Every host with an NDK toolchain (../default.nix gates on the same
+    # table, so this is the list of systems the package exists on).
+    platforms = [
+      "x86_64-linux"
+      "x86_64-darwin"
+      "aarch64-darwin"
+    ];
   };
 }
