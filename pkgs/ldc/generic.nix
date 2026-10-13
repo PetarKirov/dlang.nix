@@ -34,6 +34,7 @@
   bash,
   pkg-config,
   makeWrapper,
+  removeReferencesTo,
   runCommand,
   targetPackages,
   hostDCompiler,
@@ -43,6 +44,7 @@ let
   inherit (import ../../lib/build-status.nix { inherit lib; }) getBuildStatus;
   inherit (import ../../lib/version-utils.nix { inherit lib; }) versionBetween;
   buildStatus = getBuildStatus "ldc" version stdenv.system;
+  elfOnly = name: if stdenv.hostPlatform.isElf then name else null;
 
   # LDC tracks LLVM closely: 1.30 builds against LLVM 12, the 1.4x line needs
   # LLVM 15-20 (nixpkgs ships 1.40.1 on LLVM 18, so we use 18 here too).
@@ -173,6 +175,7 @@ stdenv.mkDerivation rec {
     unzip
     pkg-config
   ]
+  ++ lib.optional stdenv.hostPlatform.isElf removeReferencesTo
   ++ lib.optional stdenv.hostPlatform.isDarwin darwin.apple_sdk.frameworks.Foundation
   # https://github.com/NixOS/nixpkgs/pull/36378#issuecomment-385034818
   ++ lib.optional (!stdenv.hostPlatform.isDarwin) gdb;
@@ -272,6 +275,18 @@ stdenv.mkDerivation rec {
       # Run default lib unittests
       ctest -j$NIX_BUILD_CORES --output-on-failure -E "ldc2-unittest|lit-tests|dmd-testsuite${additionalExceptions}"
     '';
+
+  # The bootstrap compiler's druntime/phobos asserts bake `__FILE__` paths into
+  # LDC's own executables: dead strings (no DT_NEEDED, no rpath), but enough to
+  # keep the ~470 MiB bootstrap `ldc-binary` in the runtime closure of every
+  # consumer — the leak `dmd` had. Scrub them, and assert they stay gone. ELF
+  # only: rewriting a signed Mach-O breaks its code signature (as for dub).
+  # Elsewhere the attributes are absent, not empty (a `null` name defines
+  # nothing), so other platforms' builds are untouched.
+  ${elfOnly "preFixup"} = ''
+    find "$out" -type f -exec remove-references-to -t ${hostDCompiler} '{}' +
+  '';
+  ${elfOnly "disallowedReferences"} = [ hostDCompiler ];
 
   postInstall =
     # LDC >= 1.41 installs a config *directory* (`etc/ldc2.conf/`, read as a
