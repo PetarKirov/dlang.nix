@@ -1,0 +1,219 @@
+From 7c4f4a7870a7dec3c68bec8039d9a257627bba86 Mon Sep 17 00:00:00 2001
+From: Petar Kirov <petar.p.kirov@gmail.com>
+Date: Thu, 15 Oct 2026 11:26:20 +0300
+Subject: [PATCH] [SPIRV] Signed integer types and struct member names for
+ shader interfaces
+
+LLVM integers are signless, so the backend emits every one as `OpTypeInt N 0`,
+and a shader's `int` uniform reaches GLSL as `uint`. LLVM struct members have
+no names, so a plain uniform `struct` reaches GLSL with members `_m0`, `_m1`.
+Both are part of how the host binds the shader.
+
+An inline `spirv.Type` with the `OpTypeInt` or `OpTypeVector` opcode is now
+the real type instead of an opaque `UNKNOWN_type`, so the rest of the backend
+can ask its width and components and `llvm.spv.bitcast` can convert it to and
+from signless integers: a frontend declares the variable with the signed type
+and bitcasts the loaded value.
+
+A module's `spirv.MemberNames` metadata, one node per struct
+(`!{<struct> poison, !"name0", ...}`), emits an `OpMemberName` per name.
+---
+ llvm/lib/Target/SPIRV/SPIRVGlobalRegistry.cpp | 60 +++++++++++++++++++
+ llvm/test/CodeGen/SPIRV/inline/type.ll        |  2 +-
+ .../CodeGen/SPIRV/inline/type.signed-int.ll   | 34 +++++++++++
+ llvm/test/CodeGen/SPIRV/inline/type.undef.ll  |  2 +-
+ llvm/test/CodeGen/SPIRV/member-names.ll       | 23 +++++++
+ 5 files changed, 119 insertions(+), 2 deletions(-)
+ create mode 100644 llvm/test/CodeGen/SPIRV/inline/type.signed-int.ll
+ create mode 100644 llvm/test/CodeGen/SPIRV/member-names.ll
+
+diff --git a/llvm/lib/Target/SPIRV/SPIRVGlobalRegistry.cpp b/llvm/lib/Target/SPIRV/SPIRVGlobalRegistry.cpp
+index fea1e4474e..66d64f733c 100644
+--- a/llvm/lib/Target/SPIRV/SPIRVGlobalRegistry.cpp
++++ b/llvm/lib/Target/SPIRV/SPIRVGlobalRegistry.cpp
+@@ -26,6 +26,7 @@
+ #include "llvm/IR/IntrinsicInst.h"
+ #include "llvm/IR/Intrinsics.h"
+ #include "llvm/IR/IntrinsicsSPIRV.h"
++#include "llvm/IR/Module.h"
+ #include "llvm/IR/Type.h"
+ #include "llvm/Support/Casting.h"
+ #include "llvm/Support/MathExtras.h"
+@@ -1046,6 +1047,36 @@ SPIRVGlobalRegistry::getOpTypeOpaque(const StructType *Ty,
+       });
+ }
+ 
++// LLVM struct members have no names, but a shader's interface is linked by
++// them: a plain uniform `struct { float gain; }` is set as `light.gain`. A
++// frontend names them in the module's `spirv.MemberNames` metadata, one node
++// per struct, `!{<struct> poison, !"name0", !"name1", ...}`, and each becomes
++// an `OpMemberName`.
++static void buildOpMemberNames(const StructType *Ty, Register ResVReg,
++                               MachineIRBuilder &MIRBuilder) {
++  const Module *M = MIRBuilder.getMF().getFunction().getParent();
++  const NamedMDNode *Names = M->getNamedMetadata("spirv.MemberNames");
++  if (!Names)
++    return;
++  for (const MDNode *Node : Names->operands()) {
++    const auto *Key = Node->getNumOperands() == 0
++                          ? nullptr
++                          : dyn_cast<ConstantAsMetadata>(Node->getOperand(0));
++    if (!Key || Key->getValue()->getType() != Ty)
++      continue;
++    for (unsigned I = 1, E = Node->getNumOperands(); I < E; ++I) {
++      const auto *Name = dyn_cast<MDString>(Node->getOperand(I));
++      if (!Name || Name->getString().empty())
++        continue;
++      auto MIB = MIRBuilder.buildInstr(SPIRV::OpMemberName)
++                     .addUse(ResVReg)
++                     .addImm(I - 1);
++      addStringImm(Name->getString(), MIB);
++    }
++    return;
++  }
++}
++
+ SPIRVTypeInst SPIRVGlobalRegistry::getOpTypeStruct(
+     const StructType *Ty, MachineIRBuilder &MIRBuilder,
+     SPIRV::AccessQualifier::AccessQualifier AccQual,
+@@ -1086,6 +1117,7 @@ SPIRVTypeInst SPIRVGlobalRegistry::getOpTypeStruct(
+   Register ResVReg = createTypeVReg(MIRBuilder);
+   if (Ty->hasName())
+     buildOpName(ResVReg, Ty->getName(), MIRBuilder);
++  buildOpMemberNames(Ty, ResVReg, MIRBuilder);
+   if (Ty->isPacked() && !ST.isShader())
+     buildOpDecorate(ResVReg, MIRBuilder, SPIRV::Decoration::CPacked, {});
+ 
+@@ -1854,6 +1886,34 @@ SPIRVTypeInst SPIRVGlobalRegistry::getOrCreateUnknownType(
+   if (const MachineInstr *MI = findMI(Ty, false, &MIRBuilder.getMF()))
+     return MI;
+   Register ResVReg = createTypeVReg(MIRBuilder);
++  // An inline integer or vector type is the real instruction, not an opaque
++  // one: the rest of the backend asks an `OpTypeInt` for its width (to
++  // bitcast it, say) and an `OpTypeVector` for its components, and an
++  // `UNKNOWN_type` answers neither. This is how a frontend spells a signed
++  // integer, which LLVM's signless `iN` cannot.
++  // `Opcode` is the SPIR-V opcode number (`OpTypeInt` is 21, `OpTypeVector`
++  // 23), not the backend's instruction enum.
++  const bool IsInt = Opcode == 21 && Operands.size() == 2 &&
++                     Operands[0].isImm() && Operands[1].isImm();
++  const bool IsVector = Opcode == 23 &&
++                        Operands.size() == 2 && Operands[0].isReg() &&
++                        Operands[1].isImm();
++  if (IsInt || IsVector) {
++    const MachineInstr *NewMI = createConstOrTypeAtFunctionEntry(
++        MIRBuilder, [&](MachineIRBuilder &MIRBuilder) {
++          auto MIB = MIRBuilder
++                         .buildInstr(IsInt ? SPIRV::OpTypeInt
++                                           : SPIRV::OpTypeVector)
++                         .addDef(ResVReg);
++          if (IsVector)
++            MIB.addUse(Operands[0].getReg());
++          else
++            MIB.addImm(Operands[0].getImm());
++          return MIB.addImm(Operands[1].getImm());
++        });
++    add(Ty, false, NewMI);
++    return NewMI;
++  }
+   const MachineInstr *NewMI = createConstOrTypeAtFunctionEntry(
+       MIRBuilder, [&](MachineIRBuilder &MIRBuilder) {
+         MachineInstrBuilder MIB = MIRBuilder.buildInstr(SPIRV::UNKNOWN_type)
+diff --git a/llvm/test/CodeGen/SPIRV/inline/type.ll b/llvm/test/CodeGen/SPIRV/inline/type.ll
+index be29ddfa21..2b5d8360e3 100644
+--- a/llvm/test/CodeGen/SPIRV/inline/type.ll
++++ b/llvm/test/CodeGen/SPIRV/inline/type.ll
+@@ -17,7 +17,7 @@
+ ; CHECK-DAG: OpUnknown(28, 4) [[array_t:%[0-9]+]] [[image_t]] [[uint32_4]]
+ %ArrayTex2D = type target("spirv.Type", %type_2d_image, %integral_constant_4, 28, 0, 0)
+ 
+-; CHECK-DAG: OpUnknown(21, 4) [[int_t:%[0-9]+]] 32 1
++; CHECK-DAG: [[int_t:%[0-9]+]] = OpTypeInt 32 1
+ %int_t = type target("spirv.Type", %literal_32, %literal_true, 21, 0, 0)
+ 
+ ; CHECK-DAG: [[getTexArray_t:%[0-9]+]] = OpTypeFunction [[array_t]]
+diff --git a/llvm/test/CodeGen/SPIRV/inline/type.signed-int.ll b/llvm/test/CodeGen/SPIRV/inline/type.signed-int.ll
+new file mode 100644
+index 0000000000..0d00150155
+--- /dev/null
++++ b/llvm/test/CodeGen/SPIRV/inline/type.signed-int.ll
+@@ -0,0 +1,34 @@
++; An inline `OpTypeInt` or `OpTypeVector` is a real integer or vector type, so
++; it can be bitcast to LLVM's signless integers: this is how a frontend gives
++; a shader interface variable a signed type.
++
++; RUN: llc -verify-machineinstrs -O0 -mtriple=spirv-unknown-vulkan %s -o - | FileCheck %s
++; RUN: %if spirv-tools %{ llc -O0 -mtriple=spirv-unknown-vulkan %s -o - -filetype=obj | spirv-val %}
++
++; CHECK-DAG: [[uint:%[0-9]+]] = OpTypeInt 32 0
++; CHECK-DAG: [[v2uint:%[0-9]+]] = OpTypeVector [[uint]] 2
++; CHECK-DAG: [[sint:%[0-9]+]] = OpTypeInt 32 1
++; CHECK-DAG: [[v2sint:%[0-9]+]] = OpTypeVector [[sint]] 2
++%sint = type target("spirv.Type", target("spirv.Literal", 32), target("spirv.Literal", 1), 21, 4, 4)
++%sint2 = type target("spirv.Type", %sint, target("spirv.Literal", 2), 23, 8, 8)
++
++@n = external hidden addrspace(2) global %sint
++@p = external hidden addrspace(2) global %sint2
++
++; CHECK: [[n:%[0-9]+]] = OpLoad [[sint]]
++; CHECK: OpBitcast [[uint]] [[n]]
++; CHECK: [[p:%[0-9]+]] = OpLoad [[v2sint]]
++; CHECK: OpBitcast [[v2uint]] [[p]]
++define i32 @read() {
++entry:
++  %ns = load %sint, ptr addrspace(2) @n
++  %n = call i32 @llvm.spv.bitcast.i32.tsint(%sint %ns)
++  %ps = load %sint2, ptr addrspace(2) @p
++  %p = call <2 x i32> @llvm.spv.bitcast.v2i32.tsint2(%sint2 %ps)
++  %y = extractelement <2 x i32> %p, i32 1
++  %r = add i32 %n, %y
++  ret i32 %r
++}
++
++declare i32 @llvm.spv.bitcast.i32.tsint(%sint)
++declare <2 x i32> @llvm.spv.bitcast.v2i32.tsint2(%sint2)
+diff --git a/llvm/test/CodeGen/SPIRV/inline/type.undef.ll b/llvm/test/CodeGen/SPIRV/inline/type.undef.ll
+index e84e6262d8..5d82106825 100644
+--- a/llvm/test/CodeGen/SPIRV/inline/type.undef.ll
++++ b/llvm/test/CodeGen/SPIRV/inline/type.undef.ll
+@@ -5,7 +5,7 @@
+ %literal_32 = type target("spirv.Literal", 32)
+ %literal_true = type target("spirv.Literal", 1)
+ 
+-; CHECK-DAG: OpUnknown(21, 4) [[int_t:%[0-9]+]] 32 1
++; CHECK-DAG: [[int_t:%[0-9]+]] = OpTypeInt 32 1
+ %int_t = type target("spirv.Type", %literal_32, %literal_true, 21, 4, 32)
+ 
+ ; CHECK-DAG: {{%[0-9]+}} = OpTypeFunction [[int_t]]
+diff --git a/llvm/test/CodeGen/SPIRV/member-names.ll b/llvm/test/CodeGen/SPIRV/member-names.ll
+new file mode 100644
+index 0000000000..19864f7813
+--- /dev/null
++++ b/llvm/test/CodeGen/SPIRV/member-names.ll
+@@ -0,0 +1,23 @@
++; The module's `spirv.MemberNames` metadata names a struct's members.
++
++; RUN: llc -verify-machineinstrs -O0 -mtriple=spirv-unknown-vulkan %s -o - | FileCheck %s
++; RUN: %if spirv-tools %{ llc -O0 -mtriple=spirv-unknown-vulkan %s -o - -filetype=obj | spirv-val %}
++
++; CHECK-DAG: OpName [[light:%[0-9]+]] "Light"
++; CHECK-DAG: OpMemberName [[light]] 0 "gain"
++; CHECK-DAG: OpMemberName [[light]] 1 "colour"
++; CHECK-DAG: [[light]] = OpTypeStruct
++; CHECK-NOT: OpMemberName [[light]] 2
++%Light = type { float, <3 x float> }
++
++@light = external hidden addrspace(2) global %Light
++
++define float @gain() {
++entry:
++  %v = load %Light, ptr addrspace(2) @light
++  %g = extractvalue %Light %v, 0
++  ret float %g
++}
++
++!spirv.MemberNames = !{!0}
++!0 = !{%Light poison, !"gain", !"colour"}
+-- 
+2.51.2
+

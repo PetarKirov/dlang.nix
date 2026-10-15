@@ -31,7 +31,14 @@ stdenv.mkDerivation (finalAttrs: {
     hash = "sha256-vPDuGe7NT61BguGV1SP1TBCkwX4c/a+Xzc0BaL0pSgY=";
   };
 
-  patches = [ ./vulkan-physical-storage-buffer.patch ];
+  patches = [
+    ./vulkan-physical-storage-buffer.patch
+    # Signed integer types (an inline `OpTypeInt` is the real type, so it can
+    # be bitcast) and `OpMemberName` from `spirv.MemberNames` metadata: what
+    # ldc-vulkan needs for a shader's `int` and struct uniforms to reach GLSL
+    # as `int` and with their field names, rather than `uint` and `_m0`.
+    ./spirv-signed-ints-member-names.patch
+  ];
 
   nativeBuildInputs = [
     cmake
