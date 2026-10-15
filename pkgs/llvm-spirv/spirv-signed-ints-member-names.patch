@@ -1,4 +1,4 @@
-From c6c76bce973e39bcabb414d1790cbe084879ffaa Mon Sep 17 00:00:00 2001
+From 3b94fa3e1d4390f899acacd7b6a359dda6c8d30b Mon Sep 17 00:00:00 2001
 From: Petar Kirov <petar.p.kirov@gmail.com>
 Date: Thu, 15 Oct 2026 13:36:41 +0300
 Subject: [PATCH] [SPIRV] Signed integers on request; struct member names for
@@ -10,22 +10,23 @@ with the wrong call, and a GLSL ES 1.00 translation (which has no unsigned
 types) meets unsigned types throughout. A frontend whose language's plain
 integers are signed now asks for them signed with the module flag
 `spirv.signed-integers`; unsigned operations keep their opcodes, which SPIR-V
-allows on signed operands.
+allows on signed operands. Integers narrower than 32 bits stay unsigned, as
+their literals are written zero-extended, which a signed type forbids.
 
 LLVM struct members have no names, so a plain uniform `struct` reaches GLSL
 with members `_m0`, `_m1`. A module's `spirv.MemberNames` metadata, one node
 per struct (`!{<struct> poison, !"name0", ...}`), emits an `OpMemberName` per
 name.
 ---
- llvm/lib/Target/SPIRV/SPIRVGlobalRegistry.cpp | 50 ++++++++++++++++++-
- llvm/test/CodeGen/SPIRV/member-names.ll       | 23 +++++++++
- llvm/test/CodeGen/SPIRV/signed-integers.ll    | 27 ++++++++++
- 3 files changed, 98 insertions(+), 2 deletions(-)
+ llvm/lib/Target/SPIRV/SPIRVGlobalRegistry.cpp | 55 ++++++++++++++++++-
+ llvm/test/CodeGen/SPIRV/member-names.ll       | 23 ++++++++
+ llvm/test/CodeGen/SPIRV/signed-integers.ll    | 35 ++++++++++++
+ 3 files changed, 111 insertions(+), 2 deletions(-)
  create mode 100644 llvm/test/CodeGen/SPIRV/member-names.ll
  create mode 100644 llvm/test/CodeGen/SPIRV/signed-integers.ll
 
 diff --git a/llvm/lib/Target/SPIRV/SPIRVGlobalRegistry.cpp b/llvm/lib/Target/SPIRV/SPIRVGlobalRegistry.cpp
-index fea1e4474e..2d0fc040b8 100644
+index fea1e4474e..b53b672bea 100644
 --- a/llvm/lib/Target/SPIRV/SPIRVGlobalRegistry.cpp
 +++ b/llvm/lib/Target/SPIRV/SPIRVGlobalRegistry.cpp
 @@ -26,6 +26,7 @@
@@ -36,7 +37,7 @@ index fea1e4474e..2d0fc040b8 100644
  #include "llvm/IR/Type.h"
  #include "llvm/Support/Casting.h"
  #include "llvm/Support/MathExtras.h"
-@@ -159,6 +160,18 @@ unsigned SPIRVGlobalRegistry::adjustOpTypeIntWidth(unsigned Width) const {
+@@ -159,6 +160,23 @@ unsigned SPIRVGlobalRegistry::adjustOpTypeIntWidth(unsigned Width) const {
    reportFatalUsageError("Unsupported Integer width!");
  }
  
@@ -44,8 +45,13 @@ index fea1e4474e..2d0fc040b8 100644
 +// frontend whose language's plain integers are signed asks for them signed
 +// with the module flag `spirv.signed-integers`: a shader translated to GLSL
 +// then declares its `int`s as `int`, which is how the host binds a uniform,
-+// and a target with no unsigned types (GLSL ES 1.00) sees none.
-+static bool emitsSignedIntegers(const MachineFunction &MF) {
++// and a target with no unsigned types (GLSL ES 1.00) sees none. Integers
++// narrower than 32 bits stay unsigned: their literals are written
++// zero-extended, which SPIR-V allows only for an unsigned type (a signed one
++// needs them sign-extended), and no shading language the flag serves has them.
++static bool emitsSignedIntegers(const MachineFunction &MF, unsigned Width) {
++  if (Width < 32)
++    return false;
 +  const Module *M = MF.getFunction().getParent();
 +  const auto *Flag = mdconst::extract_or_null<ConstantInt>(
 +      M->getModuleFlag("spirv.signed-integers"));
@@ -55,7 +61,7 @@ index fea1e4474e..2d0fc040b8 100644
  SPIRVTypeInst SPIRVGlobalRegistry::getOpTypeInt(unsigned Width,
                                                  MachineIRBuilder &MIRBuilder,
                                                  bool IsSigned) {
-@@ -1046,6 +1059,36 @@ SPIRVGlobalRegistry::getOpTypeOpaque(const StructType *Ty,
+@@ -1046,6 +1064,36 @@ SPIRVGlobalRegistry::getOpTypeOpaque(const StructType *Ty,
        });
  }
  
@@ -92,7 +98,7 @@ index fea1e4474e..2d0fc040b8 100644
  SPIRVTypeInst SPIRVGlobalRegistry::getOpTypeStruct(
      const StructType *Ty, MachineIRBuilder &MIRBuilder,
      SPIRV::AccessQualifier::AccessQualifier AccQual,
-@@ -1086,6 +1129,7 @@ SPIRVTypeInst SPIRVGlobalRegistry::getOpTypeStruct(
+@@ -1086,6 +1134,7 @@ SPIRVTypeInst SPIRVGlobalRegistry::getOpTypeStruct(
    Register ResVReg = createTypeVReg(MIRBuilder);
    if (Ty->hasName())
      buildOpName(ResVReg, Ty->getName(), MIRBuilder);
@@ -100,23 +106,23 @@ index fea1e4474e..2d0fc040b8 100644
    if (Ty->isPacked() && !ST.isShader())
      buildOpDecorate(ResVReg, MIRBuilder, SPIRV::Decoration::CPacked, {});
  
-@@ -1239,7 +1283,8 @@ SPIRVTypeInst SPIRVGlobalRegistry::createSPIRVType(
+@@ -1239,7 +1288,8 @@ SPIRVTypeInst SPIRVGlobalRegistry::createSPIRVType(
    if (auto IType = dyn_cast<IntegerType>(Ty)) {
      const unsigned Width = IType->getBitWidth();
      return Width == 1 ? getOpTypeBool(MIRBuilder)
 -                      : getOpTypeInt(Width, MIRBuilder, false);
 +                      : getOpTypeInt(Width, MIRBuilder,
-+                                     emitsSignedIntegers(MIRBuilder.getMF()));
++                                     emitsSignedIntegers(MIRBuilder.getMF(), Width));
    }
    if (Ty->isFloatingPointTy()) {
      if (Ty->isFP128Ty() || Ty->isPPC_FP128Ty())
-@@ -1950,7 +1995,8 @@ SPIRVGlobalRegistry::getOrCreateSPIRVType(unsigned BitWidth, MachineInstr &I,
+@@ -1950,7 +2000,8 @@ SPIRVGlobalRegistry::getOrCreateSPIRVType(unsigned BitWidth, MachineInstr &I,
                               .addImm(BitWidth);
          // Don't add Encoding to FP type
          if (!Ty->isFloatTy()) {
 -          return NewTypeMI.addImm(0);
 +          return NewTypeMI.addImm(SPIRVOPcode == SPIRV::OpTypeInt &&
-+                                  emitsSignedIntegers(*I.getMF()));
++                                  emitsSignedIntegers(*I.getMF(), BitWidth));
          } else {
            return NewTypeMI;
          }
@@ -151,24 +157,28 @@ index 0000000000..19864f7813
 +!0 = !{%Light poison, !"gain", !"colour"}
 diff --git a/llvm/test/CodeGen/SPIRV/signed-integers.ll b/llvm/test/CodeGen/SPIRV/signed-integers.ll
 new file mode 100644
-index 0000000000..1cbc9e9ea5
+index 0000000000..b015a17ee7
 --- /dev/null
 +++ b/llvm/test/CodeGen/SPIRV/signed-integers.ll
-@@ -0,0 +1,27 @@
-+; With the module flag `spirv.signed-integers`, LLVM's signless integers are
-+; emitted signed, and no unsigned integer type is left in the module.
+@@ -0,0 +1,35 @@
++; With the module flag `spirv.signed-integers`, LLVM's signless integers of 32
++; bits and more are emitted signed, and no unsigned one of those is left in
++; the module. Narrower ones stay unsigned, so their literals, written
++; zero-extended, stay valid.
 +
-+; RUN: llc -verify-machineinstrs -O0 -mtriple=spirv-unknown-vulkan %s -o - | FileCheck %s
++; RUN: llc -verify-machineinstrs -O0 -mtriple=spirv-unknown-vulkan %s -o - | FileCheck %s --implicit-check-not="OpTypeInt 32 0"
 +; RUN: %if spirv-tools %{ llc -O0 -mtriple=spirv-unknown-vulkan %s -o - -filetype=obj | spirv-val %}
 +
 +; CHECK-DAG: [[int:%[0-9]+]] = OpTypeInt 32 1
 +; CHECK-DAG: [[v2int:%[0-9]+]] = OpTypeVector [[int]] 2
-+; CHECK-NOT: OpTypeInt 32 0
++; CHECK-DAG: [[char:%[0-9]+]] = OpTypeInt 8 0
++; CHECK-DAG: OpConstant [[char]] 128
 +; CHECK: OpLoad [[int]]
 +; CHECK: OpIAdd [[int]]
 +
 +@n = external hidden addrspace(2) global i32
 +@p = external hidden addrspace(2) global <2 x i32>
++@b = external hidden addrspace(2) global i8
 +
 +define i32 @read(i32 %a) {
 +entry:
@@ -177,7 +187,11 @@ index 0000000000..1cbc9e9ea5
 +  %y = extractelement <2 x i32> %p, i32 1
 +  %s = add i32 %n, %a
 +  %r = sdiv i32 %s, %y
-+  ret i32 %r
++  %b = load i8, ptr addrspace(2) @b
++  %x = xor i8 %b, -128
++  %w = sext i8 %x to i32
++  %t = add i32 %r, %w
++  ret i32 %t
 +}
 +
 +!llvm.module.flags = !{!0}
