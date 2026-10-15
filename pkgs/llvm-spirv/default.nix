@@ -38,6 +38,10 @@ stdenv.mkDerivation (finalAttrs: {
     # ldc-vulkan needs for a shader's `int` and struct uniforms to reach GLSL
     # as `int` and with their field names, rather than `uint` and `_m0`.
     ./spirv-signed-ints-member-names.patch
+    # Literal access-chain indices as `i32`, not `i64`: an optimised read of
+    # a uniform struct's field otherwise needs `Int64`, which a GLSL ES 1.00
+    # cross-compile rejects.
+    ./spirv-access-chain-i32-indices.patch
   ];
 
   nativeBuildInputs = [
