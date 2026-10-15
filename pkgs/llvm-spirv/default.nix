@@ -33,10 +33,10 @@ stdenv.mkDerivation (finalAttrs: {
 
   patches = [
     ./vulkan-physical-storage-buffer.patch
-    # Signed integer types (an inline `OpTypeInt` is the real type, so it can
-    # be bitcast) and `OpMemberName` from `spirv.MemberNames` metadata: what
-    # ldc-vulkan needs for a shader's `int` and struct uniforms to reach GLSL
-    # as `int` and with their field names, rather than `uint` and `_m0`.
+    # Signed integers in modules that set the `spirv.signed-integers` flag, and
+    # `OpMemberName` from `spirv.MemberNames` metadata: what ldc-vulkan needs
+    # for a shader's `int` and struct uniforms to reach GLSL as `int` and with
+    # their field names, rather than `uint` and `_m0`.
     ./spirv-signed-ints-member-names.patch
     # Literal access-chain indices as `i32`, not `i64`: an optimised read of
     # a uniform struct's field otherwise needs `Int64`, which a GLSL ES 1.00
