@@ -190,8 +190,8 @@ in
         owner = "PetarKirov";
         repo = "ldc";
         # sparkles/vulkan-shaders
-        rev = "8836ca6517b95729be9df0c2e5b59aa52b61a455";
-        hash = "sha256-TjmrbIfNV+W7WhNa9DXt/zmMqcHN6oBCRxgwWVdE1mQ=";
+        rev = "8109cf3c47106fd880cf52ce08f743120bacddd4";
+        hash = "sha256-nGUH6LCd9X/Ol/JmTbbXJjuyosbMbsP56uYcQRkJlGk=";
         fetchSubmodules = true;
       };
 
