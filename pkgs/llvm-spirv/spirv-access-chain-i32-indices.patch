@@ -1,4 +1,4 @@
-From 4f7f35e7f787c042d041cad9ae6830afdcca58e8 Mon Sep 17 00:00:00 2001
+From 8905835c7938fe34ad1fe42f699122ffa15a8e6a Mon Sep 17 00:00:00 2001
 From: Petar Kirov <petar.p.kirov@gmail.com>
 Date: Thu, 15 Oct 2026 12:00:45 +0300
 Subject: [PATCH] [SPIRV] Build logical access chains with 32-bit literal

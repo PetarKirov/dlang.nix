@@ -1,0 +1,246 @@
+From 1246fb0befcfe6408b05b9b16bf45ae5ba65ba70 Mon Sep 17 00:00:00 2001
+From: Petar Kirov <petar.p.kirov@gmail.com>
+Date: Sat, 17 Oct 2026 11:47:10 +0300
+Subject: [PATCH] [SPIRV] Do not materialise a resource's name string
+
+The string a resource is named by (the last operand of
+`spv.resource.handlefrombinding`) is read at instruction selection, for the
+resource variable's OpName. Like every initialised global it was also given
+an `spv.init.global`, which kept it alive as a Function-scope OpVariable
+initialised with an array of bytes: every shader with a named resource
+declared Int8, which Vulkan allows only where the device enables it. Skip
+the initialisation for a global used only as a resource's name.
+
+Two tests checked for the Int8 capability this leaked, and four matched the
+byte array's ids; they now check that no Int8 is declared, or match what the
+module holds.
+
+Claude-Session: https://claude.ai/code/session_01TrgPqCXtysTg54Ef5n1nm6
+---
+ llvm/lib/Target/SPIRV/SPIRVEmitIntrinsics.cpp | 17 ++++++++++-
+ .../hlsl-resources/StorageImageConstIdx.ll    |  3 +-
+ .../hlsl-resources/resource-name-no-int8.ll   | 26 ++++++++++++++++
+ .../SPIRV/hlsl-resources/test_counters.ll     |  3 +-
+ .../pointers/byte-address-buffer-store.ll     | 13 +++++---
+ .../pointers/resource-vector-load-store.ll    |  1 -
+ .../pointers/structured-buffer-access.ll      | 30 +++++++++----------
+ .../structured-buffer-vector-access.ll        | 20 ++++++-------
+ 8 files changed, 76 insertions(+), 37 deletions(-)
+ create mode 100644 llvm/test/CodeGen/SPIRV/hlsl-resources/resource-name-no-int8.ll
+
+diff --git a/llvm/lib/Target/SPIRV/SPIRVEmitIntrinsics.cpp b/llvm/lib/Target/SPIRV/SPIRVEmitIntrinsics.cpp
+index 2c62e7a8fe..35faeeb586 100644
+--- a/llvm/lib/Target/SPIRV/SPIRVEmitIntrinsics.cpp
++++ b/llvm/lib/Target/SPIRV/SPIRVEmitIntrinsics.cpp
+@@ -437,6 +437,21 @@ bool expectIgnoredInIRTranslation(const Instruction *I) {
+                                  Intrinsic::spv_resource_getpointer>());
+ }
+ 
++// A string a resource is named by is read at instruction selection, for the
++// resource variable's OpName; it is not a value of the program. Initialising
++// it would materialise it as an array of bytes, and a shader would need Int8.
++static bool isOnlyResourceName(const GlobalVariable &GV) {
++  if (GV.use_empty())
++    return false;
++  return all_of(GV.uses(), [](const Use &U) {
++    const auto *II = dyn_cast<IntrinsicInst>(U.getUser());
++    return II && U.getOperandNo() == 4 &&
++           (II->getIntrinsicID() == Intrinsic::spv_resource_handlefrombinding ||
++            II->getIntrinsicID() ==
++                Intrinsic::spv_resource_handlefromimplicitbinding);
++  });
++}
++
+ // Returns the source pointer from `I` ignoring intermediate ptrcast.
+ Value *getPointerRoot(Value *I) {
+   Value *V;
+@@ -3001,7 +3016,7 @@ void SPIRVEmitIntrinsicsImpl::processGlobalValue(GlobalVariable &GV,
+   deduceElementTypeHelper(&GV, false);
+ 
+   Constant *Init = nullptr;
+-  if (hasInitializer(&GV)) {
++  if (hasInitializer(&GV) && !isOnlyResourceName(GV)) {
+     Init = GV.getInitializer();
+     Value *InitOp = Init;
+     if (isa<UndefValue>(Init) && Init->getType()->isAggregateType()) {
+diff --git a/llvm/test/CodeGen/SPIRV/hlsl-resources/StorageImageConstIdx.ll b/llvm/test/CodeGen/SPIRV/hlsl-resources/StorageImageConstIdx.ll
+index e4ec231714..6cfc96da3a 100644
+--- a/llvm/test/CodeGen/SPIRV/hlsl-resources/StorageImageConstIdx.ll
++++ b/llvm/test/CodeGen/SPIRV/hlsl-resources/StorageImageConstIdx.ll
+@@ -1,11 +1,10 @@
+-; RUN: llc -O0 -verify-machineinstrs -mtriple=spirv1.5-vulkan-library %s -o - | FileCheck %s
++; RUN: llc -O0 -verify-machineinstrs -mtriple=spirv1.5-vulkan-library %s -o - | FileCheck %s --implicit-check-not="OpCapability Int8"
+ ; RUN: %if spirv-tools %{ llc -O0 -mtriple=spirv1.5-vulkan-library %s -o - -filetype=obj | spirv-val %}
+ 
+ @.str.b0 = private unnamed_addr constant [3 x i8] c"B0\00", align 1
+ 
+ ; CHECK-DAG: OpCapability Shader
+ ; CHECK-DAG: OpCapability Image1D
+-; CHECK-DAG: OpCapability Int8
+ ; CHECK-NOT: OpCapability
+ 
+ ; CHECK-DAG: OpDecorate [[Var:%[0-9]+]] DescriptorSet 3
+diff --git a/llvm/test/CodeGen/SPIRV/hlsl-resources/resource-name-no-int8.ll b/llvm/test/CodeGen/SPIRV/hlsl-resources/resource-name-no-int8.ll
+new file mode 100644
+index 0000000000..9344683693
+--- /dev/null
++++ b/llvm/test/CodeGen/SPIRV/hlsl-resources/resource-name-no-int8.ll
+@@ -0,0 +1,26 @@
++; A resource's name reaches the module as an OpName on its variable. The
++; string it is read from is not a value of the program, so it must not be
++; materialised as an array of bytes: a Vulkan shader may not declare Int8
++; unless the device enables it.
++
++; RUN: llc -verify-machineinstrs -O0 -mtriple=spirv1.6-unknown-vulkan1.3-compute %s -o - | FileCheck %s --implicit-check-not="OpCapability Int8" --implicit-check-not="OpTypeInt 8"
++; RUN: %if spirv-tools %{ llc -O0 -mtriple=spirv1.6-unknown-vulkan1.3-compute %s -o - -filetype=obj | spirv-val --target-env vulkan1.3 %}
++
++; CHECK: OpName [[buf:%[0-9]+]] "args"
++; CHECK: [[buf]] = OpVariable {{%[0-9]+}} StorageBuffer
++
++%args = type { i32 }
++@name = private unnamed_addr constant [5 x i8] c"args\00"
++
++define void @main() #0 {
++entry:
++  %h = call target("spirv.VulkanBuffer", %args, 12, 1) @llvm.spv.resource.handlefrombinding.tspirv.VulkanBuffer_s_argss_12_1t(i32 0, i32 0, i32 1, i32 0, ptr @name)
++  %p = call ptr addrspace(11) @llvm.spv.resource.getpointer.p11.tspirv.VulkanBuffer_s_argss_12_1t.i32(target("spirv.VulkanBuffer", %args, 12, 1) %h, i32 0)
++  store i32 7, ptr addrspace(11) %p, align 4
++  ret void
++}
++
++declare target("spirv.VulkanBuffer", %args, 12, 1) @llvm.spv.resource.handlefrombinding.tspirv.VulkanBuffer_s_argss_12_1t(i32, i32, i32, i32, ptr)
++declare ptr addrspace(11) @llvm.spv.resource.getpointer.p11.tspirv.VulkanBuffer_s_argss_12_1t.i32(target("spirv.VulkanBuffer", %args, 12, 1), i32)
++
++attributes #0 = { "hlsl.numthreads"="1,1,1" "hlsl.shader"="compute" }
+diff --git a/llvm/test/CodeGen/SPIRV/hlsl-resources/test_counters.ll b/llvm/test/CodeGen/SPIRV/hlsl-resources/test_counters.ll
+index b178a56f71..231645c9eb 100644
+--- a/llvm/test/CodeGen/SPIRV/hlsl-resources/test_counters.ll
++++ b/llvm/test/CodeGen/SPIRV/hlsl-resources/test_counters.ll
+@@ -1,10 +1,9 @@
+-; RUN: llc -O0 -verify-machineinstrs -mtriple=spirv-vulkan-library %s -o - | FileCheck %s
++; RUN: llc -O0 -verify-machineinstrs -mtriple=spirv-vulkan-library %s -o - | FileCheck %s --implicit-check-not="OpCapability Int8"
+ ; RUN: %if spirv-tools %{ llc -O0 -mtriple=spirv-vulkan-library %s -o - -filetype=obj | spirv-val --target-env vulkan1.3 %}
+ 
+ ; ModuleID = 'test_counters.hlsl'
+ source_filename = "test_counters.hlsl"
+ 
+-; CHECK: OpCapability Int8
+ ; CHECK-DAG: OpName [[OutputBuffer:%[0-9]+]] "OutputBuffer"
+ ; CHECK-DAG: OpName [[InputBuffer:%[0-9]+]] "InputBuffer"
+ ; CHECK-DAG: OpName [[OutputBufferCounter:%[0-9]+]] "OutputBuffer.counter"
+diff --git a/llvm/test/CodeGen/SPIRV/pointers/byte-address-buffer-store.ll b/llvm/test/CodeGen/SPIRV/pointers/byte-address-buffer-store.ll
+index f13d930253..febe4ef666 100644
+--- a/llvm/test/CodeGen/SPIRV/pointers/byte-address-buffer-store.ll
++++ b/llvm/test/CodeGen/SPIRV/pointers/byte-address-buffer-store.ll
+@@ -1,13 +1,18 @@
+ ; RUN: llc -verify-machineinstrs -O0 -mtriple=spirv-unknown-vulkan-compute %s -o - | FileCheck %s
+ ; RUN: %if spirv-tools %{ llc -O0 -mtriple=spirv-unknown-vulkan-compute %s -o - -filetype=obj | spirv-val %}
+ 
+-; CHECK-DAG: [[AC0:%[0-9]+]] = OpAccessChain {{.*}} %13 %13
++; CHECK-DAG: [[uint:%[0-9]+]] = OpTypeInt 32 0
++; CHECK-DAG: [[u0:%[0-9]+]] = OpConstant [[uint]] 0{{$}}
++; CHECK-DAG: [[u1:%[0-9]+]] = OpConstant [[uint]] 1{{$}}
++; CHECK-DAG: [[u2:%[0-9]+]] = OpConstant [[uint]] 2{{$}}
++; CHECK-DAG: [[u3:%[0-9]+]] = OpConstant [[uint]] 3{{$}}
++; CHECK: [[AC0:%[0-9]+]] = OpAccessChain {{.*}} [[u0]] [[u0]]
+ ; CHECK: OpStore [[AC0]]
+-; CHECK-DAG: [[AC1:%[0-9]+]] = OpAccessChain {{.*}} %13 %17
++; CHECK: [[AC1:%[0-9]+]] = OpAccessChain {{.*}} [[u0]] [[u1]]
+ ; CHECK: OpStore [[AC1]]
+-; CHECK-DAG: [[AC2:%[0-9]+]] = OpAccessChain {{.*}} %13 %15
++; CHECK: [[AC2:%[0-9]+]] = OpAccessChain {{.*}} [[u0]] [[u2]]
+ ; CHECK: OpStore [[AC2]]
+-; CHECK-DAG: [[AC3:%[0-9]+]] = OpAccessChain {{.*}} %13 %14
++; CHECK: [[AC3:%[0-9]+]] = OpAccessChain {{.*}} [[u0]] [[u3]]
+ ; CHECK: OpStore [[AC3]]
+ 
+ @.str = private unnamed_addr constant [4 x i8] c"Buf\00", align 1
+diff --git a/llvm/test/CodeGen/SPIRV/pointers/resource-vector-load-store.ll b/llvm/test/CodeGen/SPIRV/pointers/resource-vector-load-store.ll
+index 6fc03a386d..ffb8bafdad 100644
+--- a/llvm/test/CodeGen/SPIRV/pointers/resource-vector-load-store.ll
++++ b/llvm/test/CodeGen/SPIRV/pointers/resource-vector-load-store.ll
+@@ -12,7 +12,6 @@
+ define void @main() "hlsl.shader"="pixel"  {
+ ; CHECK:         %[[FUNC:[0-9]+]] = OpFunction %[[VOID:[0-9]+]] None %[[FNTYPE:[0-9]+]] ; -- Begin function main
+ ; CHECK-NEXT:     %[[LABEL:[0-9]+]] = OpLabel
+-; CHECK-NEXT:    %[[VAR:[0-9]+]] = OpVariable %[[PTR_FN:[a-zA-Z0-9_]+]] Function %[[INIT:[a-zA-Z0-9_]+]]
+ ; CHECK-NEXT:    %[[LOAD1:[0-9]+]] = OpLoad %[[IMG_TYPE:[a-zA-Z0-9_]+]] %[[IMG_VAR:[a-zA-Z0-9_]+]]
+ ; CHECK-NEXT:    %[[READ:[0-9]+]] = OpImageRead %[[VEC4:[a-zA-Z0-9_]+]] %[[LOAD1]] %[[COORD:[a-zA-Z0-9_]+]]
+ ; CHECK-NEXT:    %[[EXTRACT1:[0-9]+]] = OpCompositeExtract %[[FLOAT:[a-zA-Z0-9_]+]] %[[READ]] 0
+diff --git a/llvm/test/CodeGen/SPIRV/pointers/structured-buffer-access.ll b/llvm/test/CodeGen/SPIRV/pointers/structured-buffer-access.ll
+index 6de2384dd2..7a8caeecaa 100644
+--- a/llvm/test/CodeGen/SPIRV/pointers/structured-buffer-access.ll
++++ b/llvm/test/CodeGen/SPIRV/pointers/structured-buffer-access.ll
+@@ -28,23 +28,21 @@
+ 
+ define void @main() local_unnamed_addr #0 {
+ ; CHECK-LABEL: main
+-; CHECK:       %41 = OpFunction %2 None %3 ; -- Begin function main
++; CHECK:       %26 = OpFunction %2 None %3 ; -- Begin function main
+ ; CHECK-NEXT:    %1 = OpLabel
+-; CHECK-NEXT:    %42 = OpVariable %26 Function %36
+-; CHECK-NEXT:    %43 = OpVariable %25 Function %37
+-; CHECK-NEXT:    %44 = OpCopyObject %19 %38
+-; CHECK-NEXT:    %45 = OpCopyObject %16 %39
+-; CHECK-NEXT:    %46 = OpLoad %4 %40
+-; CHECK-NEXT:    %47 = OpAccessChain %13 %44 %27 %46
+-; CHECK-NEXT:    %48 = OpInBoundsAccessChain %9 %47 %29
+-; CHECK-NEXT:    %49 = OpLoad %8 %48
+-; CHECK-NEXT:    %50 = OpAccessChain %11 %45 %27 %46
+-; CHECK-NEXT:    %51 = OpInBoundsAccessChain %9 %50 %27
+-; CHECK-NEXT:    OpStore %51 %49
+-; CHECK-NEXT:    %52 = OpAccessChain %6 %47 %27
+-; CHECK-NEXT:    %53 = OpLoad %5 %52
+-; CHECK-NEXT:    %54 = OpInBoundsAccessChain %6 %50 %29
+-; CHECK-NEXT:    OpStore %54 %53
++; CHECK-NEXT:    %27 = OpCopyObject %19 %23
++; CHECK-NEXT:    %28 = OpCopyObject %16 %24
++; CHECK-NEXT:    %29 = OpLoad %4 %25
++; CHECK-NEXT:    %30 = OpAccessChain %13 %27 %20 %29
++; CHECK-NEXT:    %31 = OpInBoundsAccessChain %9 %30 %22
++; CHECK-NEXT:    %32 = OpLoad %8 %31
++; CHECK-NEXT:    %33 = OpAccessChain %11 %28 %20 %29
++; CHECK-NEXT:    %34 = OpInBoundsAccessChain %9 %33 %20
++; CHECK-NEXT:    OpStore %34 %32
++; CHECK-NEXT:    %35 = OpAccessChain %6 %30 %20
++; CHECK-NEXT:    %36 = OpLoad %5 %35
++; CHECK-NEXT:    %37 = OpInBoundsAccessChain %6 %33 %22
++; CHECK-NEXT:    OpStore %37 %36
+ ; CHECK-NEXT:    OpReturn
+ ; CHECK-NEXT:    OpFunctionEnd
+ entry:
+diff --git a/llvm/test/CodeGen/SPIRV/pointers/structured-buffer-vector-access.ll b/llvm/test/CodeGen/SPIRV/pointers/structured-buffer-vector-access.ll
+index 5ac00e6dc2..f7c597acfe 100644
+--- a/llvm/test/CodeGen/SPIRV/pointers/structured-buffer-vector-access.ll
++++ b/llvm/test/CodeGen/SPIRV/pointers/structured-buffer-vector-access.ll
+@@ -15,18 +15,16 @@
+ 
+ define void @main() local_unnamed_addr #0 {
+ ; CHECK-LABEL: main
+-; CHECK:       %32 = OpFunction %2 None %3 ; -- Begin function main
++; CHECK:       %17 = OpFunction %2 None %3 ; -- Begin function main
+ ; CHECK-NEXT:    %1 = OpLabel
+-; CHECK-NEXT:    %33 = OpVariable %19 Function %28
+-; CHECK-NEXT:    %34 = OpVariable %18 Function %29
+-; CHECK-NEXT:    %35 = OpCopyObject %12 %30
+-; CHECK-NEXT:    %36 = OpCopyObject %10 %31
+-; CHECK-NEXT:    %37 = OpAccessChain %7 %35 %20 %20
+-; CHECK-NEXT:    %38 = OpLoad %6 %37
+-; CHECK-NEXT:    %39 = OpCompositeExtract %4 %38 1
+-; CHECK-NEXT:    %40 = OpAccessChain %7 %36 %20 %20
+-; CHECK-NEXT:    %41 = OpInBoundsAccessChain %5 %40 %21
+-; CHECK-NEXT:    OpStore %41 %39
++; CHECK-NEXT:    %18 = OpCopyObject %12 %15
++; CHECK-NEXT:    %19 = OpCopyObject %10 %16
++; CHECK-NEXT:    %20 = OpAccessChain %7 %18 %13 %13
++; CHECK-NEXT:    %21 = OpLoad %6 %20
++; CHECK-NEXT:    %22 = OpCompositeExtract %4 %21 1
++; CHECK-NEXT:    %23 = OpAccessChain %7 %19 %13 %13
++; CHECK-NEXT:    %24 = OpInBoundsAccessChain %5 %23 %14
++; CHECK-NEXT:    OpStore %24 %22
+ ; CHECK-NEXT:    OpReturn
+ ; CHECK-NEXT:    OpFunctionEnd
+ entry:
+-- 
+2.51.2
+

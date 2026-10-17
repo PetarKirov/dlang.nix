@@ -1,0 +1,758 @@
+From c71b935083dc6d09652df6ed08bcae814dbab6f9 Mon Sep 17 00:00:00 2001
+From: Petar Kirov <petar.p.kirov@gmail.com>
+Date: Sat, 17 Oct 2026 11:16:55 +0300
+Subject: [PATCH] [SPIRV] Buffer device addresses on request; index them with
+ OpPtrAccessChain
+
+On top of llvm/llvm-project#216919 (PhysicalStorageBuffer addressing for
+Vulkan), which mapped address space 1 to PhysicalStorageBuffer for every
+target that is not a kernel. That turned the global pointers of plain
+`spirv64-unknown-unknown` modules into buffer device addresses as well, and,
+with an unconditional PhysicalStorageBufferAddresses and Int8 requirement on
+every OpConvertUToPtr and OpConvertPtrToU, broke 35 CodeGen/SPIRV tests; six
+more pin address space 1 of a shader to CrossWorkgroup.
+
+- A shader module asks for buffer device addresses with the module flag
+  `spirv.physical-storage-buffer` (as `spirv.signed-integers` asks for signed
+  integers). Only then is address space 1 PhysicalStorageBuffer, the
+  addressing model PhysicalStorageBuffer64 and SPV_KHR_physical_storage_buffer
+  available; every other module is as upstream has it, and every upstream
+  test passes again.
+- The capability rules are upstream's again: OpInBoundsPtrAccessChain and
+  OpCopyMemorySized need Addresses, OpConvertUToPtr and OpConvertPtrToU need
+  nothing of their own, and Int8 is never added (Vulkan grants it only with
+  a feature). An OpTypeForwardPointer to PhysicalStorageBuffer needs that
+  storage class's capability instead of Addresses.
+- A GEP that offsets a PhysicalStorageBuffer pointer, `p[i]`, was emitted as
+  an OpAccessChain with the offset as its first index, which spirv-val
+  rejects ("reached non-composite type"). It is an OpPtrAccessChain, never the
+  in-bounds variant (which needs Addresses), and the pointer type carries the
+  ArrayStride Vulkan requires of its base. A GEP whose first index is a
+  constant zero stays an OpAccessChain without it.
+- The PR's own test named its resource with a null pointer, which this
+  revision asserts on; it names it.
+
+Claude-Session: https://claude.ai/code/session_01TrgPqCXtysTg54Ef5n1nm6
+---
+ llvm/lib/Target/SPIRV/SPIRVEmitIntrinsics.cpp | 97 +++++++++++++++++++
+ llvm/lib/Target/SPIRV/SPIRVGlobalRegistry.cpp | 32 ++++--
+ llvm/lib/Target/SPIRV/SPIRVGlobalRegistry.h   |  6 ++
+ .../Target/SPIRV/SPIRVInstructionSelector.cpp | 73 ++++++++++----
+ llvm/lib/Target/SPIRV/SPIRVModuleAnalysis.cpp | 40 +++-----
+ llvm/lib/Target/SPIRV/SPIRVSubtarget.cpp      | 18 +++-
+ llvm/lib/Target/SPIRV/SPIRVSubtarget.h        |  8 ++
+ llvm/lib/Target/SPIRV/SPIRVUtils.cpp          | 10 +-
+ ...physical-storage-buffer-byte-addressing.ll | 82 ++++++++++++++++
+ .../physical-storage-buffer-load-store.ll     |  3 +-
+ ...hysical-storage-buffer-ptr-access-chain.ll | 62 ++++++++++++
+ 11 files changed, 367 insertions(+), 64 deletions(-)
+ create mode 100644 llvm/test/CodeGen/SPIRV/pointers/physical-storage-buffer-byte-addressing.ll
+ create mode 100644 llvm/test/CodeGen/SPIRV/pointers/physical-storage-buffer-ptr-access-chain.ll
+
+diff --git a/llvm/lib/Target/SPIRV/SPIRVEmitIntrinsics.cpp b/llvm/lib/Target/SPIRV/SPIRVEmitIntrinsics.cpp
+index ff7673c4e8..2c62e7a8fe 100644
+--- a/llvm/lib/Target/SPIRV/SPIRVEmitIntrinsics.cpp
++++ b/llvm/lib/Target/SPIRV/SPIRVEmitIntrinsics.cpp
+@@ -380,6 +380,12 @@ class SPIRVEmitIntrinsicsImpl
+   Type *getGEPTypeLogical(GetElementPtrInst *GEP);
+ 
+   Instruction *buildLogicalAccessChainFromGEP(GetElementPtrInst &GEP);
++  // A byte-addressing GEP on a buffer device address, rewritten over the
++  // pointee type; null if its offset is not one the rewrite can express.
++  Instruction *buildPhysicalPointerGEP(GetElementPtrInst &GEP);
++  // The pointee type of what buildPhysicalPointerGEP builds; null where it
++  // would build nothing.
++  Type *getPhysicalPointerGEPType(GetElementPtrInst &GEP);
+ 
+ public:
+   SPIRVEmitIntrinsicsImpl(const SPIRVTargetMachine &TM) : TM(TM) {}
+@@ -927,6 +933,89 @@ Instruction *SPIRVEmitIntrinsicsImpl::buildLogicalAccessChainFromGEP(
+   return NewI;
+ }
+ 
++// A buffer device address (PhysicalStorageBuffer) is a pointer in its own
++// right: an offset of whole pointees steps the pointer, as OpPtrAccessChain's
++// Element does, and only what is left over indexes into the pointee. The
++// logical rewrite above starts every chain inside the pointee instead, which
++// is right for a resource but drops `p[i]` on a pointer to a scalar.
++Instruction *
++SPIRVEmitIntrinsicsImpl::buildPhysicalPointerGEP(GetElementPtrInst &GEP) {
++  auto &DL = CurrF->getDataLayout();
++  const uint64_t Multiplier =
++      *getByteAddressingMultiplier(GEP.getSourceElementType());
++  Type *Pointee = deduceElementType(GEP.getPointerOperand(), true);
++  if (!Pointee || !Pointee->isSized() || GEP.getNumIndices() != 1)
++    return nullptr;
++  const int64_t Size = DL.getTypeAllocSize(Pointee);
++  if (Size == 0)
++    return nullptr;
++
++  IRBuilder<> B(GEP.getParent());
++  B.SetInsertPoint(&GEP);
++  Value *Offset = *GEP.idx_begin();
++  std::vector<Value *> Indices;
++  if (auto *CI = dyn_cast<ConstantInt>(Offset)) {
++    const int64_t Bytes = CI->getSExtValue() * static_cast<int64_t>(Multiplier);
++    const int64_t Remainder = Bytes - (Bytes / Size) * Size;
++    if (Remainder < 0)
++      return nullptr;
++    Indices.push_back(ConstantInt::get(Offset->getType(), Bytes / Size,
++                                       /* Signed= */ true));
++    if (Remainder > 0 &&
++        walkLogicalAccessChainConstant(
++            Pointee, Remainder, [&Indices, &B](Type *, uint64_t Index) {
++              Indices.push_back(ConstantInt::get(B.getInt32Ty(), Index));
++            }))
++      return nullptr;
++  } else {
++    if (Multiplier % Size != 0)
++      return nullptr;
++    Value *Index = Offset;
++    if (Multiplier != static_cast<uint64_t>(Size)) {
++      Index = B.CreateMul(Offset, ConstantInt::get(Offset->getType(),
++                                                   Multiplier / Size));
++      insertAssignTypeIntrs(cast<Instruction>(Index), B);
++    }
++    Indices.push_back(Index);
++  }
++
++  SmallVector<Type *, 2> Types = {GEP.getType(), GEP.getOperand(0)->getType()};
++  SmallVector<Value *, 4> Args;
++  Args.push_back(B.getInt1(GEP.isInBounds()));
++  Args.push_back(GEP.getOperand(0));
++  llvm::append_range(Args, Indices);
++  Instruction *NewI =
++      B.CreateIntrinsicWithoutFolding(Intrinsic::spv_gep, {Types}, {Args});
++  replaceAllUsesWithAndErase(B, &GEP, NewI);
++  return NewI;
++}
++
++Type *SPIRVEmitIntrinsicsImpl::getPhysicalPointerGEPType(GetElementPtrInst &GEP) {
++  auto &DL = CurrF->getDataLayout();
++  const uint64_t Multiplier =
++      *getByteAddressingMultiplier(GEP.getSourceElementType());
++  Type *Pointee = deduceElementType(GEP.getPointerOperand(), true);
++  if (!Pointee || !Pointee->isSized() || GEP.getNumIndices() != 1)
++    return nullptr;
++  const int64_t Size = DL.getTypeAllocSize(Pointee);
++  if (Size == 0)
++    return nullptr;
++  Value *Offset = *GEP.idx_begin();
++  auto *CI = dyn_cast<ConstantInt>(Offset);
++  if (!CI)
++    return Multiplier % Size == 0 ? Pointee : nullptr;
++  const int64_t Bytes = CI->getSExtValue() * static_cast<int64_t>(Multiplier);
++  const int64_t Remainder = Bytes - (Bytes / Size) * Size;
++  if (Remainder < 0)
++    return nullptr;
++  Type *Ty = Pointee;
++  if (Remainder > 0 && walkLogicalAccessChainConstant(
++                           Pointee, Remainder,
++                           [&Ty](Type *EltType, uint64_t) { Ty = EltType; }))
++    return nullptr;
++  return Ty;
++}
++
+ Type *SPIRVEmitIntrinsicsImpl::getGEPTypeLogical(GetElementPtrInst *GEP) {
+ 
+   Type *CurType = GEP->getResultElementType();
+@@ -941,6 +1030,10 @@ Type *SPIRVEmitIntrinsicsImpl::getGEPTypeLogical(GetElementPtrInst *GEP) {
+ Type *SPIRVEmitIntrinsicsImpl::getGEPType(GetElementPtrInst *Ref) {
+   if (getByteAddressingMultiplier(Ref->getSourceElementType()) &&
+       TM.getSubtargetImpl()->isLogicalSPIRV()) {
++    if (TM.getSubtargetImpl()->usesPhysicalStorageBuffer() &&
++        Ref->getPointerAddressSpace() == 1)
++      if (Type *Ty = getPhysicalPointerGEPType(*Ref))
++        return Ty;
+     return getGEPTypeLogical(Ref);
+   }
+ 
+@@ -2097,6 +2190,10 @@ SPIRVEmitIntrinsicsImpl::visitGetElementPtrInst(GetElementPtrInst &I) {
+     // If the GEP is doing byte addressing, try to rebuild the full access chain
+     // from the type of the pointer.
+     if (getByteAddressingMultiplier(I.getSourceElementType())) {
++      if (TM.getSubtargetImpl()->usesPhysicalStorageBuffer() &&
++          I.getPointerAddressSpace() == 1)
++        if (Instruction *NewI = buildPhysicalPointerGEP(I))
++          return NewI;
+       return buildLogicalAccessChainFromGEP(I);
+     }
+ 
+diff --git a/llvm/lib/Target/SPIRV/SPIRVGlobalRegistry.cpp b/llvm/lib/Target/SPIRV/SPIRVGlobalRegistry.cpp
+index b53b672bea..3cbbf17982 100644
+--- a/llvm/lib/Target/SPIRV/SPIRVGlobalRegistry.cpp
++++ b/llvm/lib/Target/SPIRV/SPIRVGlobalRegistry.cpp
+@@ -1179,13 +1179,17 @@ SPIRVTypeInst SPIRVGlobalRegistry::getOpTypePointer(
+   if (!Reg.isValid())
+     Reg = createTypeVReg(MIRBuilder);
+ 
+-  return createConstOrTypeAtFunctionEntry(MIRBuilder, [&](MachineIRBuilder
+-                                                              &MIRBuilder) {
+-    return MIRBuilder.buildInstr(SPIRV::OpTypePointer)
+-        .addDef(Reg)
+-        .addImm(static_cast<uint32_t>(SC))
+-        .addUse(getSPIRVTypeID(ElemType));
+-  });
++  SPIRVTypeInst PtrType = createConstOrTypeAtFunctionEntry(
++      MIRBuilder, [&](MachineIRBuilder &MIRBuilder) {
++        return MIRBuilder.buildInstr(SPIRV::OpTypePointer)
++            .addDef(Reg)
++            .addImm(static_cast<uint32_t>(SC))
++            .addUse(getSPIRVTypeID(ElemType));
++      });
++  if (ST.isShader())
++    addPhysicalPointerStride(Reg, SC, getTypeForSPIRVType(ElemType),
++                             MIRBuilder);
++  return PtrType;
+ }
+ 
+ SPIRVTypeInst SPIRVGlobalRegistry::getOpTypeFunction(
+@@ -2184,6 +2188,9 @@ SPIRVTypeInst SPIRVGlobalRegistry::getOrCreateSPIRVPointerTypeInternal(
+             .addImm(static_cast<uint32_t>(SC))
+             .addUse(getSPIRVTypeID(BaseType));
+       });
++  if (ST.isShader())
++    addPhysicalPointerStride(NewMI->getOperand(0).getReg(), SC,
++                             PointerElementType, MIRBuilder);
+   add(PointerElementType, AddressSpace, NewMI);
+   return finishCreatingSPIRVType(Ty, NewMI);
+ }
+@@ -2449,6 +2456,17 @@ void SPIRVGlobalRegistry::addStructOffsetDecorations(
+   }
+ }
+ 
++void SPIRVGlobalRegistry::addPhysicalPointerStride(
++    Register Reg, SPIRV::StorageClass::StorageClass SC,
++    const Type *ElementType, MachineIRBuilder &MIRBuilder) {
++  if (SC != SPIRV::StorageClass::PhysicalStorageBufferEXT || !ElementType ||
++      !ElementType->isSized())
++    return;
++  buildOpDecorate(Reg, MIRBuilder, SPIRV::Decoration::ArrayStride,
++                  {static_cast<uint32_t>(DL.getTypeAllocSize(
++                      const_cast<Type *>(ElementType)))});
++}
++
+ void SPIRVGlobalRegistry::addArrayStrideDecorations(
+     Register Reg, Type *ElementType, MachineIRBuilder &MIRBuilder) {
+   uint32_t SizeInBytes = DL.getTypeAllocSize(ElementType);
+diff --git a/llvm/lib/Target/SPIRV/SPIRVGlobalRegistry.h b/llvm/lib/Target/SPIRV/SPIRVGlobalRegistry.h
+index 37911c1bff..3d615deac5 100644
+--- a/llvm/lib/Target/SPIRV/SPIRVGlobalRegistry.h
++++ b/llvm/lib/Target/SPIRV/SPIRVGlobalRegistry.h
+@@ -543,6 +543,12 @@ private:
+ 
+   void addStructOffsetDecorations(Register Reg, StructType *Ty,
+                                   MachineIRBuilder &MIRBuilder);
++  // A PhysicalStorageBuffer pointer is indexed with OpPtrAccessChain, which a
++  // shader may apply only to a pointer type decorated with ArrayStride.
++  void addPhysicalPointerStride(Register Reg,
++                                SPIRV::StorageClass::StorageClass SC,
++                                const Type *ElementType,
++                                MachineIRBuilder &MIRBuilder);
+   void addArrayStrideDecorations(Register Reg, Type *ElementType,
+                                  MachineIRBuilder &MIRBuilder);
+ 
+diff --git a/llvm/lib/Target/SPIRV/SPIRVInstructionSelector.cpp b/llvm/lib/Target/SPIRV/SPIRVInstructionSelector.cpp
+index 880c5b925f..e7247dc30d 100644
+--- a/llvm/lib/Target/SPIRV/SPIRVInstructionSelector.cpp
++++ b/llvm/lib/Target/SPIRV/SPIRVInstructionSelector.cpp
+@@ -362,6 +362,7 @@ private:
+                         MachineInstr &I) const;
+   bool selectInsertElt(Register ResVReg, SPIRVTypeInst ResType,
+                        MachineInstr &I) const;
++  bool offsetsPhysicalPointer(SPIRVTypeInst ResType, MachineInstr &I) const;
+   bool selectGEP(Register ResVReg, SPIRVTypeInst ResType,
+                  MachineInstr &I) const;
+ 
+@@ -1972,7 +1973,8 @@ bool SPIRVInstructionSelector::selectBitcast(Register ResVReg,
+ static void addMemoryOperands(MachineMemOperand *MemOp,
+                               MachineInstrBuilder &MIB,
+                               MachineIRBuilder &MIRBuilder,
+-                              SPIRVGlobalRegistry &GR) {
++                              SPIRVGlobalRegistry &GR,
++                              bool PhysicalPointer = false) {
+   const SPIRVSubtarget *ST =
+       static_cast<const SPIRVSubtarget *>(&MIRBuilder.getMF().getSubtarget());
+   uint32_t SpvMemOp = static_cast<uint32_t>(SPIRV::MemoryOperand::None);
+@@ -1980,8 +1982,9 @@ static void addMemoryOperands(MachineMemOperand *MemOp,
+     SpvMemOp |= static_cast<uint32_t>(SPIRV::MemoryOperand::Volatile);
+   if (MemOp->isNonTemporal())
+     SpvMemOp |= static_cast<uint32_t>(SPIRV::MemoryOperand::Nontemporal);
+-  // Aligned memory operand requires the Kernel capability (or PhysicalStorageBuffer in shader).
+-  if ((!ST->isShader() || MemOp->getAddrSpace() == 1) && MemOp->getAlign().value())
++  // Aligned memory operand requires the Kernel capability, but Vulkan requires
++  // it of every access through a buffer device address.
++  if ((!ST->isShader() || PhysicalPointer) && MemOp->getAlign().value())
+     SpvMemOp |= static_cast<uint32_t>(SPIRV::MemoryOperand::Aligned);
+ 
+   [[maybe_unused]] MachineInstr *AliasList = nullptr;
+@@ -2012,15 +2015,27 @@ static void addMemoryOperands(MachineMemOperand *MemOp,
+   }
+ }
+ 
+-static void addMemoryOperands(uint64_t Flags, MachineInstrBuilder &MIB) {
++// The memory operands of an aggregate load or store, lowered to an intrinsic
++// that carries its flags and alignment. Vulkan requires every access through
++// a buffer device address (PhysicalStorageBuffer) to be Aligned.
++static void addMemoryOperands(uint64_t Flags, uint64_t Alignment,
++                              SPIRV::StorageClass::StorageClass PtrSC,
++                              MachineInstrBuilder &MIB) {
+   uint32_t SpvMemOp = static_cast<uint32_t>(SPIRV::MemoryOperand::None);
+   if (Flags & MachineMemOperand::Flags::MOVolatile)
+     SpvMemOp |= static_cast<uint32_t>(SPIRV::MemoryOperand::Volatile);
+   if (Flags & MachineMemOperand::Flags::MONonTemporal)
+     SpvMemOp |= static_cast<uint32_t>(SPIRV::MemoryOperand::Nontemporal);
++  const bool IsAligned =
++      PtrSC == SPIRV::StorageClass::PhysicalStorageBufferEXT && Alignment;
++  if (IsAligned)
++    SpvMemOp |= static_cast<uint32_t>(SPIRV::MemoryOperand::Aligned);
+ 
+-  if (SpvMemOp != static_cast<uint32_t>(SPIRV::MemoryOperand::None))
++  if (SpvMemOp != static_cast<uint32_t>(SPIRV::MemoryOperand::None)) {
+     MIB.addImm(SpvMemOp);
++    if (IsAligned)
++      MIB.addImm(Alignment);
++  }
+ }
+ 
+ bool SPIRVInstructionSelector::selectLoad(Register ResVReg,
+@@ -2067,9 +2082,13 @@ bool SPIRVInstructionSelector::selectLoad(Register ResVReg,
+     assert(I.getOpcode() == TargetOpcode::G_INTRINSIC_W_SIDE_EFFECTS ||
+            I.getOpcode() ==
+                TargetOpcode::G_INTRINSIC_CONVERGENT_W_SIDE_EFFECTS);
+-    addMemoryOperands(I.getOperand(2 + OpOffset).getImm(), MIB);
++    addMemoryOperands(I.getOperand(2 + OpOffset).getImm(),
++                      I.getOperand(3 + OpOffset).getImm(),
++                      GR.getPointerStorageClass(Ptr), MIB);
+   } else {
+-    addMemoryOperands(*I.memoperands_begin(), MIB, MIRBuilder, GR);
++    addMemoryOperands(*I.memoperands_begin(), MIB, MIRBuilder, GR,
++                      GR.getPointerStorageClass(Ptr) ==
++                          SPIRV::StorageClass::PhysicalStorageBufferEXT);
+   }
+   MIB.constrainAllUses(TII, TRI, RBI);
+   return true;
+@@ -2302,9 +2321,12 @@ bool SPIRVInstructionSelector::selectStore(MachineInstr &I) const {
+     assert(I.getOpcode() == TargetOpcode::G_INTRINSIC_W_SIDE_EFFECTS ||
+            I.getOpcode() ==
+                TargetOpcode::G_INTRINSIC_CONVERGENT_W_SIDE_EFFECTS);
+-    addMemoryOperands(I.getOperand(2 + OpOffset).getImm(), MIB);
++    addMemoryOperands(I.getOperand(2 + OpOffset).getImm(),
++                      I.getOperand(3 + OpOffset).getImm(),
++                      GR.getPointerStorageClass(Ptr), MIB);
+   } else {
+-    addMemoryOperands(*I.memoperands_begin(), MIB, MIRBuilder, GR);
++    addMemoryOperands(*I.memoperands_begin(), MIB, MIRBuilder, GR,
++                      PtrSC == SPIRV::StorageClass::PhysicalStorageBufferEXT);
+   }
+   MIB.constrainAllUses(TII, TRI, RBI);
+   return true;
+@@ -5054,6 +5076,14 @@ bool SPIRVInstructionSelector::selectExtractElt(Register ResVReg,
+   return true;
+ }
+ 
++bool SPIRVInstructionSelector::offsetsPhysicalPointer(SPIRVTypeInst ResType,
++                                                      MachineInstr &I) const {
++  if (GR.getPointerStorageClass(ResType) !=
++      SPIRV::StorageClass::PhysicalStorageBufferEXT)
++    return false;
++  return !getImm(I.getOperand(4), MRI) || foldImm(I.getOperand(4), MRI) != 0;
++}
++
+ bool SPIRVInstructionSelector::selectGEP(Register ResVReg,
+                                          SPIRVTypeInst ResType,
+                                          MachineInstr &I) const {
+@@ -5079,7 +5109,15 @@ bool SPIRVInstructionSelector::selectGEP(Register ResVReg,
+     // only relies on PtrAccessChain, so we'll try not to deviate. For Vulkan
+     // however, we have to use Op[InBounds]AccessChain.
+     // FIXME: fix llvm-spirv.
+-    if (STI.isLogicalSPIRV()) {
++    //
++    // A PhysicalStorageBuffer pointer is an address even in logical SPIR-V: a
++    // GEP whose first index is not a constant zero offsets it, as in `p[i]`,
++    // which only Op[InBounds]PtrAccessChain expresses.
++    // Its in-bounds variant needs the Addresses capability, which a shader
++    // cannot declare.
++    if (STI.isLogicalSPIRV() && offsetsPhysicalPointer(ResType, I)) {
++      Opcode = SPIRV::OpPtrAccessChain;
++    } else if (STI.isLogicalSPIRV()) {
+       Opcode =
+           IsGEPInBounds ? SPIRV::OpInBoundsAccessChain : SPIRV::OpAccessChain;
+     } else {
+@@ -5134,19 +5172,12 @@ bool SPIRVInstructionSelector::selectGEP(Register ResVReg,
+        Opcode == SPIRV::OpUntypedAccessChainKHR ||
+        Opcode == SPIRV::OpUntypedInBoundsAccessChainKHR);
+ 
+-  assert((!IsAccessChainOpcode ||
+-          GR.getPointerStorageClass(ResType) ==
+-              SPIRV::StorageClass::PhysicalStorageBufferEXT ||
+-          (getImm(I.getOperand(4), MRI) && foldImm(I.getOperand(4), MRI) == 0)) &&
+-         "Cannot translate GEP to OpAccessChain. First index must be 0.");
++  assert((!IsAccessChainOpcode || (getImm(I.getOperand(4), MRI) &&
++                                   foldImm(I.getOperand(4), MRI) == 0)) &&
++         "Cannot translate GEP to OpAccessChain.");
+ 
+   // Adding indices.
+-  const unsigned StartingIndex =
+-      (IsAccessChainOpcode &&
+-       GR.getPointerStorageClass(ResType) !=
+-           SPIRV::StorageClass::PhysicalStorageBufferEXT)
+-          ? 5
+-          : 4;
++  const unsigned StartingIndex = IsAccessChainOpcode ? 5 : 4;
+   for (unsigned i = StartingIndex; i < I.getNumExplicitOperands(); ++i)
+     Res.addUse(I.getOperand(i).getReg());
+   Res.constrainAllUses(TII, TRI, RBI);
+diff --git a/llvm/lib/Target/SPIRV/SPIRVModuleAnalysis.cpp b/llvm/lib/Target/SPIRV/SPIRVModuleAnalysis.cpp
+index 121e722110..e49f7af126 100644
+--- a/llvm/lib/Target/SPIRV/SPIRVModuleAnalysis.cpp
++++ b/llvm/lib/Target/SPIRV/SPIRVModuleAnalysis.cpp
+@@ -194,7 +194,7 @@ void SPIRVModuleAnalysis::setBaseInfo(const Module &M) {
+                  : PtrSize == 64 ? SPIRV::AddressingModel::Physical64
+                                  : SPIRV::AddressingModel::Logical;
+     } else {
+-      if (usesPhysicalStorageBuffer(M)) {
++      if (ST->usesPhysicalStorageBuffer() && usesPhysicalStorageBuffer(M)) {
+         MAI.Addr = SPIRV::AddressingModel::PhysicalStorageBuffer64EXT;
+       } else {
+         MAI.Addr = SPIRV::AddressingModel::Logical;
+@@ -1026,7 +1026,7 @@ void RequirementHandler::initAvailableCapabilities(const SPIRVSubtarget &ST) {
+ void RequirementHandler::initAvailableCapabilitiesForOpenCL(
+     const SPIRVSubtarget &ST) {
+   // Add the min requirements for different OpenCL and SPIR-V versions.
+-  addAvailableCaps({Capability::Addresses, Capability::Float16Buffer, Capability::PhysicalStorageBufferAddressesEXT, Capability::Int8,
++  addAvailableCaps({Capability::Addresses, Capability::Float16Buffer,
+                     Capability::Kernel, Capability::Vector16,
+                     Capability::Groups, Capability::GenericPointer,
+                     Capability::StorageImageWriteWithoutFormat,
+@@ -1794,19 +1794,7 @@ void addInstrRequirements(const MachineInstr &MI,
+     addOpDecorateReqs(MI, 2, Reqs, ST);
+     break;
+   case SPIRV::OpInBoundsPtrAccessChain:
+-    if (MAI.Mem == SPIRV::MemoryModel::OpenCL) {
+-      Reqs.addCapability(SPIRV::Capability::Addresses);
+-    } else {
+-        Reqs.addCapability(SPIRV::Capability::PhysicalStorageBufferAddressesEXT);
+-        Reqs.addExtension(SPIRV::Extension::SPV_KHR_physical_storage_buffer);
+-        Reqs.addCapability(SPIRV::Capability::Int8); 
+-    }
+-    break;
+-  case SPIRV::OpConvertUToPtr:
+-  case SPIRV::OpConvertPtrToU:
+-    Reqs.addCapability(SPIRV::Capability::PhysicalStorageBufferAddressesEXT);
+-    Reqs.addExtension(SPIRV::Extension::SPV_KHR_physical_storage_buffer);
+-    Reqs.addCapability(SPIRV::Capability::Int8);
++    Reqs.addCapability(SPIRV::Capability::Addresses);
+     break;
+   case SPIRV::OpConstantSampler:
+     Reqs.addCapability(SPIRV::Capability::LiteralSampler);
+@@ -1824,13 +1812,15 @@ void addInstrRequirements(const MachineInstr &MI,
+     }
+     break;
+   case SPIRV::OpTypeForwardPointer:
+-    // TODO: check if it's OpenCL's kernel.
+-    if (MAI.Mem == SPIRV::MemoryModel::OpenCL) {
+-        Reqs.addCapability(SPIRV::Capability::Addresses);
++    // A shader forward-declares buffer device addresses; anything else is an
++    // OpenCL pointer.
++    if (MI.getOperand(1).getImm() ==
++        static_cast<int64_t>(SPIRV::StorageClass::PhysicalStorageBufferEXT)) {
++      Reqs.addExtension(SPIRV::Extension::SPV_KHR_physical_storage_buffer);
++      Reqs.addCapability(SPIRV::Capability::PhysicalStorageBufferAddressesEXT);
+     } else {
+-        Reqs.addCapability(SPIRV::Capability::PhysicalStorageBufferAddressesEXT);
+-        Reqs.addExtension(SPIRV::Extension::SPV_KHR_physical_storage_buffer);
+-        Reqs.addCapability(SPIRV::Capability::Int8); 
++      // TODO: check if it's OpenCL's kernel.
++      Reqs.addCapability(SPIRV::Capability::Addresses);
+     }
+     break;
+   case SPIRV::OpAtomicFlagTestAndSet:
+@@ -2588,13 +2578,7 @@ void addInstrRequirements(const MachineInstr &MI,
+     break;
+   }
+   case SPIRV::OpCopyMemorySized: {
+-    if (MAI.Mem == SPIRV::MemoryModel::OpenCL) {
+-      Reqs.addCapability(SPIRV::Capability::Addresses);
+-    } else {
+-        Reqs.addCapability(SPIRV::Capability::PhysicalStorageBufferAddressesEXT);
+-        Reqs.addExtension(SPIRV::Extension::SPV_KHR_physical_storage_buffer);
+-        Reqs.addCapability(SPIRV::Capability::Int8); 
+-    }
++    Reqs.addCapability(SPIRV::Capability::Addresses);
+     // TODO: Add UntypedPointersKHR when implemented.
+     break;
+   }
+diff --git a/llvm/lib/Target/SPIRV/SPIRVSubtarget.cpp b/llvm/lib/Target/SPIRV/SPIRVSubtarget.cpp
+index d81bdbd798..520c63d1ec 100644
+--- a/llvm/lib/Target/SPIRV/SPIRVSubtarget.cpp
++++ b/llvm/lib/Target/SPIRV/SPIRVSubtarget.cpp
+@@ -130,9 +130,6 @@ SPIRVSubtarget &SPIRVSubtarget::initSubtargetDependencies(StringRef CPU,
+ }
+ 
+ bool SPIRVSubtarget::canUseExtension(SPIRV::Extension::Extension E) const {
+-  if (isShader() && (E == SPIRV::Extension::SPV_KHR_physical_storage_buffer ||
+-                     E == SPIRV::Extension::SPV_EXT_physical_storage_buffer))
+-    return true;
+   return AvailableExtensions.contains(E);
+ }
+ 
+@@ -203,6 +200,7 @@ void SPIRVSubtarget::setEnv(SPIRVEnvType E) {
+ 
+ void SPIRVSubtarget::resolveEnvFromModule(const Module &M) {
+   *GR = SPIRVGlobalRegistry(M.getDataLayout());
++  resolvePhysicalStorageBuffer(M);
+ 
+   if (Env != Unknown) {
+     assert(!(isKernel() && any_of(M,
+@@ -261,3 +259,17 @@ void SPIRVSubtarget::initAvailableExtensions(
+ 
+   accountForAMDShaderTrinaryMinmax();
+ }
++
++// A shader's address space 1 is CrossWorkgroup unless its module asks, with
++// the module flag `spirv.physical-storage-buffer`, for buffer device addresses
++// (SPV_KHR_physical_storage_buffer): the pointers a host hands a Vulkan
++// shader in a buffer, as a GPU language whose global pointers are real
++// addresses needs.
++void SPIRVSubtarget::resolvePhysicalStorageBuffer(const Module &M) {
++  const auto *Flag = mdconst::extract_or_null<ConstantInt>(
++      M.getModuleFlag("spirv.physical-storage-buffer"));
++  PhysicalStorageBuffer = Flag && !Flag->isZero();
++  if (PhysicalStorageBuffer)
++    AvailableExtensions.insert(
++        SPIRV::Extension::SPV_KHR_physical_storage_buffer);
++}
+diff --git a/llvm/lib/Target/SPIRV/SPIRVSubtarget.h b/llvm/lib/Target/SPIRV/SPIRVSubtarget.h
+index 23ad2744e9..57d2bba034 100644
+--- a/llvm/lib/Target/SPIRV/SPIRVSubtarget.h
++++ b/llvm/lib/Target/SPIRV/SPIRVSubtarget.h
+@@ -55,6 +55,7 @@ private:
+   SPIRVTargetLowering TLInfo;
+   Triple TargetTriple;
+   SPIRVEnvType Env;
++  bool PhysicalStorageBuffer = false;
+ 
+   // GlobalISel related APIs.
+   std::unique_ptr<CallLowering> CallLoweringInfo;
+@@ -75,6 +76,7 @@ public:
+ 
+   void initAvailableExtensions(const ExtensionSet &AllowedExtIds);
+   void resolveEnvFromModule(const Module &M);
++  void resolvePhysicalStorageBuffer(const Module &M);
+ 
+   // Parses features string setting specified subtarget options.
+   // The definition of this function is auto generated by tblgen.
+@@ -86,6 +88,12 @@ public:
+   SPIRVEnvType getEnv() const { return Env; }
+   bool isKernel() const { return getEnv() == Kernel; }
+   bool isShader() const { return getEnv() == Shader; }
++  // Whether a shader module asked, with the module flag
++  // `spirv.physical-storage-buffer`, for address space 1 to be buffer device
++  // addresses (PhysicalStorageBuffer) rather than CrossWorkgroup.
++  bool usesPhysicalStorageBuffer() const {
++    return PhysicalStorageBuffer && isShader();
++  }
+   bool isLogicalSPIRV() const {
+     return TargetTriple.getArch() == Triple::spirv;
+   }
+diff --git a/llvm/lib/Target/SPIRV/SPIRVUtils.cpp b/llvm/lib/Target/SPIRV/SPIRVUtils.cpp
+index 92311adbd9..a710ddacb6 100644
+--- a/llvm/lib/Target/SPIRV/SPIRVUtils.cpp
++++ b/llvm/lib/Target/SPIRV/SPIRVUtils.cpp
+@@ -378,10 +378,12 @@ addressSpaceToStorageClass(unsigned AddrSpace, const SPIRVSubtarget &STI) {
+   case 0:
+     return SPIRV::StorageClass::Function;
+   case 1:
+-    if (STI.isKernel())
+-      return SPIRV::StorageClass::CrossWorkgroup;
+-    else
+-      return SPIRV::StorageClass::PhysicalStorageBufferEXT;
++    // A shader module that asks for it (`spirv.physical-storage-buffer`) has
++    // buffer device addresses for global pointers; anything else keeps
++    // OpenCL's CrossWorkgroup.
++    return STI.usesPhysicalStorageBuffer()
++               ? SPIRV::StorageClass::PhysicalStorageBufferEXT
++               : SPIRV::StorageClass::CrossWorkgroup;
+   case 2:
+     return SPIRV::StorageClass::UniformConstant;
+   case 3:
+diff --git a/llvm/test/CodeGen/SPIRV/pointers/physical-storage-buffer-byte-addressing.ll b/llvm/test/CodeGen/SPIRV/pointers/physical-storage-buffer-byte-addressing.ll
+new file mode 100644
+index 0000000000..fb49571f8a
+--- /dev/null
++++ b/llvm/test/CodeGen/SPIRV/pointers/physical-storage-buffer-byte-addressing.ll
+@@ -0,0 +1,82 @@
++; An optimiser writes `p[i]` on a buffer device address as a byte-addressing
++; GEP (`getelementptr [4 x i8], p, i` or `getelementptr i8, p, 4 * i`). In a
++; module that asks for buffer device addresses (`spirv.physical-storage-buffer`)
++; an offset of whole pointees steps the pointer itself, an OpPtrAccessChain
++; Element, and only the rest indexes into the pointee; the offset is never
++; dropped. Every access through such a pointer is Aligned, as Vulkan
++; requires, an aggregate one included.
++
++; RUN: llc -verify-machineinstrs -O0 -mtriple=spirv1.6-unknown-vulkan1.3-compute %s -o - | FileCheck %s
++; RUN: %if spirv-tools %{ llc -O0 -mtriple=spirv1.6-unknown-vulkan1.3-compute %s -o - -filetype=obj | spirv-val --target-env vulkan1.3 %}
++
++; CHECK-DAG: [[float:%[0-9]+]] = OpTypeFloat 32
++; The pointee of a buffer device address is laid out explicitly.
++; CHECK-DAG: OpMemberDecorate [[pair:%[0-9]+]] 1 Offset 4
++; CHECK-DAG: [[pair]] = OpTypeStruct [[float]] [[float]]
++; CHECK-DAG: [[pfloat:%[0-9]+]] = OpTypePointer PhysicalStorageBufferEXT [[float]]
++; CHECK-DAG: [[ppair:%[0-9]+]] = OpTypePointer PhysicalStorageBufferEXT [[pair]]
++; CHECK-DAG: [[long:%[0-9]+]] = OpTypeInt 64 0
++; CHECK-DAG: [[int:%[0-9]+]] = OpTypeInt 32 0
++; CHECK-DAG: [[l1:%[0-9]+]] = OpConstant [[long]] 1{{$}}
++; CHECK-DAG: [[i1:%[0-9]+]] = OpConstant [[int]] 1{{$}}
++
++; CHECK: [[floats:%[0-9]+]] = OpConvertUToPtr [[pfloat]]
++; CHECK: [[i:%[0-9]+]] = OpSConvert [[long]]
++; `getelementptr [4 x i8], %floats, %i`: element i.
++; CHECK: [[elem:%[0-9]+]] = OpPtrAccessChain [[pfloat]] [[floats]] [[i]]
++; CHECK: [[v:%[0-9]+]] = OpLoad [[float]] [[elem]]
++; `getelementptr i8, %floats, 4`: element 1.
++; CHECK: [[next:%[0-9]+]] = OpPtrAccessChain [[pfloat]] [[floats]] [[l1]]
++; CHECK: OpStore [[next]] [[v]]
++; CHECK: [[pairs:%[0-9]+]] = OpConvertUToPtr [[ppair]]
++; `getelementptr i8, %pairs, 4`: the second field of element 0.
++; CHECK: [[second:%[0-9]+]] = OpInBoundsAccessChain [[pfloat]] [[pairs]] [[i1]]
++; CHECK: OpStore [[second]] [[v]]
++; `getelementptr i8, %pairs, 12`: the second field of element 1.
++; CHECK: [[later:%[0-9]+]] = OpPtrAccessChain [[pfloat]] [[pairs]] [[l1]] [[i1]]
++; CHECK: OpStore [[later]] [[v]]
++; `getelementptr [8 x i8], %pairs, %i`: element i, whole.
++; CHECK: [[pairI:%[0-9]+]] = OpPtrAccessChain [[ppair]] [[pairs]] [[i]]
++; CHECK: OpLoad [[pair]] [[pairI]] Aligned 4
++
++%args = type { i64, i64 }
++%pair = type { float, float }
++@name = private unnamed_addr constant [5 x i8] c"args\00"
++
++define void @main() #0 {
++entry:
++  %h = call target("spirv.VulkanBuffer", %args, 12, 0) @llvm.spv.resource.handlefrombinding.tspirv.VulkanBuffer_s_argss_12_0t(i32 0, i32 0, i32 1, i32 0, ptr @name)
++  %slot = call ptr addrspace(11) @llvm.spv.resource.getpointer.p11.tspirv.VulkanBuffer_s_argss_12_0t.i32(target("spirv.VulkanBuffer", %args, 12, 0) %h, i32 0)
++  %addr = load i64, ptr addrspace(11) %slot, align 8
++  %floats = inttoptr i64 %addr to ptr addrspace(1)
++  call void @llvm.spv.assign.ptr.type.p1(ptr addrspace(1) %floats, metadata float poison, i32 1)
++  %i = call i32 @llvm.spv.thread.id.i32(i32 0)
++  %i64 = sext i32 %i to i64
++  %elem = getelementptr inbounds [4 x i8], ptr addrspace(1) %floats, i64 %i64
++  %v = load float, ptr addrspace(1) %elem, align 4
++  %next = getelementptr inbounds i8, ptr addrspace(1) %floats, i64 4
++  store float %v, ptr addrspace(1) %next, align 4
++  %slot2 = call ptr addrspace(11) @llvm.spv.resource.getpointer.p11.tspirv.VulkanBuffer_s_argss_12_0t.i32(target("spirv.VulkanBuffer", %args, 12, 0) %h, i32 1)
++  %addr2 = load i64, ptr addrspace(11) %slot2, align 8
++  %pairs = inttoptr i64 %addr2 to ptr addrspace(1)
++  call void @llvm.spv.assign.ptr.type.p1(ptr addrspace(1) %pairs, metadata %pair poison, i32 1)
++  %second = getelementptr inbounds i8, ptr addrspace(1) %pairs, i64 4
++  store float %v, ptr addrspace(1) %second, align 4
++  %later = getelementptr inbounds i8, ptr addrspace(1) %pairs, i64 12
++  store float %v, ptr addrspace(1) %later, align 4
++  %pairI = getelementptr inbounds [8 x i8], ptr addrspace(1) %pairs, i64 %i64
++  %whole = load %pair, ptr addrspace(1) %pairI, align 4
++  %x = extractvalue %pair %whole, 0
++  store float %x, ptr addrspace(1) %floats, align 4
++  ret void
++}
++
++declare target("spirv.VulkanBuffer", %args, 12, 0) @llvm.spv.resource.handlefrombinding.tspirv.VulkanBuffer_s_argss_12_0t(i32, i32, i32, i32, ptr)
++declare ptr addrspace(11) @llvm.spv.resource.getpointer.p11.tspirv.VulkanBuffer_s_argss_12_0t.i32(target("spirv.VulkanBuffer", %args, 12, 0), i32)
++declare i32 @llvm.spv.thread.id.i32(i32)
++declare void @llvm.spv.assign.ptr.type.p1(ptr addrspace(1), metadata, i32 immarg)
++
++attributes #0 = { "hlsl.numthreads"="64,1,1" "hlsl.shader"="compute" }
++
++!llvm.module.flags = !{!0}
++!0 = !{i32 1, !"spirv.physical-storage-buffer", i32 1}
+diff --git a/llvm/test/CodeGen/SPIRV/pointers/physical-storage-buffer-load-store.ll b/llvm/test/CodeGen/SPIRV/pointers/physical-storage-buffer-load-store.ll
+index 994b360022..44c2305915 100644
+--- a/llvm/test/CodeGen/SPIRV/pointers/physical-storage-buffer-load-store.ll
++++ b/llvm/test/CodeGen/SPIRV/pointers/physical-storage-buffer-load-store.ll
+@@ -25,13 +25,14 @@
+ ; CHECK-NOT: OpPtrAccessChain
+ 
+ %struct.elem = type { float }
++@name = private unnamed_addr constant [4 x i8] c"buf\00"
+ 
+ define void @main() #0 {
+ entry:
+   ; Bind a VulkanBuffer of floats at set=0, binding=0
+   %buf = call target("spirv.VulkanBuffer", [0 x %struct.elem], 12, 0)
+       @llvm.spv.resource.handlefrombinding.tspirv.VulkanBuffer_a0s_struct.elems_12_0t(
+-          i32 0, i32 0, i32 1, i32 0, ptr null)
++          i32 0, i32 0, i32 1, i32 0, ptr @name)
+ 
+   ; Get pointer to element [0] of the buffer
+   %ptr = call noundef align 4 dereferenceable(4) ptr addrspace(11)
+diff --git a/llvm/test/CodeGen/SPIRV/pointers/physical-storage-buffer-ptr-access-chain.ll b/llvm/test/CodeGen/SPIRV/pointers/physical-storage-buffer-ptr-access-chain.ll
+new file mode 100644
+index 0000000000..3cb417cc9b
+--- /dev/null
++++ b/llvm/test/CodeGen/SPIRV/pointers/physical-storage-buffer-ptr-access-chain.ll
+@@ -0,0 +1,62 @@
++; In a shader module that asks for buffer device addresses (the module flag
++; `spirv.physical-storage-buffer`), a GEP that offsets a PhysicalStorageBuffer
++; pointer, `p[i]`, is an OpPtrAccessChain on a pointer type decorated with its
++; ArrayStride, never the in-bounds variant (which needs the Addresses
++; capability). A GEP whose first index is a constant zero, a field of the
++; pointee, stays an OpAccessChain without that index.
++
++; RUN: llc -verify-machineinstrs -O0 -mtriple=spirv1.6-unknown-vulkan1.3-compute %s -o - | FileCheck %s --implicit-check-not=OpInBoundsPtrAccessChain --implicit-check-not="OpCapability Addresses"
++; RUN: %if spirv-tools %{ llc -O0 -mtriple=spirv1.6-unknown-vulkan1.3-compute %s -o - -filetype=obj | spirv-val --target-env vulkan1.3 %}
++
++; CHECK-DAG: OpCapability PhysicalStorageBufferAddressesEXT
++; CHECK-DAG: OpDecorate [[pfloat:%[0-9]+]] ArrayStride 4
++; CHECK-DAG: OpDecorate [[ppair:%[0-9]+]] ArrayStride 8
++; CHECK-DAG: [[float:%[0-9]+]] = OpTypeFloat 32
++; CHECK-DAG: [[pair:%[0-9]+]] = OpTypeStruct [[float]] [[float]]
++; CHECK-DAG: [[pfloat]] = OpTypePointer PhysicalStorageBufferEXT [[float]]
++; CHECK-DAG: [[ppair]] = OpTypePointer PhysicalStorageBufferEXT [[pair]]
++; CHECK-DAG: [[int:%[0-9]+]] = OpTypeInt 32 0
++; CHECK-DAG: [[one:%[0-9]+]] = OpConstant [[int]] 1{{$}}
++
++; CHECK: [[base:%[0-9]+]] = OpConvertUToPtr [[pfloat]]
++; CHECK: [[i:%[0-9]+]] = OpSConvert
++; CHECK: OpPtrAccessChain [[pfloat]] [[base]] [[i]]
++; CHECK: OpPtrAccessChain [[pfloat]] [[base]] {{%[0-9]+}}
++; CHECK: [[pairs:%[0-9]+]] = OpConvertUToPtr [[ppair]]
++; CHECK: OpInBoundsAccessChain [[pfloat]] [[pairs]] [[one]]
++
++%args = type { i64, i64 }
++%pair = type { float, float }
++@name = private unnamed_addr constant [5 x i8] c"args\00"
++
++define void @main() #0 {
++entry:
++  %h = call target("spirv.VulkanBuffer", %args, 12, 0) @llvm.spv.resource.handlefrombinding.tspirv.VulkanBuffer_s_argss_12_0t(i32 0, i32 0, i32 1, i32 0, ptr @name)
++  %slot = call ptr addrspace(11) @llvm.spv.resource.getpointer.p11.tspirv.VulkanBuffer_s_argss_12_0t.i32(target("spirv.VulkanBuffer", %args, 12, 0) %h, i32 0)
++  %addr = load i64, ptr addrspace(11) %slot, align 8
++  %base = inttoptr i64 %addr to ptr addrspace(1)
++  call void @llvm.spv.assign.ptr.type.p1(ptr addrspace(1) %base, metadata float poison, i32 1)
++  %i = call i32 @llvm.spv.thread.id.i32(i32 0)
++  %i64 = sext i32 %i to i64
++  %elem = getelementptr inbounds float, ptr addrspace(1) %base, i64 %i64
++  %v = load float, ptr addrspace(1) %elem, align 4
++  %next = getelementptr float, ptr addrspace(1) %base, i64 1
++  store float %v, ptr addrspace(1) %next, align 4
++  %slot2 = call ptr addrspace(11) @llvm.spv.resource.getpointer.p11.tspirv.VulkanBuffer_s_argss_12_0t.i32(target("spirv.VulkanBuffer", %args, 12, 0) %h, i32 1)
++  %addr2 = load i64, ptr addrspace(11) %slot2, align 8
++  %pairs = inttoptr i64 %addr2 to ptr addrspace(1)
++  call void @llvm.spv.assign.ptr.type.p1(ptr addrspace(1) %pairs, metadata %pair poison, i32 1)
++  %second = getelementptr inbounds %pair, ptr addrspace(1) %pairs, i64 0, i32 1
++  store float %v, ptr addrspace(1) %second, align 4
++  ret void
++}
++
++declare target("spirv.VulkanBuffer", %args, 12, 0) @llvm.spv.resource.handlefrombinding.tspirv.VulkanBuffer_s_argss_12_0t(i32, i32, i32, i32, ptr)
++declare ptr addrspace(11) @llvm.spv.resource.getpointer.p11.tspirv.VulkanBuffer_s_argss_12_0t.i32(target("spirv.VulkanBuffer", %args, 12, 0), i32)
++declare i32 @llvm.spv.thread.id.i32(i32)
++declare void @llvm.spv.assign.ptr.type.p1(ptr addrspace(1), metadata, i32 immarg)
++
++attributes #0 = { "hlsl.numthreads"="64,1,1" "hlsl.shader"="compute" }
++
++!llvm.module.flags = !{!0}
++!0 = !{i32 1, !"spirv.physical-storage-buffer", i32 1}
+-- 
+2.51.2
+

@@ -1,4 +1,4 @@
-From 3b94fa3e1d4390f899acacd7b6a359dda6c8d30b Mon Sep 17 00:00:00 2001
+From 303f67119871108d70057acf2f38ebca61bc0490 Mon Sep 17 00:00:00 2001
 From: Petar Kirov <petar.p.kirov@gmail.com>
 Date: Thu, 15 Oct 2026 13:36:41 +0300
 Subject: [PATCH] [SPIRV] Signed integers on request; struct member names for
@@ -18,11 +18,14 @@ with members `_m0`, `_m1`. A module's `spirv.MemberNames` metadata, one node
 per struct (`!{<struct> poison, !"name0", ...}`), emits an `OpMemberName` per
 name.
 ---
- llvm/lib/Target/SPIRV/SPIRVGlobalRegistry.cpp | 55 ++++++++++++++++++-
+ llvm/lib/Target/SPIRV/SPIRVGlobalRegistry.cpp | 55 +++++++++++++++++-
+ .../Target/SPIRV/SPIRVInstructionSelector.cpp | 19 +++++++
  llvm/test/CodeGen/SPIRV/member-names.ll       | 23 ++++++++
+ .../CodeGen/SPIRV/signed-integers-zext.ll     | 57 +++++++++++++++++++
  llvm/test/CodeGen/SPIRV/signed-integers.ll    | 35 ++++++++++++
- 3 files changed, 111 insertions(+), 2 deletions(-)
+ 5 files changed, 187 insertions(+), 2 deletions(-)
  create mode 100644 llvm/test/CodeGen/SPIRV/member-names.ll
+ create mode 100644 llvm/test/CodeGen/SPIRV/signed-integers-zext.ll
  create mode 100644 llvm/test/CodeGen/SPIRV/signed-integers.ll
 
 diff --git a/llvm/lib/Target/SPIRV/SPIRVGlobalRegistry.cpp b/llvm/lib/Target/SPIRV/SPIRVGlobalRegistry.cpp
@@ -126,6 +129,36 @@ index fea1e4474e..b53b672bea 100644
          } else {
            return NewTypeMI;
          }
+diff --git a/llvm/lib/Target/SPIRV/SPIRVInstructionSelector.cpp b/llvm/lib/Target/SPIRV/SPIRVInstructionSelector.cpp
+index f1878ddced..880c5b925f 100644
+--- a/llvm/lib/Target/SPIRV/SPIRVInstructionSelector.cpp
++++ b/llvm/lib/Target/SPIRV/SPIRVInstructionSelector.cpp
+@@ -4812,6 +4812,25 @@ bool SPIRVInstructionSelector::selectExt(Register ResVReg,
+   if (ResType == SrcType)
+     return BuildCOPY(ResVReg, SrcReg, I);
+ 
++  // OpUConvert's result must be unsigned, but a module that asks for signed
++  // integers (`spirv.signed-integers`) has no unsigned type of the result's
++  // width. Sign-extend instead, and clear the bits above the source's width.
++  if (!IsSigned && GR.isScalarOrVectorSigned(ResType)) {
++    Register Extended = MRI->createVirtualRegister(GR.getRegClass(ResType));
++    if (!selectOpWithSrcs(Extended, ResType, I, {SrcReg}, SPIRV::OpSConvert))
++      return false;
++    const APInt Mask =
++        APInt::getLowBitsSet(GR.getScalarOrVectorBitWidth(ResType),
++                             GR.getScalarOrVectorBitWidth(SrcType));
++    const bool IsVector = GR.getScalarOrVectorComponentCount(ResType) > 1;
++    Register MaskReg = IsVector
++                           ? GR.getOrCreateConstVector(Mask, I, ResType, TII)
++                           : GR.getOrCreateConstInt(Mask, I, ResType, TII);
++    return selectOpWithSrcs(
++        ResVReg, ResType, I, {Extended, MaskReg},
++        IsVector ? SPIRV::OpBitwiseAndV : SPIRV::OpBitwiseAndS);
++  }
++
+   unsigned Opcode = IsSigned ? SPIRV::OpSConvert : SPIRV::OpUConvert;
+   return selectUnOp(ResVReg, ResType, I, Opcode);
+ }
 diff --git a/llvm/test/CodeGen/SPIRV/member-names.ll b/llvm/test/CodeGen/SPIRV/member-names.ll
 new file mode 100644
 index 0000000000..19864f7813
@@ -155,6 +188,69 @@ index 0000000000..19864f7813
 +
 +!spirv.MemberNames = !{!0}
 +!0 = !{%Light poison, !"gain", !"colour"}
+diff --git a/llvm/test/CodeGen/SPIRV/signed-integers-zext.ll b/llvm/test/CodeGen/SPIRV/signed-integers-zext.ll
+new file mode 100644
+index 0000000000..afea060122
+--- /dev/null
++++ b/llvm/test/CodeGen/SPIRV/signed-integers-zext.ll
+@@ -0,0 +1,57 @@
++; With `spirv.signed-integers`, a zero-extension into a signed type cannot be
++; an OpUConvert (its result must be unsigned): it sign-extends and clears the
++; bits above the source's width. A sign-extension stays an OpSConvert, and
++; without the flag a zero-extension stays an OpUConvert.
++
++; RUN: llc -verify-machineinstrs -O0 -mtriple=spirv1.6-unknown-vulkan1.3-compute %s -o - | FileCheck %s --implicit-check-not=OpUConvert
++; RUN: %if spirv-tools %{ llc -O0 -mtriple=spirv1.6-unknown-vulkan1.3-compute %s -o - -filetype=obj | spirv-val --target-env spv1.6 %}
++; RUN: sed -e '/spirv.signed-integers/d' -e 's/^!llvm.module.flags.*//' %s | llc -O0 -mtriple=spirv1.6-unknown-vulkan1.3-compute -o - | FileCheck %s --check-prefix=UNSIGNED
++
++; CHECK-DAG: [[int:%[0-9]+]] = OpTypeInt 32 1
++; CHECK-DAG: [[long:%[0-9]+]] = OpTypeInt 64 1
++; CHECK-DAG: [[short:%[0-9]+]] = OpTypeInt 16 0
++; CHECK-DAG: [[v2long:%[0-9]+]] = OpTypeVector [[long]] 2
++; CHECK-DAG: [[low32:%[0-9]+]] = OpConstant [[long]] 4294967295
++; CHECK-DAG: [[low16:%[0-9]+]] = OpConstant [[int]] 65535
++; CHECK-DAG: [[v2low32:%[0-9]+]] = OpConstantComposite [[v2long]] [[low32]] [[low32]]
++
++; CHECK-LABEL: Begin function zext32to64
++; CHECK: [[a:%[0-9]+]] = OpFunctionParameter [[int]]
++; CHECK: [[e:%[0-9]+]] = OpSConvert [[long]] [[a]]
++; CHECK: OpBitwiseAnd [[long]] [[e]] [[low32]]
++define i64 @zext32to64(i32 %a) {
++  %r = zext i32 %a to i64
++  ret i64 %r
++}
++
++; CHECK-LABEL: Begin function zext16to32
++; CHECK: [[b:%[0-9]+]] = OpFunctionParameter [[short]]
++; CHECK: [[f:%[0-9]+]] = OpSConvert [[int]] [[b]]
++; CHECK: OpBitwiseAnd [[int]] [[f]] [[low16]]
++define i32 @zext16to32(i16 %b) {
++  %r = zext i16 %b to i32
++  ret i32 %r
++}
++
++; CHECK-LABEL: Begin function zextvector
++; CHECK: [[g:%[0-9]+]] = OpSConvert [[v2long]]
++; CHECK: OpBitwiseAnd [[v2long]] [[g]] [[v2low32]]
++define <2 x i64> @zextvector(<2 x i32> %c) {
++  %r = zext <2 x i32> %c to <2 x i64>
++  ret <2 x i64> %r
++}
++
++; CHECK-LABEL: Begin function sext32to64
++; CHECK: OpSConvert [[long]]
++; CHECK-NOT: OpBitwiseAnd
++; CHECK: OpReturnValue
++define i64 @sext32to64(i32 %d) {
++  %r = sext i32 %d to i64
++  ret i64 %r
++}
++
++; UNSIGNED-COUNT-3: OpUConvert
++; UNSIGNED-NOT: OpBitwiseAnd
++
++!llvm.module.flags = !{!0}
++!0 = !{i32 1, !"spirv.signed-integers", i32 1}
 diff --git a/llvm/test/CodeGen/SPIRV/signed-integers.ll b/llvm/test/CodeGen/SPIRV/signed-integers.ll
 new file mode 100644
 index 0000000000..b015a17ee7

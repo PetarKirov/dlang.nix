@@ -42,6 +42,18 @@ stdenv.mkDerivation (finalAttrs: {
     # a uniform struct's field otherwise needs `Int64`, which a GLSL ES 1.00
     # cross-compile rejects.
     ./spirv-access-chain-i32-indices.patch
+    # On top of #216919: buffer device addresses only for a module that asks
+    # (`spirv.physical-storage-buffer`), which keeps every upstream test
+    # passing; `p[i]` on one as an OpPtrAccessChain (also when an optimiser
+    # wrote it as a byte offset, which dropped the index), with the ArrayStride
+    # and Aligned Vulkan requires.
+    ./vulkan-physical-storage-buffer-opt-in.patch
+    # A resource's name string is not materialised, so a shader with a named
+    # resource no longer declares Int8.
+    ./spirv-resource-name-no-int8.patch
+    # `llvm.spv.terminate.invocation`: GLSL's `discard` (OpTerminateInvocation),
+    # where `llvm.spv.discard` demotes from SPIR-V 1.6 on.
+    ./spirv-terminate-invocation.patch
   ];
 
   nativeBuildInputs = [
