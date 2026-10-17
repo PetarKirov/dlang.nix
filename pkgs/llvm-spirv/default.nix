@@ -54,6 +54,9 @@ stdenv.mkDerivation (finalAttrs: {
     # `llvm.spv.terminate.invocation`: GLSL's `discard` (OpTerminateInvocation),
     # where `llvm.spv.discard` demotes from SPIR-V 1.6 on.
     ./spirv-terminate-invocation.patch
+    # Nested conditions whose exits meet an enclosing one's (early returns)
+    # get merge blocks of their own instead of escaping their parents.
+    ./spirv-structurizer-nested-shared-exits.patch
   ];
 
   nativeBuildInputs = [
