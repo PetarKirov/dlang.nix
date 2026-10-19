@@ -1,0 +1,536 @@
+From 8b1759f345aaafcc0cbe7dcaa6bb1102b0393565 Mon Sep 17 00:00:00 2001
+From: Petar Kirov <petar.p.kirov@gmail.com>
+Date: Tue, 20 Oct 2026 00:35:28 +0300
+Subject: [PATCH] [SPIRV] Lower a peeled cbuffer array to an array of its
+ element
+
+A cbuffer array whose stride is wider than its element is represented as
+{[N-1 x <{T, spirv.Padding}>], T}. It was lowered to an array of the padded
+struct {T, i8}, which declares an 8-bit member (and with it Int8 and 8-bit
+storage) and gives the array a different type from the T[N] the source
+declared.
+
+Lower it to OpTypeArray T N with the padded element's size as its
+ArrayStride: the padding is the distance between elements, never a member.
+Accesses follow: a GEP over the padded element indexes the array of T
+directly, dropping the index that selected T inside its padding, and a byte
+offset into the peeled array divides by the stride, the last element
+included. The member pointer keeps the peeled type, so the access chain and
+the variable agree on one array type.
+---
+ llvm/lib/Target/SPIRV/SPIRVEmitIntrinsics.cpp | 85 ++++++++++++++++--
+ llvm/lib/Target/SPIRV/SPIRVGlobalRegistry.cpp | 32 ++++---
+ llvm/lib/Target/SPIRV/SPIRVGlobalRegistry.h   |  3 +-
+ llvm/lib/Target/SPIRV/SPIRVUtils.cpp          | 42 +--------
+ llvm/lib/Target/SPIRV/SPIRVUtils.h            | 16 ++--
+ .../cbuffer-peeled-array-minimal.ll           | 10 +--
+ .../hlsl-resources/cbuffer-peeled-array.ll    | 11 +--
+ .../hlsl-resources/explicit-layout-blocks.ll  | 86 +++++++++++++++++++
+ 8 files changed, 204 insertions(+), 81 deletions(-)
+ create mode 100644 llvm/test/CodeGen/SPIRV/hlsl-resources/explicit-layout-blocks.ll
+
+diff --git a/llvm/lib/Target/SPIRV/SPIRVEmitIntrinsics.cpp b/llvm/lib/Target/SPIRV/SPIRVEmitIntrinsics.cpp
+index 9d0027d7d0..3d95da2496 100644
+--- a/llvm/lib/Target/SPIRV/SPIRVEmitIntrinsics.cpp
++++ b/llvm/lib/Target/SPIRV/SPIRVEmitIntrinsics.cpp
+@@ -180,6 +180,29 @@ static std::optional<uint64_t> getByteAddressingMultiplier(Type *Ty) {
+   return std::nullopt;
+ }
+ 
++// An element of a peeled cbuffer array, <{T, spirv.Padding}>, stands for its
++// T: the padding is the distance between elements, which the array's stride
++// carries, and never a member that can be addressed.
++static Type *getUnpaddedElementType(Type *Ty) {
++  auto *ST = dyn_cast<StructType>(Ty);
++  if (!ST || ST->getNumElements() != 2)
++    return nullptr;
++  auto *Pad = dyn_cast<TargetExtType>(ST->getElementType(1));
++  if (!Pad || Pad->getName() != "spirv.Padding")
++    return nullptr;
++  return ST->getElementType(0);
++}
++
++// The padded element <{T, spirv.Padding}> of a peeled array type, or null.
++static Type *getPeeledArrayPaddedElement(Type *Ty) {
++  auto *ST = dyn_cast<StructType>(Ty);
++  Type *T = nullptr, *Padded = nullptr;
++  uint64_t TotalSize = 0;
++  if (!ST || !matchPeeledArrayPattern(ST, T, TotalSize, &Padded))
++    return nullptr;
++  return Padded;
++}
++
+ class SPIRVEmitIntrinsicsImpl
+     : public InstVisitor<SPIRVEmitIntrinsicsImpl, Instruction *> {
+   const SPIRVTargetMachine &TM;
+@@ -813,6 +836,11 @@ bool SPIRVEmitIntrinsicsImpl::walkLogicalAccessChainDynamic(
+   // of the struct if the current type is a struct.
+   // Try to find the first array type that is at offset 0 in the struct.
+   while (auto *ST = dyn_cast<StructType>(CurType)) {
++    if (Type *Padded = getPeeledArrayPaddedElement(ST)) {
++      // The padded element's size is the stride to divide the offset by.
++      OnDynamicIndexing(Padded, Operand, Multiplier);
++      return false;
++    }
+     if (ST->getNumElements() == 0)
+       break;
+     CurType = ST->getElementType(0);
+@@ -841,6 +869,17 @@ bool SPIRVEmitIntrinsicsImpl::walkLogicalAccessChainConstant(
+       Offset = Offset - (Index * EltTypeSize);
+       CurType = AT->getElementType();
+       OnLiteralIndexing(CurType, Index);
++    } else if (Type *Padded = getPeeledArrayPaddedElement(CurType)) {
++      // A peeled array is an array of T whose stride is its padded element.
++      Type *T = getUnpaddedElementType(Padded);
++      uint64_t Stride = DL.getTypeAllocSize(Padded);
++      uint64_t Count =
++          cast<StructType>(CurType)->getElementType(0)->getArrayNumElements() +
++          1;
++      uint64_t Index = std::min(Offset / Stride, Count - 1);
++      Offset -= Index * Stride;
++      CurType = T;
++      OnLiteralIndexing(CurType, Index);
+     } else if (StructType *ST = dyn_cast<StructType>(CurType)) {
+       uint32_t StructSize = DL.getTypeSizeInBits(ST) / 8;
+       assert(Offset < StructSize);
+@@ -1037,12 +1076,23 @@ Type *SPIRVEmitIntrinsicsImpl::getGEPTypeLogical(GetElementPtrInst *GEP) {
+ 
+   bool Interrupted = walkLogicalAccessChain(
+       *GEP, [&CurType](Type *EltType, uint64_t Index) { CurType = EltType; },
+-      [&CurType](Type *EltType, Value *Index, uint64_t) { CurType = EltType; });
++      [&CurType](Type *EltType, Value *Index, uint64_t) {
++        Type *T = getUnpaddedElementType(EltType);
++        CurType = T ? T : EltType;
++      });
+ 
+   return Interrupted ? GEP->getResultElementType() : CurType;
+ }
+ 
+ Type *SPIRVEmitIntrinsicsImpl::getGEPType(GetElementPtrInst *Ref) {
++  if (TM.getSubtargetImpl()->isLogicalSPIRV())
++    if (Type *T = getUnpaddedElementType(Ref->getSourceElementType())) {
++      // The second index selects T inside its padded element.
++      if (Ref->getNumIndices() <= 2)
++        return T;
++      SmallVector<Value *> Rest(drop_begin(Ref->indices(), 2));
++      return GetElementPtrInst::getIndexedType(T, Rest);
++    }
+   if (getByteAddressingMultiplier(Ref->getSourceElementType()) &&
+       TM.getSubtargetImpl()->isLogicalSPIRV()) {
+     if (TM.getSubtargetImpl()->usesPhysicalStorageBuffer() &&
+@@ -1214,7 +1264,6 @@ Type *SPIRVEmitIntrinsicsImpl::deduceElementTypeHelper(
+             Ty = cast<StructType>(Ty)->getElementType(Index);
+           }
+         }
+-        Ty = reconstitutePeeledArrayType(Ty);
+       } else {
+         llvm_unreachable("Unknown handle type for spv_resource_getpointer.");
+       }
+@@ -2203,6 +2252,17 @@ SPIRVEmitIntrinsicsImpl::visitGetElementPtrInst(GetElementPtrInst &I) {
+     return NewI;
+   }
+ 
++  // Into a peeled array, the padded element is its T, so the index that
++  // selects T inside it is dropped.
++  Type *SrcElemTy = I.getSourceElementType();
++  SmallVector<Value *> GEPIndices(I.indices());
++  if (TM.getSubtargetImpl()->isLogicalSPIRV())
++    if (Type *T = getUnpaddedElementType(SrcElemTy)) {
++      SrcElemTy = T;
++      if (GEPIndices.size() > 1)
++        GEPIndices.erase(GEPIndices.begin() + 1);
++    }
++
+   if (TM.getSubtargetImpl()->isLogicalSPIRV() && !isFirstIndexZero(&I)) {
+     // Logical SPIR-V cannot use the OpPtrAccessChain instruction. If the first
+     // index of the GEP is not 0, then we need to try to adjust it.
+@@ -2220,15 +2280,22 @@ SPIRVEmitIntrinsicsImpl::visitGetElementPtrInst(GetElementPtrInst &I) {
+     // Look for the array-to-pointer decay. If this is the pattern
+     // we can adjust the types, and prepend a 0 to the indices.
+     Value *PtrOp = I.getPointerOperand();
+-    Type *SrcElemTy = I.getSourceElementType();
+     Type *DeducedPointeeTy = deduceElementType(PtrOp, true);
+ 
+-    if (auto *ArrTy = dyn_cast<ArrayType>(DeducedPointeeTy)) {
+-      if (ArrTy->getElementType() == SrcElemTy) {
++    Type *DecayedElemTy = nullptr;
++    if (auto *ArrTy = dyn_cast<ArrayType>(DeducedPointeeTy))
++      DecayedElemTy = ArrTy->getElementType();
++    else if (auto *PeeledTy = dyn_cast<StructType>(DeducedPointeeTy)) {
++      uint64_t TotalSize = 0;
++      if (!matchPeeledArrayPattern(PeeledTy, DecayedElemTy, TotalSize))
++        DecayedElemTy = nullptr;
++    }
++    if (DecayedElemTy) {
++      if (DecayedElemTy == SrcElemTy) {
+         SmallVector<Value *> NewIndices;
+         Type *FirstIdxType = I.getOperand(1)->getType();
+         NewIndices.push_back(ConstantInt::get(FirstIdxType, 0));
+-        for (Value *Idx : I.indices())
++        for (Value *Idx : GEPIndices)
+           NewIndices.push_back(Idx);
+ 
+         SmallVector<Type *, 2> Types = {I.getType(), I.getPointerOperandType()};
+@@ -2248,7 +2315,8 @@ SPIRVEmitIntrinsicsImpl::visitGetElementPtrInst(GetElementPtrInst &I) {
+   SmallVector<Type *, 2> Types = {I.getType(), I.getOperand(0)->getType()};
+   SmallVector<Value *, 4> Args;
+   Args.push_back(B.getInt1(I.isInBounds()));
+-  llvm::append_range(Args, I.operands());
++  Args.push_back(I.getPointerOperand());
++  llvm::append_range(Args, GEPIndices);
+   Instruction *NewI =
+       B.CreateIntrinsicWithoutFolding(Intrinsic::spv_gep, {Types}, {Args});
+   replaceAllUsesWithAndErase(B, &I, NewI);
+@@ -2466,6 +2534,9 @@ void SPIRVEmitIntrinsicsImpl::insertPtrCastOrAssignTypeInstr(Instruction *I,
+     // In all cases, fall back to the GEP type if type scavenging failed.
+     if (!OpTy)
+       OpTy = GEPI->getSourceElementType();
++    if (TM.getSubtargetImpl()->isLogicalSPIRV())
++      if (Type *T = getUnpaddedElementType(OpTy))
++        OpTy = T;
+ 
+     replacePointerOperandWithPtrCast(I, Pointer, OpTy, 0, B);
+     if (isNestedPointer(OpTy))
+diff --git a/llvm/lib/Target/SPIRV/SPIRVGlobalRegistry.cpp b/llvm/lib/Target/SPIRV/SPIRVGlobalRegistry.cpp
+index 3cbbf17982..7acf2a0eb8 100644
+--- a/llvm/lib/Target/SPIRV/SPIRVGlobalRegistry.cpp
++++ b/llvm/lib/Target/SPIRV/SPIRVGlobalRegistry.cpp
+@@ -991,11 +991,9 @@ Register SPIRVGlobalRegistry::getOrCreateGlobalVariableWithBinding(
+ 
+ // TODO: Double check the calls to getOpTypeArray to make sure that `ElemType`
+ // is explicitly laid out when required.
+-SPIRVTypeInst SPIRVGlobalRegistry::getOpTypeArray(uint32_t NumElems,
+-                                                  SPIRVTypeInst ElemType,
+-                                                  MachineIRBuilder &MIRBuilder,
+-                                                  bool ExplicitLayoutRequired,
+-                                                  bool EmitIR) {
++SPIRVTypeInst SPIRVGlobalRegistry::getOpTypeArray(
++    uint32_t NumElems, SPIRVTypeInst ElemType, MachineIRBuilder &MIRBuilder,
++    bool ExplicitLayoutRequired, bool EmitIR, std::optional<uint32_t> Stride) {
+   assert((ElemType->getOpcode() != SPIRV::OpTypeVoid) &&
+          "Invalid array element type");
+   SPIRVTypeInst SpvTypeInt32 = getOrCreateSPIRVIntegerType(32, MIRBuilder);
+@@ -1041,9 +1039,14 @@ SPIRVTypeInst SPIRVGlobalRegistry::getOpTypeArray(uint32_t NumElems,
+   }
+ 
+   if (ExplicitLayoutRequired && !isResourceType(ElemType)) {
+-    Type *ET = const_cast<Type *>(getTypeForSPIRVType(ElemType));
+-    addArrayStrideDecorations(ArrayType->defs().begin()->getReg(), ET,
+-                              MIRBuilder);
++    if (Stride) {
++      buildOpDecorate(ArrayType->defs().begin()->getReg(), MIRBuilder,
++                      SPIRV::Decoration::ArrayStride, {*Stride});
++    } else {
++      Type *ET = const_cast<Type *>(getTypeForSPIRVType(ElemType));
++      addArrayStrideDecorations(ArrayType->defs().begin()->getReg(), ET,
++                                MIRBuilder);
++    }
+   }
+ 
+   return ArrayType;
+@@ -1099,14 +1102,19 @@ SPIRVTypeInst SPIRVGlobalRegistry::getOpTypeStruct(
+     SPIRV::AccessQualifier::AccessQualifier AccQual,
+     StructOffsetDecorator Decorator, bool EmitIR) {
+   Type *OriginalElementType = nullptr;
++  Type *PaddedElementType = nullptr;
+   uint64_t TotalSize = 0;
+-  if (matchPeeledArrayPattern(Ty, OriginalElementType, TotalSize)) {
++  if (matchPeeledArrayPattern(Ty, OriginalElementType, TotalSize,
++                              &PaddedElementType)) {
++    // The array's elements are the original type; the padding is only the
++    // distance between them, so it becomes the stride, never a member.
+     SPIRVTypeInst ElementSPIRVType = findSPIRVType(
+         OriginalElementType, MIRBuilder, AccQual,
+         /* ExplicitLayoutRequired= */ Decorator != nullptr, EmitIR);
+-    return getOpTypeArray(TotalSize, ElementSPIRVType, MIRBuilder,
+-                          /*ExplicitLayoutRequired=*/Decorator != nullptr,
+-                          EmitIR);
++    return getOpTypeArray(
++        TotalSize, ElementSPIRVType, MIRBuilder,
++        /*ExplicitLayoutRequired=*/Decorator != nullptr, EmitIR,
++        static_cast<uint32_t>(DL.getTypeAllocSize(PaddedElementType)));
+   }
+ 
+   const SPIRVSubtarget &ST =
+diff --git a/llvm/lib/Target/SPIRV/SPIRVGlobalRegistry.h b/llvm/lib/Target/SPIRV/SPIRVGlobalRegistry.h
+index 3d615deac5..e27d778438 100644
+--- a/llvm/lib/Target/SPIRV/SPIRVGlobalRegistry.h
++++ b/llvm/lib/Target/SPIRV/SPIRVGlobalRegistry.h
+@@ -489,7 +489,8 @@ private:
+ 
+   SPIRVTypeInst getOpTypeArray(uint32_t NumElems, SPIRVTypeInst ElemType,
+                                MachineIRBuilder &MIRBuilder,
+-                               bool ExplicitLayoutRequired, bool EmitIR);
++                               bool ExplicitLayoutRequired, bool EmitIR,
++                               std::optional<uint32_t> Stride = std::nullopt);
+ 
+   SPIRVTypeInst getOpTypeOpaque(const StructType *Ty,
+                                 MachineIRBuilder &MIRBuilder);
+diff --git a/llvm/lib/Target/SPIRV/SPIRVUtils.cpp b/llvm/lib/Target/SPIRV/SPIRVUtils.cpp
+index a710ddacb6..735b647a32 100644
+--- a/llvm/lib/Target/SPIRV/SPIRVUtils.cpp
++++ b/llvm/lib/Target/SPIRV/SPIRVUtils.cpp
+@@ -1200,7 +1200,7 @@ unsigned getArrayComponentCount(const MachineRegisterInfo *MRI,
+ }
+ 
+ bool matchPeeledArrayPattern(const StructType *Ty, Type *&OriginalElementType,
+-                             uint64_t &TotalSize) {
++                             uint64_t &TotalSize, Type **PaddedElementType) {
+   // An array of N padded structs is represented as {[N-1 x <{T, pad}>], T}.
+   if (Ty->getStructNumElements() != 2)
+     return false;
+@@ -1227,46 +1227,12 @@ bool matchPeeledArrayPattern(const StructType *Ty, Type *&OriginalElementType,
+ 
+   const uint64_t ArraySize = FirstElement->getArrayNumElements();
+   TotalSize = ArraySize + 1;
+-  OriginalElementType = ArrayElementType;
++  OriginalElementType = T_in_struct;
++  if (PaddedElementType)
++    *PaddedElementType = ArrayElementType;
+   return true;
+ }
+ 
+-Type *reconstitutePeeledArrayType(Type *Ty) {
+-  if (!Ty->isStructTy())
+-    return Ty;
+-
+-  auto *STy = cast<StructType>(Ty);
+-  Type *OriginalElementType = nullptr;
+-  uint64_t TotalSize = 0;
+-  if (matchPeeledArrayPattern(STy, OriginalElementType, TotalSize)) {
+-    Type *ResultTy = ArrayType::get(
+-        reconstitutePeeledArrayType(OriginalElementType), TotalSize);
+-    return ResultTy;
+-  }
+-
+-  SmallVector<Type *, 4> NewElementTypes;
+-  bool Changed = false;
+-  for (Type *ElementTy : STy->elements()) {
+-    Type *NewElementTy = reconstitutePeeledArrayType(ElementTy);
+-    if (NewElementTy != ElementTy)
+-      Changed = true;
+-    NewElementTypes.push_back(NewElementTy);
+-  }
+-
+-  if (!Changed)
+-    return Ty;
+-
+-  Type *ResultTy;
+-  if (STy->isLiteral()) {
+-    ResultTy =
+-        StructType::get(STy->getContext(), NewElementTypes, STy->isPacked());
+-  } else {
+-    ResultTy = StructType::create(STy->getContext(), NewElementTypes,
+-                                  STy->getName(), STy->isPacked());
+-  }
+-  return ResultTy;
+-}
+-
+ std::optional<SPIRV::LinkageType::LinkageType>
+ getSpirvLinkageTypeFor(const SPIRVSubtarget &ST, const GlobalValue &GV) {
+   if (GV.hasLocalLinkage())
+diff --git a/llvm/lib/Target/SPIRV/SPIRVUtils.h b/llvm/lib/Target/SPIRV/SPIRVUtils.h
+index cf0a022d14..72b07e2669 100644
+--- a/llvm/lib/Target/SPIRV/SPIRVUtils.h
++++ b/llvm/lib/Target/SPIRV/SPIRVUtils.h
+@@ -347,20 +347,16 @@ Value *
+ createExitVariable(BasicBlock *BB,
+                    const DenseMap<BasicBlock *, ConstantInt *> &TargetToValue);
+ 
+-// Check for peeled array structs and recursively reconstitute them. In HLSL
++// Check for peeled array structs, which lower to arrays of T. In HLSL
+ // CBuffers, arrays may have padding between the elements, but not after the
+ // last element. To represent this in LLVM IR an array [N x T] will be
+ // represented as {[N-1 x {T, spirv.Padding}], T}. The function
+-// matchPeeledArrayPattern recognizes this pattern retrieving the type {T,
+-// spirv.Padding}, and the size N.
++// matchPeeledArrayPattern recognizes this pattern retrieving the type T, the
++// size N and, on request, the padded type {T, spirv.Padding}, whose size is
++// the array's stride.
+ bool matchPeeledArrayPattern(const StructType *Ty, Type *&OriginalElementType,
+-                             uint64_t &TotalSize);
+-
+-// This function will turn the type {[N-1 x {T, spirv.Padding}], T} back into
+-// [N x {T, spirv.Padding}]. So it can be translated into SPIR-V. The offset
+-// decorations will be such that there will be no padding after the array when
+-// relevant.
+-Type *reconstitutePeeledArrayType(Type *Ty);
++                             uint64_t &TotalSize,
++                             Type **PaddedElementType = nullptr);
+ 
+ inline bool hasInitializer(const GlobalVariable *GV) {
+   if (!GV->hasInitializer())
+diff --git a/llvm/test/CodeGen/SPIRV/hlsl-resources/cbuffer-peeled-array-minimal.ll b/llvm/test/CodeGen/SPIRV/hlsl-resources/cbuffer-peeled-array-minimal.ll
+index 1e9b186a8f..96c6ede3ec 100644
+--- a/llvm/test/CodeGen/SPIRV/hlsl-resources/cbuffer-peeled-array-minimal.ll
++++ b/llvm/test/CodeGen/SPIRV/hlsl-resources/cbuffer-peeled-array-minimal.ll
+@@ -1,4 +1,5 @@
+ ; RUN: llc -O0 -mtriple=spirv-unknown-vulkan-compute %s -o - | FileCheck %s
++; RUN: llc -O0 -mtriple=spirv-unknown-vulkan-compute %s -o - | FileCheck %s --check-prefix=NO-PAD
+ ; RUN: %if spirv-tools %{ llc -O0 -mtriple=spirv-unknown-vulkan-compute %s -o - -filetype=obj | spirv-val %}
+ 
+ ; CHECK-DAG: OpDecorate %[[ARRAY:[0-9]+]] ArrayStride 16
+@@ -7,16 +8,13 @@
+ ; CHECK-DAG: OpMemberDecorate %[[WRAPPER:[0-9]+]] 0 Offset 0
+ ; CHECK-DAG: OpDecorate %[[WRAPPER]] Block
+ ; CHECK-DAG: OpMemberDecorate %[[STRUCT:[0-9]+]] 0 Offset 0
+-; CHECK-DAG: OpMemberDecorate %[[STRUCT_PAD:[0-9]+]] 0 Offset 0
+-; CHECK-DAG: OpMemberDecorate %[[STRUCT_PAD]] 1 Offset 4
+ 
+ ; CHECK-DAG: %[[FLOAT:[0-9]+]] = OpTypeFloat 32
+ ; CHECK-DAG: %[[STRUCT]] = OpTypeStruct %[[FLOAT]]
+-; CHECK-DAG: %[[I8:[0-9]+]] = OpTypeInt 8 0
+-; CHECK-DAG: %[[STRUCT_PAD]] = OpTypeStruct %[[STRUCT]] %[[I8]]
++; NO-PAD-NOT: OpTypeInt 8
+ ; CHECK-DAG: %[[UINT:[0-9]+]] = OpTypeInt 32 0
+ ; CHECK-DAG: %[[CONST_4:[0-9]+]] = OpConstant %[[UINT]] 4
+-; CHECK-DAG: %[[ARRAY]] = OpTypeArray %[[STRUCT_PAD]] %[[CONST_4]]
++; CHECK-DAG: %[[ARRAY]] = OpTypeArray %[[STRUCT]] %[[CONST_4]]
+ ; CHECK-DAG: %[[CBLAYOUT]] = OpTypeStruct %[[ARRAY]] %[[FLOAT]]
+ ; CHECK-DAG: %[[WRAPPER]] = OpTypeStruct %[[CBLAYOUT]]
+ ; CHECK-DAG: %[[PTR_WRAPPER:[0-9]+]] = OpTypePointer Uniform %[[WRAPPER]]
+@@ -62,7 +60,7 @@ entry:
+ ; CHECK: %[[PTR_ELEM:[0-9]+]] = OpAccessChain {{%[0-9]+}} %[[ACCESS_ARRAY]] %[[IDX_CONV]]
+   %cbufferidx.i = getelementptr <{ %OrigType, target("spirv.Padding", 12) }>, ptr addrspace(12) @myArray, i64 %idxprom.i
+ 
+-; CHECK: %[[PTR_FIELD:[0-9]+]] = OpAccessChain {{%[0-9]+}} %[[PTR_ELEM]] %[[ZERO]] %[[ZERO]]
++; CHECK: %[[PTR_FIELD:[0-9]+]] = OpAccessChain {{%[0-9]+}} %[[PTR_ELEM]] %[[ZERO]]
+ ; CHECK: %[[VAL_FLOAT:[0-9]+]] = OpLoad %[[FLOAT]] %[[PTR_FIELD]]
+   %2 = load float, ptr addrspace(12) %cbufferidx.i, align 4
+ 
+diff --git a/llvm/test/CodeGen/SPIRV/hlsl-resources/cbuffer-peeled-array.ll b/llvm/test/CodeGen/SPIRV/hlsl-resources/cbuffer-peeled-array.ll
+index 49b539c506..0579fa0939 100644
+--- a/llvm/test/CodeGen/SPIRV/hlsl-resources/cbuffer-peeled-array.ll
++++ b/llvm/test/CodeGen/SPIRV/hlsl-resources/cbuffer-peeled-array.ll
+@@ -1,14 +1,14 @@
+ ; RUN: llc -O0 -mtriple=spirv-unknown-vulkan-compute %s -o - | FileCheck %s
++; RUN: llc -O0 -mtriple=spirv-unknown-vulkan-compute %s -o - | FileCheck %s --check-prefix=NO-PAD
+ ; RUN: %if spirv-tools %{ llc -O0 -mtriple=spirv-unknown-vulkan-compute %s -o - -filetype=obj | spirv-val %}
+ 
+ 
+ ; CHECK-DAG: %[[FLOAT:[0-9]+]] = OpTypeFloat 32
+ ; CHECK-DAG: %[[VEC3:[0-9]+]] = OpTypeVector %[[FLOAT]] 3
+-; CHECK-DAG: %[[I8:[0-9]+]] = OpTypeInt 8 0
+-; CHECK-DAG: %[[STRUCT_PAD:[0-9]+]] = OpTypeStruct %[[VEC3]] %[[I8]]
++; NO-PAD-NOT: OpTypeInt 8
+ ; CHECK-DAG: %[[UINT:[0-9]+]] = OpTypeInt 32 0
+ ; CHECK-DAG: %[[CONST_3:[0-9]+]] = OpConstant %[[UINT]] 3
+-; CHECK-DAG: %[[ARRAY:[0-9]+]] = OpTypeArray %[[STRUCT_PAD]] %[[CONST_3]]
++; CHECK-DAG: %[[ARRAY:[0-9]+]] = OpTypeArray %[[VEC3]] %[[CONST_3]]
+ ; CHECK-DAG: %[[CBLAYOUT:[0-9]+]] = OpTypeStruct %[[ARRAY]]
+ ; CHECK-DAG: OpMemberDecorate %[[CBLAYOUT]] 0 Offset 0
+ ; CHECK-DAG: %[[WRAPPER:[0-9]+]] = OpTypeStruct %[[CBLAYOUT]]
+@@ -18,8 +18,6 @@
+ 
+ 
+ ; CHECK-DAG: OpDecorate %[[ARRAY]] ArrayStride 16
+-; CHECK-DAG: OpMemberDecorate %[[STRUCT_PAD]] 0 Offset 0
+-; CHECK-DAG: OpMemberDecorate %[[STRUCT_PAD]] 1 Offset 12
+ ; CHECK-DAG: OpMemberDecorate %[[WRAPPER]] 0 Offset 0
+ ; CHECK-DAG: OpDecorate %[[WRAPPER]] Block
+ %__cblayout_MyCBuffer = type <{ <{ [2 x <{ <3 x float>, target("spirv.Padding", 4) }>], <3 x float> }> }>
+@@ -50,8 +48,7 @@ entry:
+ ; CHECK: %[[PTR_ELEM:[0-9]+]] = OpAccessChain {{%[0-9]+}} %[[ACCESS_ARRAY]] %[[IDX_CONV]]
+   %cbufferidx.i = getelementptr <{ <3 x float>, target("spirv.Padding", 4) }>, ptr addrspace(12) @myArray, i64 %idxprom.i
+ 
+-; CHECK: %[[PTR_FIELD:[0-9]+]] = OpAccessChain {{%[0-9]+}} %[[PTR_ELEM]] {{.*}}
+-; CHECK: %[[VAL_VEC3:[0-9]+]] = OpLoad %[[VEC3]] %[[PTR_FIELD]]
++; CHECK: %[[VAL_VEC3:[0-9]+]] = OpLoad %[[VEC3]] %[[PTR_ELEM]]
+   %2 = load <3 x float>, ptr addrspace(12) %cbufferidx.i, align 16
+ 
+   %3 = tail call noundef align 16 dereferenceable(16) ptr addrspace(11) @llvm.spv.resource.getpointer.p11.tspirv.VulkanBuffer_a0v3f32_12_1t(target("spirv.VulkanBuffer", [0 x <3 x float>], 12, 1) %0, i32 %1)
+diff --git a/llvm/test/CodeGen/SPIRV/hlsl-resources/explicit-layout-blocks.ll b/llvm/test/CodeGen/SPIRV/hlsl-resources/explicit-layout-blocks.ll
+new file mode 100644
+index 0000000000..7445fc60ba
+--- /dev/null
++++ b/llvm/test/CodeGen/SPIRV/hlsl-resources/explicit-layout-blocks.ll
+@@ -0,0 +1,86 @@
++; RUN: llc -O0 -verify-machineinstrs -mtriple=spirv1.6-unknown-vulkan1.3-library %s -o - | FileCheck %s
++; RUN: llc -O0 -mtriple=spirv1.6-unknown-vulkan1.3-library %s -o - | FileCheck %s --check-prefix=NO-PAD
++; RUN: %if spirv-tools %{ llc -O0 -mtriple=spirv1.6-unknown-vulkan1.3-library %s -o - -filetype=obj | spirv-val --target-env vulkan1.3 %}
++
++; A frontend that lays out its own blocks (std140 for uniform blocks, std430
++; for push constants) states each member's offset with spirv.Layout, and an
++; array whose stride is wider than its element as a peeled array. Neither
++; adds a member to the block, and no padding type reaches the module.
++
++; NO-PAD-NOT: OpTypeInt 8
++
++; Uniform block, std140: { float3 a; float b; float c[4]; float4 d; }
++; CHECK-DAG: OpMemberDecorate %[[U:[0-9]+]] 3 Offset 80
++; CHECK-DAG: OpMemberDecorate %[[U]] 0 Offset 0
++; CHECK-DAG: OpMemberDecorate %[[U]] 1 Offset 12
++; CHECK-DAG: OpMemberDecorate %[[U]] 2 Offset 16
++; CHECK-DAG: OpDecorate %[[ARR:[0-9]+]] ArrayStride 16
++; CHECK-DAG: %[[FLOAT:[0-9]+]] = OpTypeFloat 32
++; CHECK-DAG: %[[UINT:[0-9]+]] = OpTypeInt 32 0
++; CHECK-DAG: %[[FOUR:[0-9]+]] = OpConstant %[[UINT]] 4
++; CHECK-DAG: %[[ARR]] = OpTypeArray %[[FLOAT]] %[[FOUR]]
++; CHECK-DAG: %[[U]] = OpTypeStruct %{{[0-9]+}} %[[FLOAT]] %[[ARR]] %{{[0-9]+}}
++%U = type { <3 x float>, float, <{ [3 x <{ float, target("spirv.Padding", 12) }>], float }>, <4 x float> }
++
++; Push constants, std430: { float3 a; float b; float2 c; }
++; CHECK-DAG: %[[PC:[0-9]+]] = OpVariable %[[PTR_PC:[0-9]+]] PushConstant
++; CHECK-DAG: %[[PTR_PC]] = OpTypePointer PushConstant %[[P:[0-9]+]]
++; CHECK-DAG: OpMemberDecorate %[[P]] 0 Offset 0
++; CHECK-DAG: OpMemberDecorate %[[P]] 1 Offset 12
++; CHECK-DAG: OpMemberDecorate %[[P]] 2 Offset 16
++; CHECK-DAG: OpDecorate %[[P]] Block
++%P = type { <3 x float>, float, <2 x float> }
++@pc = external hidden addrspace(13) externally_initialized global target("spirv.Layout", %P, 24, 0, 12, 16), align 4
++
++@.str.u = private unnamed_addr constant [2 x i8] c"U\00", align 1
++@.str.o = private unnamed_addr constant [4 x i8] c"Out\00", align 1
++
++define void @main() #0 {
++entry:
++  %u = tail call target("spirv.VulkanBuffer", target("spirv.Layout", %U, 96, 0, 12, 16, 80), 2, 0) @llvm.spv.resource.handlefrombinding.U(i32 0, i32 1, i32 1, i32 0, ptr nonnull @.str.u)
++  %o = tail call target("spirv.VulkanBuffer", [0 x float], 12, 1) @llvm.spv.resource.handlefrombinding.O(i32 0, i32 2, i32 1, i32 0, ptr nonnull @.str.o)
++  %i = tail call i32 @llvm.spv.thread.id.i32(i32 0)
++  %idx = and i32 %i, 3
++
++; A member by its index.
++; CHECK: %[[PB:[0-9]+]] = OpAccessChain %{{[0-9]+}} %{{[0-9]+}} %{{[0-9]+}} %{{[0-9]+}}
++; CHECK: OpLoad %[[FLOAT]] %[[PB]]
++  %pb = tail call ptr addrspace(12) @llvm.spv.resource.getpointer.p12.U(target("spirv.VulkanBuffer", target("spirv.Layout", %U, 96, 0, 12, 16, 80), 2, 0) %u, i32 1)
++  %b = load float, ptr addrspace(12) %pb
++
++; An element of the strided array, by a dynamic index: one access chain step,
++; straight to the float.
++; CHECK: %[[PARR:[0-9]+]] = OpAccessChain %{{[0-9]+}} %{{[0-9]+}} %{{[0-9]+}} %{{[0-9]+}}
++; CHECK: %[[PELT:[0-9]+]] = OpAccessChain %{{[0-9]+}} %[[PARR]] %{{[0-9]+}}
++; CHECK: OpLoad %[[FLOAT]] %[[PELT]]
++  %pc_arr = tail call ptr addrspace(12) @llvm.spv.resource.getpointer.p12.U(target("spirv.VulkanBuffer", target("spirv.Layout", %U, 96, 0, 12, 16, 80), 2, 0) %u, i32 2)
++  %pe = getelementptr <{ float, target("spirv.Padding", 12) }>, ptr addrspace(12) %pc_arr, i32 %idx
++  %e = load float, ptr addrspace(12) %pe
++
++; The same array by a constant byte offset: element 2.
++; CHECK: %[[PE2:[0-9]+]] = OpAccessChain %{{[0-9]+}} %[[PARR]] %{{[0-9]+}}
++; CHECK: OpLoad %[[FLOAT]] %[[PE2]]
++  %pe2 = getelementptr i8, ptr addrspace(12) %pc_arr, i32 32
++  %e2 = load float, ptr addrspace(12) %pe2
++
++; The last element, outside the peeled part, by a constant byte offset.
++  %pe3 = getelementptr i8, ptr addrspace(12) %pc_arr, i32 48
++  %e3 = load float, ptr addrspace(12) %pe3
++
++; A push-constant member.
++; CHECK: Op{{(InBounds)?}}AccessChain %{{[0-9]+}} %[[PC]] %{{[0-9]+}}
++  %ppb = getelementptr inbounds %P, ptr addrspace(13) @pc, i32 0, i32 1
++  %pcb = load float, ptr addrspace(13) %ppb
++
++  %s0 = fadd float %b, %e
++  %s1 = fadd float %s0, %e2
++  %s2 = fadd float %s1, %e3
++  %s3 = fadd float %s2, %pcb
++  %po = tail call ptr addrspace(11) @llvm.spv.resource.getpointer.p11.O(target("spirv.VulkanBuffer", [0 x float], 12, 1) %o, i32 0)
++  store float %s3, ptr addrspace(11) %po
++  ret void
++}
++
++declare i32 @llvm.spv.thread.id.i32(i32)
++
++attributes #0 = { "hlsl.numthreads"="1,1,1" "hlsl.shader"="compute" }
+-- 
+2.51.2
+

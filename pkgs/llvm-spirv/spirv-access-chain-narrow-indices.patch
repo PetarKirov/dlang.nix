@@ -1,0 +1,219 @@
+From 5e0ff36e4cccc5d46c96922eb001f49ec83ed827 Mon Sep 17 00:00:00 2001
+From: Petar Kirov <petar.p.kirov@gmail.com>
+Date: Tue, 20 Oct 2026 00:40:16 +0300
+Subject: [PATCH] [SPIRV] Index logical access chains with the 32-bit index a
+ frontend widened
+
+A frontend whose index type is 64-bit (D's size_t) sign- or zero-extends a
+32-bit index before addressing. The access chain then took the 64-bit value,
+and the extension became an OpSConvert/OpUConvert to a 64-bit type, which
+brings the Int64 capability into a module that computes nothing in 64 bits;
+Vulkan grants it only with the shaderInt64 feature.
+
+A logical access chain indexes fewer than 2^31 elements, so use the index
+from before the extension, and a constant one at 32 bits. A buffer device
+address may step further, so a PhysicalStorageBuffer GEP keeps its index.
+---
+ llvm/lib/Target/SPIRV/SPIRVEmitIntrinsics.cpp | 34 ++++++++++-
+ .../SPIRV/hlsl-resources/cbuffer-array.ll     |  4 +-
+ .../cbuffer-peeled-array-minimal.ll           |  3 +-
+ .../hlsl-resources/cbuffer-peeled-array.ll    |  3 +-
+ .../logical-access-chain-narrow-index.ll      | 59 +++++++++++++++++++
+ 5 files changed, 93 insertions(+), 10 deletions(-)
+ create mode 100644 llvm/test/CodeGen/SPIRV/logical-access-chain-narrow-index.ll
+
+diff --git a/llvm/lib/Target/SPIRV/SPIRVEmitIntrinsics.cpp b/llvm/lib/Target/SPIRV/SPIRVEmitIntrinsics.cpp
+index 3d95da2496..c49c4f7781 100644
+--- a/llvm/lib/Target/SPIRV/SPIRVEmitIntrinsics.cpp
++++ b/llvm/lib/Target/SPIRV/SPIRVEmitIntrinsics.cpp
+@@ -193,6 +193,24 @@ static Type *getUnpaddedElementType(Type *Ty) {
+   return ST->getElementType(0);
+ }
+ 
++// A logical access chain indexes fewer than 2^31 elements, so an index that a
++// frontend widened from 32 bits (D's size_t, a C long) is used from before
++// the widening. Its wide type would otherwise bring a 64-bit integer, and the
++// Int64 capability, into a module that computes nothing in 64 bits. A buffer
++// device address is not logical: its pointer may step further, so it keeps
++// the index it was given.
++static Value *narrowLogicalIndex(Value *Idx) {
++  if (auto *C = dyn_cast<ConstantInt>(Idx))
++    return C->getBitWidth() > 32 && C->getValue().isSignedIntN(32)
++               ? ConstantInt::get(Type::getInt32Ty(C->getContext()),
++                                  C->getSExtValue())
++               : Idx;
++  if (!isa<SExtInst>(Idx) && !isa<ZExtInst>(Idx))
++    return Idx;
++  Value *Src = cast<CastInst>(Idx)->getOperand(0);
++  return Src->getType()->isIntegerTy(32) ? Src : Idx;
++}
++
+ // The padded element <{T, spirv.Padding}> of a peeled array type, or null.
+ static Type *getPeeledArrayPaddedElement(Type *Ty) {
+   auto *ST = dyn_cast<StructType>(Ty);
+@@ -403,6 +421,10 @@ class SPIRVEmitIntrinsicsImpl
+   Type *getGEPTypeLogical(GetElementPtrInst *GEP);
+ 
+   Instruction *buildLogicalAccessChainFromGEP(GetElementPtrInst &GEP);
++  bool isPhysicalPointerGEP(const GetElementPtrInst &GEP) const {
++    return TM.getSubtargetImpl()->usesPhysicalStorageBuffer() &&
++           GEP.getPointerAddressSpace() == 1;
++  }
+   // A byte-addressing GEP on a buffer device address, rewritten over the
+   // pointee type; null if its offset is not one the rewrite can express.
+   Instruction *buildPhysicalPointerGEP(GetElementPtrInst &GEP);
+@@ -951,8 +973,10 @@ Instruction *SPIRVEmitIntrinsicsImpl::buildLogicalAccessChainFromGEP(
+         Indices.push_back(
+             ConstantInt::get(B.getInt32Ty(), Index, /* Signed= */ false));
+       },
+-      [&Indices, &B, &DL, this](Type *EltType, Value *Offset,
+-                                uint64_t Multiplier) {
++      [&Indices, &B, &DL, &GEP, this](Type *EltType, Value *Offset,
++                                      uint64_t Multiplier) {
++        if (!isPhysicalPointerGEP(GEP))
++          Offset = narrowLogicalIndex(Offset);
+         Value *Index = nullptr;
+         uint32_t EltTypeSize = DL.getTypeSizeInBits(EltType) / 8;
+         assert(Multiplier != 0);
+@@ -2256,12 +2280,16 @@ SPIRVEmitIntrinsicsImpl::visitGetElementPtrInst(GetElementPtrInst &I) {
+   // selects T inside it is dropped.
+   Type *SrcElemTy = I.getSourceElementType();
+   SmallVector<Value *> GEPIndices(I.indices());
+-  if (TM.getSubtargetImpl()->isLogicalSPIRV())
++  if (TM.getSubtargetImpl()->isLogicalSPIRV()) {
+     if (Type *T = getUnpaddedElementType(SrcElemTy)) {
+       SrcElemTy = T;
+       if (GEPIndices.size() > 1)
+         GEPIndices.erase(GEPIndices.begin() + 1);
+     }
++    if (!isPhysicalPointerGEP(I))
++      for (Value *&Idx : GEPIndices)
++        Idx = narrowLogicalIndex(Idx);
++  }
+ 
+   if (TM.getSubtargetImpl()->isLogicalSPIRV() && !isFirstIndexZero(&I)) {
+     // Logical SPIR-V cannot use the OpPtrAccessChain instruction. If the first
+diff --git a/llvm/test/CodeGen/SPIRV/hlsl-resources/cbuffer-array.ll b/llvm/test/CodeGen/SPIRV/hlsl-resources/cbuffer-array.ll
+index 754972da40..9ae00dc3fc 100644
+--- a/llvm/test/CodeGen/SPIRV/hlsl-resources/cbuffer-array.ll
++++ b/llvm/test/CodeGen/SPIRV/hlsl-resources/cbuffer-array.ll
+@@ -6,7 +6,6 @@
+ ; CHECK-DAG: %[[PTR_VEC4:[0-9]+]] = OpTypePointer Uniform %[[VEC4]]
+ ; CHECK-DAG: %[[INT:[0-9]+]] = OpTypeInt 32 0
+ ; CHECK-DAG: %[[PTR_INT:[0-9]+]] = OpTypePointer Uniform %[[INT]]
+-; CHECK-DAG: %[[INT64:[0-9]+]] = OpTypeInt 64 0
+ ; CHECK-DAG: %[[CONST_4:[0-9]+]] = OpConstant %[[INT]] 4{{$}}
+ 
+ ; CHECK-DAG: %[[ARRAY:[0-9]+]] = OpTypeArray %[[VEC4]] %[[CONST_4]]
+@@ -51,10 +50,9 @@ entry:
+ ; CHECK: %[[VAL_INT:[0-9]+]] = OpLoad %[[INT]] %[[PTR_INT_ACCESS]]
+   %1 = load i32, ptr addrspace(12) @index, align 4
+ 
+-; CHECK: %[[VAL_INT64:[0-9]+]] = OpSConvert %[[INT64]] %[[VAL_INT]]
+   %idxprom.i = sext i32 %1 to i64
+ 
+-; CHECK: %[[PTR_ELEM:[0-9]+]] = OpInBoundsAccessChain %[[PTR_VEC4]] %[[PTR_ARRAY_ACCESS]] %[[VAL_INT64]]
++; CHECK: %[[PTR_ELEM:[0-9]+]] = OpInBoundsAccessChain %[[PTR_VEC4]] %[[PTR_ARRAY_ACCESS]] %[[VAL_INT]]
+   %arrayidx.i = getelementptr inbounds <4 x float>, ptr addrspace(12) @colors, i64 %idxprom.i
+ 
+ ; CHECK: %[[VAL_ELEM:[0-9]+]] = OpLoad %[[VEC4]] %[[PTR_ELEM]]
+diff --git a/llvm/test/CodeGen/SPIRV/hlsl-resources/cbuffer-peeled-array-minimal.ll b/llvm/test/CodeGen/SPIRV/hlsl-resources/cbuffer-peeled-array-minimal.ll
+index 96c6ede3ec..48a65c1789 100644
+--- a/llvm/test/CodeGen/SPIRV/hlsl-resources/cbuffer-peeled-array-minimal.ll
++++ b/llvm/test/CodeGen/SPIRV/hlsl-resources/cbuffer-peeled-array-minimal.ll
+@@ -54,10 +54,9 @@ entry:
+   %1 = tail call i32 @llvm.spv.thread.id.i32(i32 0)
+   %rem.i = and i32 %1, 3
+ 
+-; CHECK: %[[IDX_CONV:[0-9]+]] = OpUConvert {{.*}}
+   %idxprom.i = zext nneg i32 %rem.i to i64
+ 
+-; CHECK: %[[PTR_ELEM:[0-9]+]] = OpAccessChain {{%[0-9]+}} %[[ACCESS_ARRAY]] %[[IDX_CONV]]
++; CHECK: %[[PTR_ELEM:[0-9]+]] = OpAccessChain {{%[0-9]+}} %[[ACCESS_ARRAY]] {{%[0-9]+}}
+   %cbufferidx.i = getelementptr <{ %OrigType, target("spirv.Padding", 12) }>, ptr addrspace(12) @myArray, i64 %idxprom.i
+ 
+ ; CHECK: %[[PTR_FIELD:[0-9]+]] = OpAccessChain {{%[0-9]+}} %[[PTR_ELEM]] %[[ZERO]]
+diff --git a/llvm/test/CodeGen/SPIRV/hlsl-resources/cbuffer-peeled-array.ll b/llvm/test/CodeGen/SPIRV/hlsl-resources/cbuffer-peeled-array.ll
+index 0579fa0939..36f15af16c 100644
+--- a/llvm/test/CodeGen/SPIRV/hlsl-resources/cbuffer-peeled-array.ll
++++ b/llvm/test/CodeGen/SPIRV/hlsl-resources/cbuffer-peeled-array.ll
+@@ -42,10 +42,9 @@ entry:
+ ; CHECK: %[[IDX:[0-9]+]] = OpUMod %[[UINT]] {{%[0-9]+}} %[[CONST_3]]
+   %rem.i = urem i32 %1, 3
+ 
+-; CHECK: %[[IDX_CONV:[0-9]+]] = OpUConvert {{.*}} %[[IDX]]
+   %idxprom.i = zext nneg i32 %rem.i to i64
+ 
+-; CHECK: %[[PTR_ELEM:[0-9]+]] = OpAccessChain {{%[0-9]+}} %[[ACCESS_ARRAY]] %[[IDX_CONV]]
++; CHECK: %[[PTR_ELEM:[0-9]+]] = OpAccessChain {{%[0-9]+}} %[[ACCESS_ARRAY]] %[[IDX]]
+   %cbufferidx.i = getelementptr <{ <3 x float>, target("spirv.Padding", 4) }>, ptr addrspace(12) @myArray, i64 %idxprom.i
+ 
+ ; CHECK: %[[VAL_VEC3:[0-9]+]] = OpLoad %[[VEC3]] %[[PTR_ELEM]]
+diff --git a/llvm/test/CodeGen/SPIRV/logical-access-chain-narrow-index.ll b/llvm/test/CodeGen/SPIRV/logical-access-chain-narrow-index.ll
+new file mode 100644
+index 0000000000..8b191d8261
+--- /dev/null
++++ b/llvm/test/CodeGen/SPIRV/logical-access-chain-narrow-index.ll
+@@ -0,0 +1,59 @@
++; RUN: llc -O0 -verify-machineinstrs -mtriple=spirv1.6-unknown-vulkan1.3-library %s -o - | FileCheck %s
++; RUN: %if spirv-tools %{ llc -O0 -mtriple=spirv1.6-unknown-vulkan1.3-library %s -o - -filetype=obj | spirv-val --target-env vulkan1.3 %}
++
++; A frontend whose index type is 64-bit (D's size_t) widens a 32-bit index
++; before addressing, and writes constant indices at 64 bits. A logical access
++; chain cannot index past 2^31 elements, so an index is taken from before the
++; widening and a constant one at 32 bits, and no 64-bit integer type (nor the
++; Int64 capability) reaches the module.
++
++; CHECK-NOT: OpCapability Int64
++; CHECK-NOT: OpTypeInt 64
++; CHECK-DAG: %[[UINT:[0-9]+]] = OpTypeInt 32 0
++; CHECK-DAG: %[[TWO:[0-9]+]] = OpConstant %[[UINT]] 2{{$}}
++; CHECK: %[[IDX:[0-9]+]] = OpBitwiseAnd %[[UINT]]
++; CHECK: Op{{(InBounds)?}}AccessChain %{{[0-9]+}} %{{[0-9]+}} %[[IDX]]{{$}}
++; CHECK: %[[IDX2:[0-9]+]] = OpBitwiseAnd %[[UINT]]
++; CHECK: Op{{(InBounds)?}}AccessChain %{{[0-9]+}} %{{[0-9]+}} %[[IDX2]]{{$}}
++; CHECK: Op{{(InBounds)?}}AccessChain %{{[0-9]+}} %{{[0-9]+}} %[[TWO]]{{$}}
++
++@.str.o = private unnamed_addr constant [4 x i8] c"Out\00", align 1
++
++define void @main() #0 {
++entry:
++  %t = alloca [3 x <4 x float>], align 16
++  %t1 = getelementptr inbounds nuw i8, ptr %t, i64 16
++  %t2 = getelementptr inbounds nuw i8, ptr %t, i64 32
++  store <4 x float> <float 1.0, float 0.0, float 0.0, float 1.0>, ptr %t, align 16
++  store <4 x float> <float 0.0, float 1.0, float 0.0, float 1.0>, ptr %t1, align 16
++  store <4 x float> <float 0.0, float 0.0, float 1.0, float 1.0>, ptr %t2, align 16
++  %tid = tail call i32 @llvm.spv.thread.id.i32(i32 0)
++
++; A byte-addressing GEP by a sign-extended index.
++  %i = and i32 %tid, 1
++  %si = sext i32 %i to i64
++  %p = getelementptr inbounds [16 x i8], ptr %t, i64 %si
++  %v = load <4 x float>, ptr %p, align 16
++
++; A typed GEP by a zero-extended index.
++  %j = and i32 %tid, 2
++  %zj = zext i32 %j to i64
++  %q = getelementptr inbounds [3 x <4 x float>], ptr %t, i64 0, i64 %zj
++  %w = load <4 x float>, ptr %q, align 16
++
++; A typed GEP by a 64-bit constant.
++  %r = getelementptr inbounds [3 x <4 x float>], ptr %t, i64 0, i64 2
++  %y = load <4 x float>, ptr %r, align 16
++
++  %s0 = fadd <4 x float> %v, %w
++  %s = fadd <4 x float> %s0, %y
++  %x = extractelement <4 x float> %s, i32 0
++  %o = tail call target("spirv.VulkanBuffer", [0 x float], 12, 1) @llvm.spv.resource.handlefrombinding.O(i32 0, i32 2, i32 1, i32 0, ptr nonnull @.str.o)
++  %po = tail call ptr addrspace(11) @llvm.spv.resource.getpointer.p11.O(target("spirv.VulkanBuffer", [0 x float], 12, 1) %o, i32 0)
++  store float %x, ptr addrspace(11) %po
++  ret void
++}
++
++declare i32 @llvm.spv.thread.id.i32(i32)
++
++attributes #0 = { "hlsl.numthreads"="1,1,1" "hlsl.shader"="compute" }
+-- 
+2.51.2
+

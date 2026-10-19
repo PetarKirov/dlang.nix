@@ -1,0 +1,163 @@
+From 9fe6424c44bbc628fbedba5c3f76434ab8b6b6dd Mon Sep 17 00:00:00 2001
+From: Petar Kirov <petar.p.kirov@gmail.com>
+Date: Tue, 20 Oct 2026 00:48:13 +0300
+Subject: [PATCH] [SPIRV] Lower a memset of a whole object to a store on
+ logical SPIR-V
+
+An optimiser merges the stores that clear a local into one llvm.memset. On
+logical SPIR-V that became an OpCopyMemory from a UniformConstant byte array
+through a pointer bitcast, which fails ("OpCopyMemory requires operands to
+have the same type") and would be invalid for Vulkan in any case.
+
+A memset with a constant value and length that covers exactly a local or a
+global of known type leaves a known constant, its null or all ones, so store
+that constant instead.
+---
+ llvm/lib/Target/SPIRV/SPIRVEmitIntrinsics.cpp | 64 +++++++++++++++++++
+ .../SPIRV/logical-memset-whole-object.ll      | 45 +++++++++++++
+ 2 files changed, 109 insertions(+)
+ create mode 100644 llvm/test/CodeGen/SPIRV/logical-memset-whole-object.ll
+
+diff --git a/llvm/lib/Target/SPIRV/SPIRVEmitIntrinsics.cpp b/llvm/lib/Target/SPIRV/SPIRVEmitIntrinsics.cpp
+index c49c4f7781..19523cb79c 100644
+--- a/llvm/lib/Target/SPIRV/SPIRVEmitIntrinsics.cpp
++++ b/llvm/lib/Target/SPIRV/SPIRVEmitIntrinsics.cpp
+@@ -20,6 +20,7 @@
+ #include "llvm/ADT/DenseSet.h"
+ #include "llvm/ADT/SmallPtrSet.h"
+ #include "llvm/ADT/SmallString.h"
++#include "llvm/Analysis/ConstantFolding.h"
+ #include "llvm/Analysis/LoopInfo.h"
+ #include "llvm/IR/IRBuilder.h"
+ #include "llvm/IR/InstIterator.h"
+@@ -211,6 +212,66 @@ static Value *narrowLogicalIndex(Value *Idx) {
+   return Src->getType()->isIntegerTy(32) ? Src : Idx;
+ }
+ 
++// An optimiser merges the stores that clear an object into one memset. Logical
++// SPIR-V has no byte-wise copy, and a memset lowers to an OpCopyMemory from a
++// byte array, whose type is not the object's. A memset of a whole local or
++// global of known type is instead a store of the constant it leaves.
++// The constant of type Ty whose every byte is Val's: null or all ones,
++// through arrays and structs, or null if there is none.
++static Constant *getUniformByteConstant(Constant *Val, Type *Ty,
++                                        const DataLayout &DL) {
++  if (Constant *C = ConstantFoldLoadFromUniformValue(Val, Ty, DL))
++    return C;
++  if (!Val->isAllOnesValue())
++    return nullptr;
++  if (auto *AT = dyn_cast<ArrayType>(Ty)) {
++    Constant *E = getUniformByteConstant(Val, AT->getElementType(), DL);
++    return E ? ConstantArray::get(
++                   AT, SmallVector<Constant *>(AT->getNumElements(), E))
++             : nullptr;
++  }
++  if (auto *ST = dyn_cast<StructType>(Ty)) {
++    SmallVector<Constant *> Members;
++    for (Type *MT : ST->elements()) {
++      Constant *M = getUniformByteConstant(Val, MT, DL);
++      if (!M)
++        return nullptr;
++      Members.push_back(M);
++    }
++    return ConstantStruct::get(ST, Members);
++  }
++  return nullptr;
++}
++
++static void lowerWholeObjectMemSets(Function &F) {
++  const DataLayout &DL = F.getDataLayout();
++  SmallVector<MemSetInst *> MemSets;
++  for (Instruction &I : instructions(F))
++    if (auto *MS = dyn_cast<MemSetInst>(&I))
++      MemSets.push_back(MS);
++  for (MemSetInst *MS : MemSets) {
++    auto *Val = dyn_cast<Constant>(MS->getValue());
++    auto *Len = dyn_cast<ConstantInt>(MS->getLength());
++    if (!Val || !Len || MS->isVolatile())
++      continue;
++    Value *Dest = MS->getDest()->stripPointerCasts();
++    Type *ObjTy = nullptr;
++    if (auto *AI = dyn_cast<AllocaInst>(Dest); AI && !AI->isArrayAllocation())
++      ObjTy = AI->getAllocatedType();
++    else if (auto *GV = dyn_cast<GlobalVariable>(Dest))
++      ObjTy = GV->getValueType();
++    if (!ObjTy || !ObjTy->isSized() ||
++        DL.getTypeStoreSize(ObjTy) != Len->getZExtValue())
++      continue;
++    Constant *Init = getUniformByteConstant(Val, ObjTy, DL);
++    if (!Init)
++      continue;
++    IRBuilder<> B(MS);
++    B.CreateAlignedStore(Init, Dest, MS->getDestAlign());
++    MS->eraseFromParent();
++  }
++}
++
+ // The padded element <{T, spirv.Padding}> of a peeled array type, or null.
+ static Type *getPeeledArrayPaddedElement(Type *Ty) {
+   auto *ST = dyn_cast<StructType>(Ty);
+@@ -4003,6 +4064,9 @@ bool SPIRVEmitIntrinsicsImpl::runOnFunction(Function &Func) {
+ 
+   processParamTypesByFunHeader(CurrF, B);
+ 
++  if (ST.isLogicalSPIRV())
++    lowerWholeObjectMemSets(Func);
++
+   // Fix GEP result types ahead of inference, and simplify if possible.
+   // Data structure for dead instructions that were simplified and replaced.
+   SmallPtrSet<Instruction *, 4> DeadInsts;
+diff --git a/llvm/test/CodeGen/SPIRV/logical-memset-whole-object.ll b/llvm/test/CodeGen/SPIRV/logical-memset-whole-object.ll
+new file mode 100644
+index 0000000000..70e033c181
+--- /dev/null
++++ b/llvm/test/CodeGen/SPIRV/logical-memset-whole-object.ll
+@@ -0,0 +1,45 @@
++; RUN: llc -O0 -verify-machineinstrs -mtriple=spirv1.6-unknown-vulkan1.3-library %s -o - | FileCheck %s
++; RUN: %if spirv-tools %{ llc -O0 -mtriple=spirv1.6-unknown-vulkan1.3-library %s -o - -filetype=obj | spirv-val --target-env vulkan1.3 %}
++
++; An optimiser merges the stores that clear a local into one memset. Logical
++; SPIR-V has no byte-wise copy, so a memset of a whole object of known type is
++; a store of the constant it leaves: its null, or all ones.
++
++; CHECK-NOT: OpCopyMemory
++; CHECK-NOT: OpBitcast
++; CHECK-DAG: %[[UINT:[0-9]+]] = OpTypeInt 32 0
++; CHECK-DAG: %[[FOUR:[0-9]+]] = OpConstant %[[UINT]] 4{{$}}
++; CHECK-DAG: %[[ARR:[0-9]+]] = OpTypeArray %[[UINT]] %[[FOUR]]
++; CHECK-DAG: %[[NULL:[0-9]+]] = OpConstantNull %[[ARR]]
++; CHECK-DAG: %[[ONES:[0-9]+]] = OpConstant %[[UINT]] 4294967295
++; CHECK-DAG: %[[ALLONES:[0-9]+]] = OpConstantComposite %[[ARR]] %[[ONES]] %[[ONES]] %[[ONES]] %[[ONES]]
++; CHECK: OpStore %[[A:[0-9]+]] %[[NULL]]
++; CHECK: OpStore %[[B:[0-9]+]] %[[ALLONES]]
++
++@.str.o = private unnamed_addr constant [4 x i8] c"Out\00", align 1
++
++define void @main() #0 {
++entry:
++  %a = alloca [4 x i32], align 4
++  %b = alloca [4 x i32], align 4
++  call void @llvm.memset.p0.i64(ptr align 4 %a, i8 0, i64 16, i1 false)
++  call void @llvm.memset.p0.i64(ptr align 4 %b, i8 -1, i64 16, i1 false)
++  %tid = tail call i32 @llvm.spv.thread.id.i32(i32 0)
++  %i = and i32 %tid, 3
++  %pa = getelementptr inbounds [4 x i32], ptr %a, i32 0, i32 %i
++  store i32 1, ptr %pa, align 4
++  %pa1 = getelementptr inbounds [4 x i32], ptr %a, i32 0, i32 1
++  %va = load i32, ptr %pa1, align 4
++  %pb = getelementptr inbounds [4 x i32], ptr %b, i32 0, i32 %i
++  %vb = load i32, ptr %pb, align 4
++  %s = add i32 %va, %vb
++  %o = tail call target("spirv.VulkanBuffer", [0 x i32], 12, 1) @llvm.spv.resource.handlefrombinding.O(i32 0, i32 2, i32 1, i32 0, ptr nonnull @.str.o)
++  %po = tail call ptr addrspace(11) @llvm.spv.resource.getpointer.p11.O(target("spirv.VulkanBuffer", [0 x i32], 12, 1) %o, i32 0)
++  store i32 %s, ptr addrspace(11) %po
++  ret void
++}
++
++declare i32 @llvm.spv.thread.id.i32(i32)
++declare void @llvm.memset.p0.i64(ptr, i8, i64, i1)
++
++attributes #0 = { "hlsl.numthreads"="1,1,1" "hlsl.shader"="compute" }
+-- 
+2.51.2
+

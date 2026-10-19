@@ -1,0 +1,90 @@
+From d4b9f6681a9ebbd3115003d83d40e4c159cca3d8 Mon Sep 17 00:00:00 2001
+From: Petar Kirov <petar.p.kirov@gmail.com>
+Date: Tue, 20 Oct 2026 01:28:33 +0300
+Subject: [PATCH] [SPIRV] Name a global variable by its spirv.Name metadata
+
+A shader's interface is named by its source, and one name can denote several
+variables in one module: a vertex stage's output and the fragment input it
+feeds. LLVM's global names are unique, so a frontend states the SPIR-V name
+in `!spirv.Name !{!"name"}` metadata, and OpName takes it.
+---
+ llvm/lib/Target/SPIRV/SPIRVGlobalRegistry.cpp | 15 +++++--
+ .../SPIRV/global-variable-spirv-name.ll       | 40 +++++++++++++++++++
+ 2 files changed, 52 insertions(+), 3 deletions(-)
+ create mode 100644 llvm/test/CodeGen/SPIRV/global-variable-spirv-name.ll
+
+diff --git a/llvm/lib/Target/SPIRV/SPIRVGlobalRegistry.cpp b/llvm/lib/Target/SPIRV/SPIRVGlobalRegistry.cpp
+index ff7f266df5..db06c3b913 100644
+--- a/llvm/lib/Target/SPIRV/SPIRVGlobalRegistry.cpp
++++ b/llvm/lib/Target/SPIRV/SPIRVGlobalRegistry.cpp
+@@ -936,9 +936,18 @@ Register SPIRVGlobalRegistry::buildGlobalVariable(
+       assignSPIRVTypeToVReg(BaseType, Reg, MIRBuilder.getMF());
+   }
+ 
+-  // If it's a global variable with name, output OpName for it.
+-  if (GVar && GVar->hasName())
+-    buildOpName(Reg, GVar->getName(), MIRBuilder);
++  // If it's a global variable with name, output OpName for it. A frontend
++  // whose source gives one name to several variables (a vertex output and the
++  // fragment input it feeds) states that name in `spirv.Name` metadata, as
++  // LLVM's global names must be unique.
++  if (GVar && GVar->hasName()) {
++    StringRef Name = GVar->getName();
++    if (const MDNode *MD = GVar->getMetadata("spirv.Name");
++        MD && MD->getNumOperands() == 1)
++      if (const auto *S = dyn_cast<MDString>(MD->getOperand(0)))
++        Name = S->getString();
++    buildOpName(Reg, Name, MIRBuilder);
++  }
+ 
+   // Output decorations for the GV.
+   // TODO: maybe move to GenerateDecorations pass.
+diff --git a/llvm/test/CodeGen/SPIRV/global-variable-spirv-name.ll b/llvm/test/CodeGen/SPIRV/global-variable-spirv-name.ll
+new file mode 100644
+index 0000000000..a1e1d0f8ab
+--- /dev/null
++++ b/llvm/test/CodeGen/SPIRV/global-variable-spirv-name.ll
+@@ -0,0 +1,40 @@
++; RUN: llc -O0 -verify-machineinstrs -mtriple=spirv1.6-unknown-vulkan1.3-library %s -o - | FileCheck %s
++; RUN: %if spirv-tools %{ llc -O0 -mtriple=spirv1.6-unknown-vulkan1.3-library %s -o - -filetype=obj | spirv-val --target-env vulkan1.3 %}
++
++; A shader's interface is named by its source, and one name can denote several
++; variables: a vertex stage's output and the fragment input it feeds, in one
++; module. LLVM gives each global a unique name, so a frontend states the SPIR-V
++; name in `spirv.Name` metadata, and OpName takes it.
++
++; CHECK-DAG: OpName %[[OUT:[0-9]+]] "colour"
++; CHECK-DAG: OpName %[[IN:[0-9]+]] "colour"
++; CHECK-DAG: OpName %[[PLAIN:[0-9]+]] "plain"
++; CHECK-DAG: %[[OUT]] = OpVariable %{{[0-9]+}} Output
++; CHECK-DAG: %[[IN]] = OpVariable %{{[0-9]+}} Input
++; CHECK-NOT: OpName {{.*}} "colour.vertex.out"
++
++@colour.vertex.out = external hidden thread_local addrspace(8) global <4 x float>, !spirv.Name !0, !spirv.Decorations !2
++@colour = external hidden thread_local addrspace(7) externally_initialized constant <4 x float>, !spirv.Name !0, !spirv.Decorations !2
++@plain = external hidden thread_local addrspace(8) global <4 x float>, !spirv.Decorations !4
++
++define void @vs() #0 {
++entry:
++  store <4 x float> zeroinitializer, ptr addrspace(8) @colour.vertex.out
++  ret void
++}
++
++define void @fs() #1 {
++entry:
++  %c = load <4 x float>, ptr addrspace(7) @colour
++  store <4 x float> %c, ptr addrspace(8) @plain
++  ret void
++}
++
++attributes #0 = { "hlsl.shader"="vertex" }
++attributes #1 = { "hlsl.shader"="pixel" }
++
++!0 = !{!"colour"}
++!1 = !{i32 30, i32 0}
++!2 = !{!1}
++!3 = !{i32 30, i32 0}
++!4 = !{!3}
+-- 
+2.51.2
+

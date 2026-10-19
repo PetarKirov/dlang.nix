@@ -1,0 +1,75 @@
+From c6786f69072df1a34ca6a39d3382eb6d680875b1 Mon Sep 17 00:00:00 2001
+From: Petar Kirov <petar.p.kirov@gmail.com>
+Date: Tue, 20 Oct 2026 00:33:53 +0300
+Subject: [PATCH] [SPIRV] Read the members of a buffer laid out with
+ spirv.Layout
+
+A VulkanBuffer whose struct carries explicit member offsets wraps it in
+spirv.Layout. llvm.spv.resource.getpointer indexes the members of the
+buffer's struct, and asserted on the wrapper; look through it.
+---
+ llvm/lib/Target/SPIRV/SPIRVEmitIntrinsics.cpp |  5 +++
+ .../hlsl-resources/spirv.layout.getpointer.ll | 35 +++++++++++++++++++
+ 2 files changed, 40 insertions(+)
+ create mode 100644 llvm/test/CodeGen/SPIRV/hlsl-resources/spirv.layout.getpointer.ll
+
+diff --git a/llvm/lib/Target/SPIRV/SPIRVEmitIntrinsics.cpp b/llvm/lib/Target/SPIRV/SPIRVEmitIntrinsics.cpp
+index 35faeeb586..9d0027d7d0 100644
+--- a/llvm/lib/Target/SPIRV/SPIRVEmitIntrinsics.cpp
++++ b/llvm/lib/Target/SPIRV/SPIRVEmitIntrinsics.cpp
+@@ -1199,6 +1199,11 @@ Type *SPIRVEmitIntrinsicsImpl::deduceElementTypeHelper(
+       } else if (HandleType->getTargetExtName() == "spirv.VulkanBuffer") {
+         // This call is supposed to index into an array
+         Ty = HandleType->getTypeParameter(0);
++        // A block with explicit offsets wraps its struct in spirv.Layout; its
++        // members are the struct's.
++        if (auto *LayoutTy = dyn_cast<TargetExtType>(Ty);
++            LayoutTy && LayoutTy->getName() == "spirv.Layout")
++          Ty = LayoutTy->getTypeParameter(0);
+         if (II->getIntrinsicID() == Intrinsic::spv_resource_getpointer) {
+           if (Ty->isArrayTy())
+             Ty = Ty->getArrayElementType();
+diff --git a/llvm/test/CodeGen/SPIRV/hlsl-resources/spirv.layout.getpointer.ll b/llvm/test/CodeGen/SPIRV/hlsl-resources/spirv.layout.getpointer.ll
+new file mode 100644
+index 0000000000..d12b322e5a
+--- /dev/null
++++ b/llvm/test/CodeGen/SPIRV/hlsl-resources/spirv.layout.getpointer.ll
+@@ -0,0 +1,35 @@
++; RUN: llc -O0 -verify-machineinstrs -mtriple=spirv1.6-unknown-vulkan1.3-library %s -o - | FileCheck %s
++; RUN: %if spirv-tools %{ llc -O0 -mtriple=spirv1.6-unknown-vulkan1.3-library %s -o - -filetype=obj | spirv-val --target-env vulkan1.3 %}
++
++; A member of a buffer whose struct carries explicit offsets (spirv.Layout) is
++; reached by its index, as in a buffer laid out by the data layout.
++
++; CHECK-DAG: OpMemberDecorate %[[U:[0-9]+]] 4 Offset 32
++; CHECK-DAG: OpMemberDecorate %[[U]] 1 Offset 12
++; CHECK-DAG: OpMemberDecorate %[[U]] 3 Offset 24
++; CHECK-DAG: %[[FLOAT:[0-9]+]] = OpTypeFloat 32
++; CHECK-DAG: %[[U]] = OpTypeStruct %{{[0-9]+}} %[[FLOAT]] %{{[0-9]+}} %[[FLOAT]] %{{[0-9]+}}
++%U = type { <3 x float>, float, <2 x float>, float, <4 x float> }
++
++@.str = private unnamed_addr constant [2 x i8] c"U\00", align 1
++@.str.o = private unnamed_addr constant [4 x i8] c"Out\00", align 1
++
++define void @main() #0 {
++entry:
++  %h = tail call target("spirv.VulkanBuffer", target("spirv.Layout", %U, 48, 0, 12, 16, 24, 32), 2, 0) @llvm.spv.resource.handlefrombinding.L(i32 0, i32 1, i32 1, i32 0, ptr nonnull @.str)
++; CHECK: %[[PB:[0-9]+]] = OpAccessChain %{{[0-9]+}} %{{[0-9]+}} %{{[0-9]+}} %{{[0-9]+}}
++; CHECK: OpLoad %[[FLOAT]] %[[PB]]
++  %pb = tail call ptr addrspace(12) @llvm.spv.resource.getpointer.p12.L(target("spirv.VulkanBuffer", target("spirv.Layout", %U, 48, 0, 12, 16, 24, 32), 2, 0) %h, i32 1)
++  %b = load float, ptr addrspace(12) %pb
++; CHECK: %[[PD:[0-9]+]] = OpAccessChain %{{[0-9]+}} %{{[0-9]+}} %{{[0-9]+}} %{{[0-9]+}}
++; CHECK: OpLoad %[[FLOAT]] %[[PD]]
++  %pd = tail call ptr addrspace(12) @llvm.spv.resource.getpointer.p12.L(target("spirv.VulkanBuffer", target("spirv.Layout", %U, 48, 0, 12, 16, 24, 32), 2, 0) %h, i32 3)
++  %d = load float, ptr addrspace(12) %pd
++  %s = fadd float %b, %d
++  %o = tail call target("spirv.VulkanBuffer", [0 x float], 12, 1) @llvm.spv.resource.handlefrombinding.O(i32 0, i32 2, i32 1, i32 0, ptr nonnull @.str.o)
++  %po = tail call ptr addrspace(11) @llvm.spv.resource.getpointer.p11.O(target("spirv.VulkanBuffer", [0 x float], 12, 1) %o, i32 0)
++  store float %s, ptr addrspace(11) %po
++  ret void
++}
++
++attributes #0 = { "hlsl.numthreads"="1,1,1" "hlsl.shader"="compute" }
+-- 
+2.51.2
+

@@ -57,6 +57,28 @@ stdenv.mkDerivation (finalAttrs: {
     # Nested conditions whose exits meet an enclosing one's (early returns)
     # get merge blocks of their own instead of escaping their parents.
     ./spirv-structurizer-nested-shared-exits.patch
+    # Explicit block layout (std140 uniform blocks, std430 push constants):
+    # a buffer laid out with `spirv.Layout` can be read by member; a peeled
+    # cbuffer array lowers to `T[N]` with the padded stride and no `Int8`
+    # member; a laid-out struct is named once.
+    ./spirv-layout-buffer-members.patch
+    ./spirv-peeled-array-strided.patch
+    ./spirv-layout-single-name.patch
+    # No 64-bit integers a shader did not ask for: a logical access chain
+    # indexes with the 32-bit value a frontend widened (D's `size_t`), and
+    # folds whole element steps (`t[i + 1]`) into the index instead of
+    # asserting; a memset of a whole local is a store.
+    ./spirv-access-chain-narrow-indices.patch
+    ./spirv-memset-whole-object.patch
+    ./spirv-access-chain-element-steps.patch
+    # In signed-integer mode, `OpUDiv`, `OpUMod` and `OpConvertFToU` compute
+    # in an unsigned type, which SPIR-V requires of their result.
+    ./spirv-unsigned-ops-signed-mode.patch
+    # The vertex stage: a global named by `spirv.Name` metadata, so a vertex
+    # output and the fragment input it feeds share their name in one module,
+    # and each shader entry point's interface lists only what it uses.
+    ./spirv-global-name-metadata.patch
+    ./spirv-entry-point-interface-per-entry.patch
   ];
 
   nativeBuildInputs = [

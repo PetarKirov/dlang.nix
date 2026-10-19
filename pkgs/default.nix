@@ -180,7 +180,8 @@ in
 
       # ---- Vulkan / SPIR-V shaders (dcompute) — Linux and macOS ----
       # LDC master + ldc-developers/ldc#5132 (dcompute's Vulkan compute target)
-      # + graphics shader stages (`@fragment`, `@input`/`@uniform`, `Sampler2D`),
+      # + graphics shader stages (`@vertex`, `@fragment`, `@input`/`@uniform`,
+      # `@builtin`, `Sampler2D`),
       # against LLVM main with the SPIR-V backend (./llvm-spirv). Consumed by
       # sparkles' `shader-compile`, which turns single-source D shaders into
       # SPIR-V and, via spirv-cross, GLSL. Opt-in and heavy (LLVM from source).
@@ -190,8 +191,8 @@ in
         owner = "PetarKirov";
         repo = "ldc";
         # sparkles/vulkan-shaders
-        rev = "64104a9a6da522730d6b661b85adfdfd2e7e25e7";
-        hash = "sha256-wI9QUpLoCvT4luIYaaZu6AGm+POydrwzZqKweA5xo1g=";
+        rev = "318e9107605db763ebe897cd09357f64e38277ce";
+        hash = "sha256-tSBQXSrSN/hUs6cDM6GK58tYIHbBdYyCo6opL7z21QE=";
         fetchSubmodules = true;
       };
 
