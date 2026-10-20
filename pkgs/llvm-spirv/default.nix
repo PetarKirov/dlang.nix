@@ -88,6 +88,12 @@ stdenv.mkDerivation (finalAttrs: {
     ./spirv-struct-blocks.patch
     ./spirv-push-constant-keep-name.patch
     ./spirv-struct-member-names-distinct.patch
+    # Element 0 of a peeled array is one index into it; a push-constant
+    # global keeps its spirv.Name; a struct is named by spirv.TypeNames, so
+    # a block and its unblocked copy share the D name.
+    ./spirv-peeled-array-first-element.patch
+    ./spirv-push-constant-keep-metadata.patch
+    ./spirv-struct-type-names.patch
   ];
 
   nativeBuildInputs = [

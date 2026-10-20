@@ -1,0 +1,66 @@
+From be97c75529045fd1e8669aa24f45846b368d4b11 Mon Sep 17 00:00:00 2001
+From: Petar Kirov <petar.p.kirov@gmail.com>
+Date: Tue, 20 Oct 2026 04:24:36 +0300
+Subject: [PATCH] [SPIRV] Keep a push-constant global's metadata
+
+Rebuilding a push-constant global as a spirv.PushConstant kept its name but
+dropped its metadata, so a spirv.Name that names it, where a frontend
+gives the global a unique LLVM name, was lost.
+---
+ .../Target/SPIRV/SPIRVPushConstantAccess.cpp  |  2 ++
+ .../SPIRV/vk-pushconstant-spirv-name.ll       | 30 +++++++++++++++++++
+ 2 files changed, 32 insertions(+)
+ create mode 100644 llvm/test/CodeGen/SPIRV/vk-pushconstant-spirv-name.ll
+
+diff --git a/llvm/lib/Target/SPIRV/SPIRVPushConstantAccess.cpp b/llvm/lib/Target/SPIRV/SPIRVPushConstantAccess.cpp
+index 96df82fec4..e4f3df675e 100644
+--- a/llvm/lib/Target/SPIRV/SPIRVPushConstantAccess.cpp
++++ b/llvm/lib/Target/SPIRV/SPIRVPushConstantAccess.cpp
+@@ -49,6 +49,8 @@ static bool replacePushConstantAccesses(Module &M, SPIRVGlobalRegistry *GR) {
+     // The global keeps its name, which a shader's interface is known by:
+     // made beside the original, the new one was renamed.
+     NewGV->takeName(&GV);
++    // And its metadata: a `spirv.Name` names it where its LLVM name cannot.
++    NewGV->copyMetadata(&GV, 0);
+ 
+     for (User *U : make_early_inc_range(GV.users())) {
+       Instruction *I = cast<Instruction>(U);
+diff --git a/llvm/test/CodeGen/SPIRV/vk-pushconstant-spirv-name.ll b/llvm/test/CodeGen/SPIRV/vk-pushconstant-spirv-name.ll
+new file mode 100644
+index 0000000000..f78607b1f1
+--- /dev/null
++++ b/llvm/test/CodeGen/SPIRV/vk-pushconstant-spirv-name.ll
+@@ -0,0 +1,30 @@
++; RUN: llc -O0 -verify-machineinstrs -mtriple=spirv-vulkan-unknown %s -o - | FileCheck %s
++; RUN: %if spirv-tools %{ llc -O0 -mtriple=spirv-vulkan-unknown %s -o - -filetype=obj | spirv-val --target-env vulkan1.3 %}
++
++; A push-constant global named by spirv.Name metadata keeps that name when
++; the backend rebuilds it as a spirv.PushConstant: its LLVM name, unique in
++; the module, is not the one the shader's interface is known by.
++
++%struct.S = type <{ float }>
++
++; CHECK-DAG: OpName %[[#PCS:]] "view"
++; CHECK-NOT: OpName %{{.*}} "view.main.push"
++; CHECK: %[[#PCS]] = OpVariable %{{[0-9]+}} PushConstant
++
++@view.main.push = external hidden addrspace(13) externally_initialized global %struct.S, align 1, !spirv.Name !0
++
++define void @main() #1 {
++entry:
++  %0 = call token @llvm.experimental.convergence.entry()
++  %1 = alloca float, align 4
++  %2 = load float, ptr addrspace(13) @view.main.push, align 1
++  store float %2, ptr %1
++  ret void
++}
++
++declare token @llvm.experimental.convergence.entry() #2
++
++attributes #1 = { convergent noinline norecurse optnone "hlsl.numthreads"="1,1,1" "hlsl.shader"="compute" }
++attributes #2 = { convergent nocallback nofree nosync nounwind willreturn memory(none) }
++
++!0 = !{!"view"}
+-- 
+2.51.2
+
