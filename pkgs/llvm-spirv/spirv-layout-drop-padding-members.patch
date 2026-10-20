@@ -1,0 +1,313 @@
+From 895cab798d1c157d279f0432a16d1b1c5f0bf0a1 Mon Sep 17 00:00:00 2001
+From: Petar Kirov <petar.p.kirov@gmail.com>
+Date: Tue, 20 Oct 2026 02:48:53 +0300
+Subject: [PATCH] [SPIRV] Drop spirv.Padding members from an explicitly
+ laid-out struct
+
+A frontend lays a block's nested structs out with spirv.Padding members in
+packed structs, as Clang does for a cbuffer. Each padding member became an
+8-bit integer member of the SPIR-V struct, which needs Int8 and adds a
+member the source never declared.
+
+The padding is distance, not a member: an explicitly laid-out struct's SPIR-V
+type keeps only its other members, each decorated at the offset the packed
+layout gives it, and access chains number a member among those -- in a GEP,
+in a byte offset walked through the struct, and in
+llvm.spv.resource.getpointer's member index.
+---
+ llvm/lib/Target/SPIRV/SPIRVEmitIntrinsics.cpp | 24 +++++++-
+ llvm/lib/Target/SPIRV/SPIRVGlobalRegistry.cpp | 34 +++++++++--
+ llvm/lib/Target/SPIRV/SPIRVGlobalRegistry.h   |  8 +++
+ .../Target/SPIRV/SPIRVInstructionSelector.cpp | 14 +++++
+ llvm/lib/Target/SPIRV/SPIRVUtils.cpp          | 17 ++++++
+ llvm/lib/Target/SPIRV/SPIRVUtils.h            |  9 +++
+ .../explicit-layout-padding-members.ll        | 59 +++++++++++++++++++
+ 7 files changed, 158 insertions(+), 7 deletions(-)
+ create mode 100644 llvm/test/CodeGen/SPIRV/hlsl-resources/explicit-layout-padding-members.ll
+
+diff --git a/llvm/lib/Target/SPIRV/SPIRVEmitIntrinsics.cpp b/llvm/lib/Target/SPIRV/SPIRVEmitIntrinsics.cpp
+index 82c3825849..bfe48f786d 100644
+--- a/llvm/lib/Target/SPIRV/SPIRVEmitIntrinsics.cpp
++++ b/llvm/lib/Target/SPIRV/SPIRVEmitIntrinsics.cpp
+@@ -1013,7 +1013,9 @@ bool SPIRVEmitIntrinsicsImpl::walkLogicalAccessChainConstant(
+       unsigned Element = STL->getElementContainingOffset(Offset);
+       Offset -= STL->getElementOffset(Element);
+       CurType = ST->getElementType(Element);
+-      OnLiteralIndexing(CurType, Element);
++      OnLiteralIndexing(CurType, hasPaddingMembers(ST)
++                                     ? memberIndexWithoutPadding(ST, Element)
++                                     : Element);
+     } else if (auto *VT = dyn_cast<FixedVectorType>(CurType)) {
+       Type *EltTy = VT->getElementType();
+       TypeSize EltSizeBits = DL.getTypeSizeInBits(EltTy);
+@@ -2392,6 +2394,26 @@ SPIRVEmitIntrinsicsImpl::visitGetElementPtrInst(GetElementPtrInst &I) {
+     if (!isPhysicalPointerGEP(I))
+       for (Value *&Idx : GEPIndices)
+         Idx = narrowLogicalIndex(Idx);
++    // A struct member index counts the members a padded struct keeps.
++    Type *Cur = SrcElemTy;
++    for (size_t K = 1; K < GEPIndices.size() && Cur; ++K) {
++      if (auto *ST = dyn_cast<StructType>(Cur)) {
++        auto *CI = dyn_cast<ConstantInt>(GEPIndices[K]);
++        if (!CI)
++          break;
++        const unsigned Index = CI->getZExtValue();
++        Cur = ST->getElementType(Index);
++        if (hasPaddingMembers(ST))
++          GEPIndices[K] = ConstantInt::get(
++              CI->getType(), memberIndexWithoutPadding(ST, Index));
++      } else if (auto *AT = dyn_cast<ArrayType>(Cur)) {
++        Cur = AT->getElementType();
++      } else if (auto *VT = dyn_cast<VectorType>(Cur)) {
++        Cur = VT->getElementType();
++      } else {
++        break;
++      }
++    }
+   }
+ 
+   if (TM.getSubtargetImpl()->isLogicalSPIRV() && !isFirstIndexZero(&I)) {
+diff --git a/llvm/lib/Target/SPIRV/SPIRVGlobalRegistry.cpp b/llvm/lib/Target/SPIRV/SPIRVGlobalRegistry.cpp
+index db06c3b913..67eb22ce13 100644
+--- a/llvm/lib/Target/SPIRV/SPIRVGlobalRegistry.cpp
++++ b/llvm/lib/Target/SPIRV/SPIRVGlobalRegistry.cpp
+@@ -1130,7 +1130,12 @@ SPIRVTypeInst SPIRVGlobalRegistry::getOpTypeStruct(
+       cast<SPIRVSubtarget>(MIRBuilder.getMF().getSubtarget());
+   SmallVector<Register, 4> FieldTypes;
+   constexpr unsigned MaxWordCount = UINT16_MAX;
+-  const size_t NumElements = Ty->getNumElements();
++  // Laid out explicitly, the padding is distance, not a member.
++  const bool DropPadding = Decorator != nullptr && hasPaddingMembers(Ty);
++  const size_t NumElements =
++      DropPadding ? count_if(Ty->elements(),
++                             [](Type *E) { return !isSpirvPaddingType(E); })
++                  : Ty->getNumElements();
+ 
+   size_t MaxNumElements = MaxWordCount - 2;
+   size_t SPIRVStructNumElements = NumElements;
+@@ -1141,6 +1146,8 @@ SPIRVTypeInst SPIRVGlobalRegistry::getOpTypeStruct(
+   }
+ 
+   for (const auto &Elem : Ty->elements()) {
++    if (DropPadding && isSpirvPaddingType(Elem))
++      continue;
+     SPIRVTypeInst ElemTy = findSPIRVType(
+         toTypedPointer(Elem), MIRBuilder, AccQual,
+         /* ExplicitLayoutRequired= */ Decorator != nullptr, EmitIR);
+@@ -1173,10 +1180,21 @@ SPIRVTypeInst SPIRVGlobalRegistry::getOpTypeStruct(
+ 
+   if (Decorator)
+     Decorator(SPVType->defs().begin()->getReg());
++  if (DropPadding)
++    PaddedStructs[SPVType] = Ty;
+ 
+   return SPVType;
+ }
+ 
++std::optional<unsigned>
++SPIRVGlobalRegistry::memberIndexOf(SPIRVTypeInst StructTy,
++                                   unsigned Index) const {
++  auto It = PaddedStructs.find(StructTy);
++  if (It == PaddedStructs.end())
++    return std::nullopt;
++  return memberIndexWithoutPadding(It->second, Index);
++}
++
+ SPIRVTypeInst SPIRVGlobalRegistry::getOrCreateSpecialType(
+     const Type *Ty, MachineIRBuilder &MIRBuilder,
+     SPIRV::AccessQualifier::AccessQualifier AccQual) {
+@@ -1765,9 +1783,11 @@ SPIRVTypeInst SPIRVGlobalRegistry::getOrCreateLayoutType(
+   ArrayRef<uint32_t> Offsets = T->int_params().slice(1);
+   assert(ST->getNumElements() == Offsets.size());
+ 
+-  StructOffsetDecorator Decorator = [&MIRBuilder, &Offsets](Register Reg) {
+-    for (uint32_t I = 0; I < Offsets.size(); ++I) {
+-      buildOpMemberDecorate(Reg, MIRBuilder, SPIRV::Decoration::Offset, I,
++  StructOffsetDecorator Decorator = [&MIRBuilder, &Offsets, ST](Register Reg) {
++    for (uint32_t I = 0, M = 0; I < Offsets.size(); ++I) {
++      if (isSpirvPaddingType(ST->getElementType(I)))
++        continue;
++      buildOpMemberDecorate(Reg, MIRBuilder, SPIRV::Decoration::Offset, M++,
+                             {Offsets[I]});
+     }
+   };
+@@ -2500,8 +2520,10 @@ void SPIRVGlobalRegistry::updateAssignType(CallInst *AssignCI, Value *Arg,
+ void SPIRVGlobalRegistry::addStructOffsetDecorations(
+     Register Reg, StructType *Ty, MachineIRBuilder &MIRBuilder) {
+   ArrayRef<TypeSize> Offsets = DL.getStructLayout(Ty)->getMemberOffsets();
+-  for (uint32_t I = 0; I < Ty->getNumElements(); ++I) {
+-    buildOpMemberDecorate(Reg, MIRBuilder, SPIRV::Decoration::Offset, I,
++  for (uint32_t I = 0, M = 0; I < Ty->getNumElements(); ++I) {
++    if (isSpirvPaddingType(Ty->getElementType(I)))
++      continue;
++    buildOpMemberDecorate(Reg, MIRBuilder, SPIRV::Decoration::Offset, M++,
+                           {static_cast<uint32_t>(Offsets[I])});
+   }
+ }
+diff --git a/llvm/lib/Target/SPIRV/SPIRVGlobalRegistry.h b/llvm/lib/Target/SPIRV/SPIRVGlobalRegistry.h
+index 8a11caffe3..83d633bfdb 100644
+--- a/llvm/lib/Target/SPIRV/SPIRVGlobalRegistry.h
++++ b/llvm/lib/Target/SPIRV/SPIRVGlobalRegistry.h
+@@ -64,6 +64,9 @@ class SPIRVGlobalRegistry : public SPIRVIRMapping {
+   // Struct types decorated with Block, recorded at the point the decoration
+   // is emitted.
+   DenseSet<SPIRVTypeInst> BlockDecoratedTypes;
++  // Explicitly laid-out structs whose spirv.Padding members are dropped, with
++  // their LLVM type, to number a member among the others.
++  DenseMap<SPIRVTypeInst, const StructType *> PaddedStructs;
+ 
+   // Stores for each function the last inserted SPIR-V Type.
+   // See: SPIRVGlobalRegistry::createOpType.
+@@ -696,6 +699,11 @@ public:
+ 
+   SPIRVTypeInst getOrCreatePaddingType(MachineIRBuilder &MIRBuilder);
+ 
++  // The SPIR-V index of LLVM member `Index` of `StructTy`, if its padding
++  // members were dropped; else none, and the index stands.
++  std::optional<unsigned> memberIndexOf(SPIRVTypeInst StructTy,
++                                        unsigned Index) const;
++
+   // The unsigned twin of a signed integer or integer vector type, or the type
+   // itself if it is not signed.
+   SPIRVTypeInst getOrCreateUnsignedTwin(SPIRVTypeInst Ty,
+diff --git a/llvm/lib/Target/SPIRV/SPIRVInstructionSelector.cpp b/llvm/lib/Target/SPIRV/SPIRVInstructionSelector.cpp
+index 1b479e01ba..4b58fe014b 100644
+--- a/llvm/lib/Target/SPIRV/SPIRVInstructionSelector.cpp
++++ b/llvm/lib/Target/SPIRV/SPIRVInstructionSelector.cpp
+@@ -6696,6 +6696,20 @@ bool SPIRVInstructionSelector::selectResourceGetPointer(Register &ResVReg,
+ 
+   if (I.getNumExplicitOperands() > 3) {
+     Register IndexReg = I.getOperand(3).getReg();
++    // A member of a block whose padding members were dropped is numbered
++    // among the others.
++    SPIRVTypeInst Wrapper = GR.getPointeeType(RegType);
++    SPIRVTypeInst Block =
++        Wrapper && Wrapper->getOpcode() == SPIRV::OpTypeStruct
++            ? GR.getSPIRVTypeForVReg(Wrapper->getOperand(1).getReg())
++            : SPIRVTypeInst();
++    if (Block) {
++      if (MachineInstr *Def = getDefInstrMaybeConstant(IndexReg, MRI);
++          Def && Def->getOpcode() == TargetOpcode::G_CONSTANT)
++        if (std::optional<unsigned> M =
++                GR.memberIndexOf(Block, getIConstVal(IndexReg, MRI)))
++          IndexReg = buildI32Constant(*M, I);
++    }
+     MIB.addUse(IndexReg);
+   }
+   MIB.constrainAllUses(TII, TRI, RBI);
+diff --git a/llvm/lib/Target/SPIRV/SPIRVUtils.cpp b/llvm/lib/Target/SPIRV/SPIRVUtils.cpp
+index 735b647a32..f23ff53ad0 100644
+--- a/llvm/lib/Target/SPIRV/SPIRVUtils.cpp
++++ b/llvm/lib/Target/SPIRV/SPIRVUtils.cpp
+@@ -1199,6 +1199,23 @@ unsigned getArrayComponentCount(const MachineRegisterInfo *MRI,
+   return foldImm(ResType->getOperand(2), MRI);
+ }
+ 
++bool isSpirvPaddingType(const Type *Ty) {
++  const auto *TET = dyn_cast<TargetExtType>(Ty);
++  return TET && TET->getName() == "spirv.Padding";
++}
++
++bool hasPaddingMembers(const StructType *Ty) {
++  return any_of(Ty->elements(), isSpirvPaddingType);
++}
++
++unsigned memberIndexWithoutPadding(const StructType *Ty, unsigned Index) {
++  unsigned R = 0;
++  for (unsigned I = 0; I < Index; ++I)
++    if (!isSpirvPaddingType(Ty->getElementType(I)))
++      ++R;
++  return R;
++}
++
+ bool matchPeeledArrayPattern(const StructType *Ty, Type *&OriginalElementType,
+                              uint64_t &TotalSize, Type **PaddedElementType) {
+   // An array of N padded structs is represented as {[N-1 x <{T, pad}>], T}.
+diff --git a/llvm/lib/Target/SPIRV/SPIRVUtils.h b/llvm/lib/Target/SPIRV/SPIRVUtils.h
+index 72b07e2669..79cef0e61d 100644
+--- a/llvm/lib/Target/SPIRV/SPIRVUtils.h
++++ b/llvm/lib/Target/SPIRV/SPIRVUtils.h
+@@ -354,6 +354,15 @@ createExitVariable(BasicBlock *BB,
+ // matchPeeledArrayPattern recognizes this pattern retrieving the type T, the
+ // size N and, on request, the padded type {T, spirv.Padding}, whose size is
+ // the array's stride.
++// A struct laid out explicitly (a block's) may carry spirv.Padding members, the
++// distance to its next member, as a frontend writes std140 into a packed
++// struct. They are not members of its SPIR-V type: the other members keep
++// their offsets and are numbered among themselves.
++bool isSpirvPaddingType(const Type *Ty);
++bool hasPaddingMembers(const StructType *Ty);
++// The index of LLVM member `Index` of `Ty` among its non-padding members.
++unsigned memberIndexWithoutPadding(const StructType *Ty, unsigned Index);
++
+ bool matchPeeledArrayPattern(const StructType *Ty, Type *&OriginalElementType,
+                              uint64_t &TotalSize,
+                              Type **PaddedElementType = nullptr);
+diff --git a/llvm/test/CodeGen/SPIRV/hlsl-resources/explicit-layout-padding-members.ll b/llvm/test/CodeGen/SPIRV/hlsl-resources/explicit-layout-padding-members.ll
+new file mode 100644
+index 0000000000..6ac478f6d6
+--- /dev/null
++++ b/llvm/test/CodeGen/SPIRV/hlsl-resources/explicit-layout-padding-members.ll
+@@ -0,0 +1,59 @@
++; RUN: llc -O0 -verify-machineinstrs -mtriple=spirv1.6-unknown-vulkan1.3-library %s -o - | FileCheck %s
++; RUN: llc -O0 -mtriple=spirv1.6-unknown-vulkan1.3-library %s -o - | FileCheck %s --check-prefix=NO-PAD
++; RUN: %if spirv-tools %{ llc -O0 -mtriple=spirv1.6-unknown-vulkan1.3-library %s -o - -filetype=obj | spirv-val --target-env vulkan1.3 %}
++
++; A frontend lays out a block's nested structs with spirv.Padding members in
++; packed structs, as Clang does for a cbuffer. The padding is distance, not a
++; member: an explicitly laid-out struct's SPIR-V type has only its other
++; members, each at the offset the packed layout gives it, and an access chain
++; indexes them by their place among those.
++
++; NO-PAD-NOT: OpTypeInt 8
++
++; std140: struct Inner { vec2 p; float q; } (size 16)
++;         struct Block { float a; Inner inner; float b; }  inner at 16, b at 32
++; CHECK-DAG: %[[FLOAT:[0-9]+]] = OpTypeFloat 32
++; CHECK-DAG: %[[V2:[0-9]+]] = OpTypeVector %[[FLOAT]] 2
++; CHECK-DAG: %[[INNER:[0-9]+]] = OpTypeStruct %[[V2]] %[[FLOAT]]{{$}}
++; CHECK-DAG: %[[BLOCK:[0-9]+]] = OpTypeStruct %[[FLOAT]] %[[INNER]] %[[FLOAT]]{{$}}
++; CHECK-DAG: OpMemberDecorate %[[INNER]] 0 Offset 0
++; CHECK-DAG: OpMemberDecorate %[[INNER]] 1 Offset 8
++; CHECK-DAG: OpMemberDecorate %[[BLOCK]] 0 Offset 0
++; CHECK-DAG: OpMemberDecorate %[[BLOCK]] 1 Offset 16
++; CHECK-DAG: OpMemberDecorate %[[BLOCK]] 2 Offset 32
++; CHECK-DAG: %[[UINT:[0-9]+]] = OpTypeInt 32 0
++; CHECK-DAG: %[[ONE:[0-9]+]] = OpConstant %[[UINT]] 1{{$}}
++; CHECK-DAG: %[[TWO:[0-9]+]] = OpConstant %[[UINT]] 2{{$}}
++
++%Inner = type <{ <2 x float>, float, target("spirv.Padding", 4) }>
++%Block = type <{ float, target("spirv.Padding", 12), %Inner, float, target("spirv.Padding", 12) }>
++
++@.str.u = private unnamed_addr constant [2 x i8] c"U\00", align 1
++@.str.o = private unnamed_addr constant [4 x i8] c"Out\00", align 1
++
++define void @main() #0 {
++entry:
++  %u = tail call target("spirv.VulkanBuffer", target("spirv.Layout", %Block, 48, 0, 4, 16, 32, 36), 2, 0) @llvm.spv.resource.handlefrombinding.U(i32 0, i32 1, i32 1, i32 0, ptr nonnull @.str.u)
++
++; inner.q: LLVM member 2, then 1; SPIR-V member 1, then 1.
++; CHECK: %[[PI:[0-9]+]] = OpAccessChain %{{[0-9]+}} %{{[0-9]+}} %{{[0-9]+}} %[[ONE]]{{$}}
++; CHECK: %[[PQ:[0-9]+]] = Op{{(InBounds)?}}AccessChain %{{[0-9]+}} %[[PI]] %[[ONE]]{{$}}
++; CHECK: OpLoad %[[FLOAT]] %[[PQ]]
++  %pi = tail call ptr addrspace(12) @llvm.spv.resource.getpointer.p12.U(target("spirv.VulkanBuffer", target("spirv.Layout", %Block, 48, 0, 4, 16, 32, 36), 2, 0) %u, i32 2)
++  %pq = getelementptr inbounds %Inner, ptr addrspace(12) %pi, i32 0, i32 1
++  %q = load float, ptr addrspace(12) %pq
++
++; b: LLVM member 3; SPIR-V member 2.
++; CHECK: %[[PB:[0-9]+]] = OpAccessChain %{{[0-9]+}} %{{[0-9]+}} %{{[0-9]+}} %[[TWO]]{{$}}
++; CHECK: OpLoad %[[FLOAT]] %[[PB]]
++  %pb = tail call ptr addrspace(12) @llvm.spv.resource.getpointer.p12.U(target("spirv.VulkanBuffer", target("spirv.Layout", %Block, 48, 0, 4, 16, 32, 36), 2, 0) %u, i32 3)
++  %b = load float, ptr addrspace(12) %pb
++
++  %s = fadd float %q, %b
++  %o = tail call target("spirv.VulkanBuffer", [0 x float], 12, 1) @llvm.spv.resource.handlefrombinding.O(i32 0, i32 2, i32 1, i32 0, ptr nonnull @.str.o)
++  %po = tail call ptr addrspace(11) @llvm.spv.resource.getpointer.p11.O(target("spirv.VulkanBuffer", [0 x float], 12, 1) %o, i32 0)
++  store float %s, ptr addrspace(11) %po
++  ret void
++}
++
++attributes #0 = { "hlsl.numthreads"="1,1,1" "hlsl.shader"="compute" }
+-- 
+2.51.2
+

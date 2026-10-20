@@ -79,6 +79,15 @@ stdenv.mkDerivation (finalAttrs: {
     # and each shader entry point's interface lists only what it uses.
     ./spirv-global-name-metadata.patch
     ./spirv-entry-point-interface-per-entry.patch
+    # Uniform and push-constant blocks: a laid-out struct's `spirv.Padding`
+    # members are distance, not members; on request (`spirv.struct-blocks`)
+    # a uniform block is its struct with no wrapper; a push-constant global
+    # keeps its name; and two structs with the same members but different
+    # member names stay two types.
+    ./spirv-layout-drop-padding-members.patch
+    ./spirv-struct-blocks.patch
+    ./spirv-push-constant-keep-name.patch
+    ./spirv-struct-member-names-distinct.patch
   ];
 
   nativeBuildInputs = [
