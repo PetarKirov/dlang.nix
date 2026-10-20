@@ -94,6 +94,8 @@ stdenv.mkDerivation (finalAttrs: {
     ./spirv-peeled-array-first-element.patch
     ./spirv-push-constant-keep-metadata.patch
     ./spirv-struct-type-names.patch
+    # The logical target accepts Vulkan 1.0 and 1.1 (SPIR-V 1.0 and 1.3).
+    ./spirv-vulkan-1.1-triple.patch
   ];
 
   nativeBuildInputs = [
