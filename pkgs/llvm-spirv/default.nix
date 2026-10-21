@@ -96,6 +96,9 @@ stdenv.mkDerivation (finalAttrs: {
     ./spirv-struct-type-names.patch
     # The logical target accepts Vulkan 1.0 and 1.1 (SPIR-V 1.0 and 1.3).
     ./spirv-vulkan-1.1-triple.patch
+    # GVN forwards a vector element as an extractelement, not out of an
+    # integer as wide as the vector, which SPIR-V does not have.
+    ./vncoercion-vector-element.patch
   ];
 
   nativeBuildInputs = [

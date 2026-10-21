@@ -1,0 +1,85 @@
+From 03b3c6d1b460804bc92dfbbb17eb47d92d4a4231 Mon Sep 17 00:00:00 2001
+From: Petar Kirov <petar.p.kirov@gmail.com>
+Date: Wed, 21 Oct 2026 02:56:53 +0300
+Subject: [PATCH] [VNCoercion] Forward a vector element as an extractelement
+
+When GVN forwards a stored or loaded fixed vector to a load of one whole
+element at an element boundary, extract that element instead of reading it
+out of an integer as wide as the vector. The integer form is no simpler for
+any target and is illegal on one without the wide type: SPIR-V has no
+128-bit integer to bitcast a <4 x float> to, and InstCombine then folds a
+lane comparison onto it.
+
+Claude-Session: https://claude.ai/code/session_01TrgPqCXtysTg54Ef5n1nm6
+---
+ llvm/lib/Transforms/Utils/VNCoercion.cpp | 12 ++++++++++++
+ llvm/test/Transforms/GVN/pr63059.ll      | 22 ++++++++--------------
+ 2 files changed, 20 insertions(+), 14 deletions(-)
+
+diff --git a/llvm/lib/Transforms/Utils/VNCoercion.cpp b/llvm/lib/Transforms/Utils/VNCoercion.cpp
+index 0dabd065b6..b81d3968de 100644
+--- a/llvm/lib/Transforms/Utils/VNCoercion.cpp
++++ b/llvm/lib/Transforms/Utils/VNCoercion.cpp
+@@ -352,6 +352,18 @@ static Value *getStoreValueForLoadHelper(Value *SrcVal, unsigned Offset,
+   uint64_t StoreSize =
+       (DL.getTypeSizeInBits(SrcVal->getType()).getFixedValue() + 7) / 8;
+   uint64_t LoadSize = (DL.getTypeSizeInBits(LoadTy).getFixedValue() + 7) / 8;
++
++  // A load of one whole element of a fixed vector reads that element: extract
++  // it, rather than reading it out of an integer as wide as the vector, which
++  // the target may not have (SPIR-V has no 128-bit integer for a <4 x float>).
++  if (auto *VT = dyn_cast<FixedVectorType>(SrcVal->getType())) {
++    Type *EltTy = VT->getElementType();
++    const uint64_t EltSize = DL.getTypeStoreSize(EltTy).getFixedValue();
++    if (!EltTy->isPointerTy() && DL.typeSizeEqualsStoreSize(EltTy) &&
++        LoadSize == EltSize && Offset % EltSize == 0)
++      return Builder.CreateExtractElement(SrcVal, Offset / EltSize);
++  }
++
+   // Compute which bits of the stored value are being used by the load.  Convert
+   // to an integer type to start with.
+   if (SrcVal->getType()->isPtrOrPtrVectorTy())
+diff --git a/llvm/test/Transforms/GVN/pr63059.ll b/llvm/test/Transforms/GVN/pr63059.ll
+index 3d267f7aa7..76b58c162b 100644
+--- a/llvm/test/Transforms/GVN/pr63059.ll
++++ b/llvm/test/Transforms/GVN/pr63059.ll
+@@ -8,17 +8,12 @@ define <4 x float> @ConvertVectors_ByRef(ptr %loc) {
+ ; CHECK-NEXT:    [[LOAD_VEC:%.*]] = load <4 x float>, ptr [[LOC]], align 16
+ ; CHECK-NEXT:    [[SHUF:%.*]] = shufflevector <4 x float> [[LOAD_VEC]], <4 x float> poison, <4 x i32> <i32 0, i32 poison, i32 poison, i32 poison>
+ ; CHECK-NEXT:    [[GEP1:%.*]] = getelementptr inbounds [4 x float], ptr [[LOC]], i64 0, i64 1
+-; CHECK-NEXT:    [[TMP1:%.*]] = bitcast <4 x float> [[LOAD_VEC]] to i128
+-; CHECK-NEXT:    [[TMP2:%.*]] = lshr i128 [[TMP1]], 32
+-; CHECK-NEXT:    [[TMP3:%.*]] = trunc i128 [[TMP2]] to i32
+-; CHECK-NEXT:    [[TMP4:%.*]] = bitcast i32 [[TMP3]] to float
+-; CHECK-NEXT:    [[INS1:%.*]] = insertelement <4 x float> [[SHUF]], float [[TMP4]], i64 1
++; CHECK-NEXT:    [[TMP1:%.*]] = extractelement <4 x float> [[LOAD_VEC]], i64 1
++; CHECK-NEXT:    [[INS1:%.*]] = insertelement <4 x float> [[SHUF]], float [[TMP1]], i64 1
+ ; CHECK-NEXT:    [[GEP2:%.*]] = getelementptr inbounds [4 x float], ptr [[LOC]], i64 0, i64 2
+-; CHECK-NEXT:    [[TMP5:%.*]] = lshr i128 [[TMP1]], 64
+-; CHECK-NEXT:    [[TMP6:%.*]] = trunc i128 [[TMP5]] to i32
+-; CHECK-NEXT:    [[TMP7:%.*]] = bitcast i32 [[TMP6]] to float
+-; CHECK-NEXT:    [[INS2:%.*]] = insertelement <4 x float> [[INS1]], float [[TMP7]], i64 2
+-; CHECK-NEXT:    [[INS3:%.*]] = insertelement <4 x float> [[INS2]], float [[TMP7]], i64 3
++; CHECK-NEXT:    [[TMP2:%.*]] = extractelement <4 x float> [[LOAD_VEC]], i64 2
++; CHECK-NEXT:    [[INS2:%.*]] = insertelement <4 x float> [[INS1]], float [[TMP2]], i64 2
++; CHECK-NEXT:    [[INS3:%.*]] = insertelement <4 x float> [[INS2]], float [[TMP2]], i64 3
+ ; CHECK-NEXT:    ret <4 x float> [[INS3]]
+ ;
+   %load_vec = load <4 x float>, ptr %loc, align 16
+@@ -267,10 +262,9 @@ define i16 @load_subvector_different_type2(ptr %loc, <8 x i32> %v) {
+ ; CHECK-SAME: (ptr [[LOC:%.*]], <8 x i32> [[V:%.*]]) {
+ ; CHECK-NEXT:  entry:
+ ; CHECK-NEXT:    store <8 x i32> [[V]], ptr [[LOC]], align 32
+-; CHECK-NEXT:    [[TMP0:%.*]] = bitcast <8 x i32> [[V]] to i256
+-; CHECK-NEXT:    [[TMP1:%.*]] = trunc i256 [[TMP0]] to i32
+-; CHECK-NEXT:    [[TMP2:%.*]] = bitcast i32 [[TMP1]] to <2 x i16>
+-; CHECK-NEXT:    [[R:%.*]] = extractelement <2 x i16> [[TMP2]], i32 1
++; CHECK-NEXT:    [[TMP0:%.*]] = extractelement <8 x i32> [[V]], i64 0
++; CHECK-NEXT:    [[TMP1:%.*]] = bitcast i32 [[TMP0]] to <2 x i16>
++; CHECK-NEXT:    [[R:%.*]] = extractelement <2 x i16> [[TMP1]], i32 1
+ ; CHECK-NEXT:    ret i16 [[R]]
+ ;
+   entry:
+-- 
+2.51.2
+
