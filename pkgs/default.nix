@@ -192,7 +192,7 @@ in
         repo = "ldc";
         # sparkles/vulkan-shaders
         rev = "a353830ad4b8c385600fed5e2973cb7fc3a556ff";
-        hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
+        hash = "sha256-YO7lam8Q6TksIvU+acvWoA8eZZlpQgzUa57G711JenQ=";
         fetchSubmodules = true;
       };
 
