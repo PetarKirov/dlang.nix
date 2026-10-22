@@ -191,8 +191,8 @@ in
         owner = "PetarKirov";
         repo = "ldc";
         # sparkles/vulkan-shaders
-        rev = "567b3bc59c38152a969798f5773d932bb57a9ad2";
-        hash = "sha256-Y3gWTvBrESTW5VrEU/Tt72l2rrLwzxyvAj/3AScQ5nA=";
+        rev = "a353830ad4b8c385600fed5e2973cb7fc3a556ff";
+        hash = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";
         fetchSubmodules = true;
       };
 
@@ -224,11 +224,9 @@ in
               # ~470 MiB bootstrap in the closure of every shader build (the
               # same leak `dmd` had). Scrub, and assert it stays gone.
               nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ pkgs.removeReferencesTo ];
-              preFixup =
-                (old.preFixup or "")
-                + ''
-                  find "$out" -type f -exec remove-references-to -t ${self'.packages.ldc-bootstrap} '{}' +
-                '';
+              preFixup = (old.preFixup or "") + ''
+                find "$out" -type f -exec remove-references-to -t ${self'.packages.ldc-bootstrap} '{}' +
+              '';
               disallowedReferences = (old.disallowedReferences or [ ]) ++ [
                 self'.packages.ldc-bootstrap
               ];
@@ -243,32 +241,31 @@ in
         // (genPkgVersions "ldc").hierarchical
         // (genPkgVersions "dub").hierarchical;
 
-      packages =
-        {
-          # NOTE: This is only the default. The bootstrap compiler in the
-          # version catalog will override this.
-          ldc-bootstrap = self'.packages."ldc-binary-1_42_0";
-          ldc = self'.packages."ldc-1_42_0";
+      packages = {
+        # NOTE: This is only the default. The bootstrap compiler in the
+        # version catalog will override this.
+        ldc-bootstrap = self'.packages."ldc-binary-1_42_0";
+        ldc = self'.packages."ldc-1_42_0";
 
-          # DUB is released alongside DMD. When DMD 2.112.0 shipped, upstream
-          # appears to have forgotten to bump DUB from 1.42.0-beta.1 to the
-          # final 1.42.0 tag, so the newest released DUB is still this beta.
-          # Switch to "dub-1_42_0" once upstream tags the stable release.
-          dub = self'.packages."dub-1_42_0-beta_1";
+        # DUB is released alongside DMD. When DMD 2.112.0 shipped, upstream
+        # appears to have forgotten to bump DUB from 1.42.0-beta.1 to the
+        # final 1.42.0 tag, so the newest released DUB is still this beta.
+        # Switch to "dub-1_42_0" once upstream tags the stable release.
+        dub = self'.packages."dub-1_42_0-beta_1";
+      }
+      // (genPkgVersions "ldc").flattened "binary"
+      // (genPkgVersions "ldc").flattened "source"
+      // (genPkgVersions "dub").flattened "source"
+      // optionalAttrs pkgs.hostPlatform.isx86 (
+        {
+          dmd-bootstrap = self'.packages."dmd-binary-2_098_0";
+          dmd = self'.packages."dmd-2_112_0";
         }
-        // (genPkgVersions "ldc").flattened "binary"
-        // (genPkgVersions "ldc").flattened "source"
-        // (genPkgVersions "dub").flattened "source"
-        // optionalAttrs pkgs.hostPlatform.isx86 (
-          {
-            dmd-bootstrap = self'.packages."dmd-binary-2_098_0";
-            dmd = self'.packages."dmd-2_112_0";
-          }
-          // (genPkgVersions "dmd").flattened "binary"
-          // (genPkgVersions "dmd").flattened "source"
-        )
-        // optionalAttrs (ndkHostTag != null) androidPackages
-        // optionalAttrs (system == "x86_64-linux") (wasmPackages // x86_32Packages)
-        // optionalAttrs (pkgs.hostPlatform.isLinux || pkgs.hostPlatform.isDarwin) vulkanPackages;
+        // (genPkgVersions "dmd").flattened "binary"
+        // (genPkgVersions "dmd").flattened "source"
+      )
+      // optionalAttrs (ndkHostTag != null) androidPackages
+      // optionalAttrs (system == "x86_64-linux") (wasmPackages // x86_32Packages)
+      // optionalAttrs (pkgs.hostPlatform.isLinux || pkgs.hostPlatform.isDarwin) vulkanPackages;
     };
 }
