@@ -13,10 +13,11 @@
 # built too, as the C compiler and link driver of the WASI runtime
 # (./../ldc/wasi-sdk.nix): D, C and the link then share one LLVM.
 #
-# Targets are the host (for LDC's own runtime), SPIRV (for dcompute's
-# Vulkan target) and WebAssembly (for the WASI runtime), so one LDC serves
-# all three. Assertions stay on: the SPIR-V backend is young, and an
-# assertion that fires in a shader build is a bug report, not a slowdown.
+# Targets are AArch64 and X86 (every desktop host, and Android devices and
+# emulators, from either host), SPIRV (for dcompute's Vulkan target) and
+# WebAssembly (for the WASI runtime), so one LDC serves them all.
+# Assertions stay on: the SPIR-V backend is young, and an assertion that
+# fires in a shader build is a bug report, not a slowdown.
 {
   lib,
   stdenv,
@@ -44,7 +45,7 @@ stdenv.mkDerivation (finalAttrs: {
   cmakeFlags = [
     (lib.cmakeFeature "CMAKE_BUILD_TYPE" "Release")
     (lib.cmakeFeature "LLVM_ENABLE_PROJECTS" "clang;lld")
-    (lib.cmakeFeature "LLVM_TARGETS_TO_BUILD" "host;SPIRV;WebAssembly")
+    (lib.cmakeFeature "LLVM_TARGETS_TO_BUILD" "AArch64;X86;SPIRV;WebAssembly")
     (lib.cmakeBool "LLVM_ENABLE_ASSERTIONS" true)
     # Clang is the WASI C driver only.
     (lib.cmakeBool "CLANG_ENABLE_STATIC_ANALYZER" false)
