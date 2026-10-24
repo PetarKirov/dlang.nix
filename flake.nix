@@ -11,6 +11,14 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
+    # LLVM main with the SPIR-V fixes dcompute's Vulkan target needs, one
+    # commit each on PetarKirov/llvm-project `sparkles/main`: the source of
+    # `llvm-spirv-vulkan`. A tarball, not a clone: LLVM's history is large.
+    llvm-sparkles = {
+      url = "github:PetarKirov/llvm-project/sparkles/main";
+      flake = false;
+    };
+
     # LDC master with dcompute's Vulkan target (ldc-developers/ldc#5132), its
     # shader stages, and the fixes they and WASI need on LLVM main: the
     # source of `ldc-vulkan` and `ldc-sparkles`.

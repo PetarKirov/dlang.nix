@@ -185,7 +185,14 @@ in
       # against LLVM main with the SPIR-V backend (./llvm-spirv). Consumed by
       # sparkles' `shader-compile`, which turns single-source D shaders into
       # SPIR-V and, via spirv-cross, GLSL. Opt-in and heavy (LLVM from source).
-      llvmSpirvVulkan = pkgs.callPackage ./llvm-spirv { };
+      llvmSpirvVulkan = pkgs.callPackage ./llvm-spirv {
+        src = inputs.llvm-sparkles;
+        version =
+          let
+            d = inputs.llvm-sparkles.lastModifiedDate;
+          in
+          "24.0.0-unstable-${builtins.substring 0 4 d}-${builtins.substring 4 2 d}-${builtins.substring 6 2 d}";
+      };
 
       # PetarKirov/ldc `sparkles/main` (the `ldc-sparkles` input): the
       # Vulkan-shaders branch on LDC master, which also carries upstream's

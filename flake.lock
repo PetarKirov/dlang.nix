@@ -99,6 +99,23 @@
         "url": "https://github.com/PetarKirov/ldc"
       }
     },
+    "llvm-sparkles": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1792855659,
+        "narHash": "sha256-6PErS9qtfoyqc5hFrgNd3OTfyBxTGst4ynTR2+lsLlc=",
+        "owner": "PetarKirov",
+        "repo": "llvm-project",
+        "rev": "21395bfd2584e60ed81ea6ace00d6da643116339",
+        "type": "github"
+      },
+      "original": {
+        "owner": "PetarKirov",
+        "ref": "sparkles/main",
+        "repo": "llvm-project",
+        "type": "github"
+      }
+    },
     "nixpkgs": {
       "locked": {
         "lastModified": 1748929857,
@@ -137,6 +154,7 @@
         "flake-parts": "flake-parts",
         "git-hooks-nix": "git-hooks-nix",
         "ldc-sparkles": "ldc-sparkles",
+        "llvm-sparkles": "llvm-sparkles",
         "nixpkgs": "nixpkgs",
         "nixpkgs-wasm": "nixpkgs-wasm",
         "wasm-component-ld": "wasm-component-ld"
