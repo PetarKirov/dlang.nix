@@ -42,11 +42,15 @@ in
       };
       ndkBundle = (androidPkgs.androidenv.composeAndroidPackages { includeNDK = true; }).ndk-bundle;
       ndkRoot = "${ndkBundle}/libexec/android-sdk/ndk/${ndkBundle.version}";
+      # The Android compiler is `ldc-vulkan`, the PetarKirov/ldc fork every
+      # other sparkles target builds with: one LDC and one LLVM for the host,
+      # the shaders, WASI and Android. The fork also carries Bionic fixes
+      # (the x86 TLS range, ldc#5311).
       mkAndroidRuntime =
         args:
         pkgs.callPackage ./ldc/android-runtime.nix (
           {
-            ldc = self'.packages.ldc;
+            ldc = vulkanPackages.ldc-vulkan;
             ndk = ndkRoot;
           }
           // args
@@ -63,7 +67,7 @@ in
         ldc-android-runtime-aarch64 = ldcAndroidRuntimeAarch64;
         ldc-android-runtime-x86_64 = ldcAndroidRuntimeX86_64;
         ldc-android = pkgs.callPackage ./ldc/android.nix {
-          ldc = self'.packages.ldc;
+          ldc = vulkanPackages.ldc-vulkan;
           androidRuntimes = [
             {
               triplePattern = "aarch64-.*-linux-android";
