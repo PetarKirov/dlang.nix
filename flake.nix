@@ -11,6 +11,14 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
+    # LDC master with dcompute's Vulkan target (ldc-developers/ldc#5132), its
+    # shader stages, and the fixes they and WASI need on LLVM main: the
+    # source of `ldc-vulkan` and `ldc-sparkles`.
+    ldc-sparkles = {
+      url = "git+https://github.com/PetarKirov/ldc?ref=sparkles/main&submodules=1";
+      flake = false;
+    };
+
     # Pinned nixpkgs that ships LLVM 22 (needed by the wasm32-wasip2 LDC fork,
     # which references llvm::Triple::WASIp1/2/3) plus the wasi32 cross sysroot and
     # compiler-rt. Matches the LDC WASI dev shell; only the x86_64-linux `ldc-wasm`

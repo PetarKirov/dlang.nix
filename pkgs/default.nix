@@ -187,21 +187,18 @@ in
       # SPIR-V and, via spirv-cross, GLSL. Opt-in and heavy (LLVM from source).
       llvmSpirvVulkan = pkgs.callPackage ./llvm-spirv { };
 
-      ldcVulkanSrc = pkgs.fetchFromGitHub {
-        owner = "PetarKirov";
-        repo = "ldc";
-        # sparkles/vulkan-shaders
-        rev = "3e7171f6ca28be7057d7364547150394cd84025c";
-        hash = "sha256-oImxONtuiFjZjylJNj6VbfiW54UrQAYJcQwzzdWpMdQ=";
-        fetchSubmodules = true;
-      };
+      # PetarKirov/ldc `sparkles/main` (the `ldc-sparkles` input): the
+      # Vulkan-shaders branch on LDC master, which also carries upstream's
+      # WASI support. A flake input, so a consumer can point it at a checkout
+      # with `--override-input`.
+      ldcVulkanSrc = inputs.ldc-sparkles;
 
       vulkanPackages = {
         llvm-spirv-vulkan = llvmSpirvVulkan;
         ldc-vulkan =
           (pkgs.callPackage
             (import ./ldc/generic.nix {
-              version = "1.43.0-vulkan";
+              version = "1.43.0-sparkles";
               srcOverride = ldcVulkanSrc;
               # The fork's lit tests need an LLVM with FileCheck and the
               # spirv-tools; the release test suite assumes a tarball layout.
