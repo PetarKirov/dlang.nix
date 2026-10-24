@@ -229,6 +229,28 @@ in
               ];
             });
       };
+
+      # ---- The same compiler for WASI (wasm32-wasip1) — Linux and macOS ----
+      # `ldc-sparkles` is `ldc-vulkan` plus a druntime/Phobos cross-built for
+      # `wasm32-wasip1` from its own source, linked through wasi-sdk's sysroot:
+      # one compiler for the host, Vulkan shaders and WASI.
+      wasiSdk = pkgs.callPackage ./ldc/wasi-sdk.nix { llvm = llvmSpirvVulkan; };
+
+      ldcSparklesWasiRuntime = pkgs.callPackage ./ldc/wasi-runtime.nix {
+        ldc = vulkanPackages.ldc-vulkan;
+        llvm = llvmSpirvVulkan;
+        inherit wasiSdk;
+      };
+
+      sparklesPackages = {
+        wasi-sdk = wasiSdk;
+        ldc-sparkles-wasi-runtime = ldcSparklesWasiRuntime;
+        ldc-sparkles = pkgs.callPackage ./ldc/with-wasi.nix {
+          ldc = vulkanPackages.ldc-vulkan;
+          wasiRuntime = ldcSparklesWasiRuntime;
+          inherit wasiSdk;
+        };
+      };
     in
     {
       overlayAttrs = self'.packages;
@@ -263,6 +285,8 @@ in
       )
       // optionalAttrs (ndkHostTag != null) androidPackages
       // optionalAttrs (system == "x86_64-linux") (wasmPackages // x86_32Packages)
-      // optionalAttrs (pkgs.hostPlatform.isLinux || pkgs.hostPlatform.isDarwin) vulkanPackages;
+      // optionalAttrs (pkgs.hostPlatform.isLinux || pkgs.hostPlatform.isDarwin) (
+        vulkanPackages // sparklesPackages
+      );
     };
 }
