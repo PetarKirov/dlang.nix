@@ -7,7 +7,9 @@
 # Why not an `llvmPackages_*` set: no nixpkgs release ships LLVM 24 yet, and
 # LDC only needs `llvm-config` plus the static libraries of LLVM and lld. One
 # install prefix holds both, so it doubles as `llvm.dev` and `lld.dev` for
-# ./../ldc/generic.nix (see `llvmPackages` in ./../default.nix).
+# ./../ldc/generic.nix (see `llvmPackages` in ./../default.nix). Clang is
+# built too, as the C compiler and link driver of the WASI runtime
+# (./../ldc/wasi-sdk.nix): D, C and the link then share one LLVM.
 #
 # Targets are the host (for LDC's own runtime), SPIRV (for dcompute's
 # Vulkan target) and WebAssembly (for the WASI runtime), so one LDC serves
@@ -114,7 +116,7 @@ stdenv.mkDerivation (finalAttrs: {
 
   cmakeFlags = [
     (lib.cmakeFeature "CMAKE_BUILD_TYPE" "Release")
-    (lib.cmakeFeature "LLVM_ENABLE_PROJECTS" "lld")
+    (lib.cmakeFeature "LLVM_ENABLE_PROJECTS" "clang;lld")
     (lib.cmakeFeature "LLVM_TARGETS_TO_BUILD" "host;SPIRV;WebAssembly")
     (lib.cmakeBool "LLVM_ENABLE_ASSERTIONS" true)
     (lib.cmakeBool "LLVM_INCLUDE_TESTS" false)
