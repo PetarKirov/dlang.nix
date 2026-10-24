@@ -82,14 +82,19 @@ let
         rpath = "@out@/lib";
       };
 
-      "^wasm(32|64)-":
-      {
-        switches = [
-          "-defaultlib=",
-          "-L--export-dynamic",
-        ];
-        lib-dirs = [];
-      };'';
+      ${
+        # LDC 1.43 ships its own wasm drop-ins (`51-target-wasm-base.conf`,
+        # `55-target-wasm-naked.conf`), which this section would override.
+        lib.optionalString (lib.versionOlder version "1.43.0") ''
+          "^wasm(32|64)-":
+          {
+            switches = [
+              "-defaultlib=",
+              "-L--export-dynamic",
+            ];
+            lib-dirs = [];
+          };''
+      }'';
   };
 in
 stdenv.mkDerivation rec {
