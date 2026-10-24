@@ -9,8 +9,9 @@
 # install prefix holds both, so it doubles as `llvm.dev` and `lld.dev` for
 # ./../ldc/generic.nix (see `llvmPackages` in ./../default.nix).
 #
-# Targets are the host (for LDC's own runtime) and SPIRV (for dcompute's
-# Vulkan target). Assertions stay on: the SPIR-V backend is young, and an
+# Targets are the host (for LDC's own runtime), SPIRV (for dcompute's
+# Vulkan target) and WebAssembly (for the WASI runtime), so one LDC serves
+# all three. Assertions stay on: the SPIR-V backend is young, and an
 # assertion that fires in a shader build is a bug report, not a slowdown.
 {
   lib,
@@ -114,7 +115,7 @@ stdenv.mkDerivation (finalAttrs: {
   cmakeFlags = [
     (lib.cmakeFeature "CMAKE_BUILD_TYPE" "Release")
     (lib.cmakeFeature "LLVM_ENABLE_PROJECTS" "lld")
-    (lib.cmakeFeature "LLVM_TARGETS_TO_BUILD" "host;SPIRV")
+    (lib.cmakeFeature "LLVM_TARGETS_TO_BUILD" "host;SPIRV;WebAssembly")
     (lib.cmakeBool "LLVM_ENABLE_ASSERTIONS" true)
     (lib.cmakeBool "LLVM_INCLUDE_TESTS" false)
     (lib.cmakeBool "LLVM_INCLUDE_BENCHMARKS" false)
