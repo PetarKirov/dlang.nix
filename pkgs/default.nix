@@ -226,19 +226,33 @@ in
               hostDCompiler = self'.packages.ldc-bootstrap;
             }
           ).overrideAttrs
-            (old: {
-              # The bootstrap compiler's druntime asserts bake `__FILE__` paths
-              # into LDC's own D code: dead strings, but enough to keep the
-              # ~470 MiB bootstrap in the closure of every shader build (the
-              # same leak `dmd` had). Scrub, and assert it stays gone.
-              nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ pkgs.removeReferencesTo ];
-              preFixup = (old.preFixup or "") + ''
-                find "$out" -type f -exec remove-references-to -t ${self'.packages.ldc-bootstrap} '{}' +
-              '';
-              disallowedReferences = (old.disallowedReferences or [ ]) ++ [
-                self'.packages.ldc-bootstrap
-              ];
-            });
+            (
+              old:
+              {
+                # The bootstrap compiler's druntime asserts bake `__FILE__` paths
+                # into LDC's own D code: dead strings, but enough to keep the
+                # ~470 MiB bootstrap in the closure of every shader build (the
+                # same leak `dmd` had). Scrub, and assert it stays gone.
+                nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ pkgs.removeReferencesTo ];
+                preFixup = (old.preFixup or "") + ''
+                  find "$out" -type f -exec remove-references-to -t ${self'.packages.ldc-bootstrap} '{}' +
+                '';
+                disallowedReferences = (old.disallowedReferences or [ ]) ++ [
+                  self'.packages.ldc-bootstrap
+                ];
+              }
+              // lib.optionalAttrs pkgs.stdenv.hostPlatform.isDarwin {
+                # The LLVM install ships clang (the WASI C driver), and it is on
+                # PATH here as `llvmPackages.llvm.dev`. Darwin's stdenv names its
+                # compilers `clang`/`clang++`, so CMake would find that unwrapped
+                # clang, which has no SDK or libc++ headers ('new' file not
+                # found), instead of stdenv's wrapper. Name the wrapper.
+                cmakeFlags = (old.cmakeFlags or [ ]) ++ [
+                  "-DCMAKE_C_COMPILER=${pkgs.stdenv.cc}/bin/cc"
+                  "-DCMAKE_CXX_COMPILER=${pkgs.stdenv.cc}/bin/c++"
+                ];
+              }
+            );
       };
 
       # ---- The same compiler for WASI (wasm32-wasip1) — Linux and macOS ----
