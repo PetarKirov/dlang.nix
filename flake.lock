@@ -104,16 +104,17 @@
       "locked": {
         "lastModified": 1792878720,
         "narHash": "sha256-9OY8KW5hNDttk2J8V43xzV3pLlyfRPJQWkf6HvsjgE4=",
-        "owner": "PetarKirov",
-        "repo": "llvm-project",
+        "ref": "sparkles/main",
         "rev": "24d1ae35e055e8a32192fc07da66885d0e2c5576",
-        "type": "github"
+        "shallow": true,
+        "type": "git",
+        "url": "https://github.com/PetarKirov/llvm-project"
       },
       "original": {
-        "owner": "PetarKirov",
         "ref": "sparkles/main",
-        "repo": "llvm-project",
-        "type": "github"
+        "shallow": true,
+        "type": "git",
+        "url": "https://github.com/PetarKirov/llvm-project"
       }
     },
     "nixpkgs": {

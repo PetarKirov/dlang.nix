@@ -13,9 +13,11 @@
 
     # LLVM main with the SPIR-V fixes dcompute's Vulkan target needs, one
     # commit each on PetarKirov/llvm-project `sparkles/main`: the source of
-    # `llvm-spirv-vulkan`. A tarball, not a clone: LLVM's history is large.
+    # `llvm-spirv-vulkan`. A shallow clone, not a GitHub tarball: GitHub fills in
+    # the `export-subst` placeholders of `.git_archival.txt` when it builds the
+    # tarball, so Nix versions disagree on its hash (CI's 2.35 rejected 2.32's).
     llvm-sparkles = {
-      url = "github:PetarKirov/llvm-project/sparkles/main";
+      url = "git+https://github.com/PetarKirov/llvm-project?ref=sparkles/main&shallow=1";
       flake = false;
     };
 
