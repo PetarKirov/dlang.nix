@@ -90,6 +90,11 @@ stdenv.mkDerivation {
     runHook postInstall
   '';
 
+  passthru.buildStatus = {
+    build = true;
+    check = false;
+  };
+
   meta = with lib; {
     description = "LDC druntime + phobos cross-built for i686-linux (32-bit x86)";
     homepage = "https://github.com/ldc-developers/ldc";

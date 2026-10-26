@@ -71,6 +71,10 @@ symlinkJoin {
     done
   '';
   passthru = {
+    buildStatus = {
+      build = true;
+      check = false;
+    };
     inherit x86_32Runtime mergedConf;
     inherit i686cc i686GlibcStatic;
   };

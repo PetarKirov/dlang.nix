@@ -98,6 +98,11 @@ stdenv.mkDerivation {
     runHook postInstall
   '';
 
+  passthru.buildStatus = {
+    build = true;
+    check = false;
+  };
+
   meta = with lib; {
     description = "LDC druntime + phobos cross-built for Android ${archTag}";
     homepage = "https://github.com/ldc-developers/ldc";

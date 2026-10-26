@@ -86,6 +86,10 @@ stdenvNoCC.mkDerivation (finalAttrs: {
   disallowedReferences = [ llvm ];
 
   passthru = {
+    buildStatus = {
+      build = true;
+      check = false;
+    };
     cc = "${finalAttrs.finalPackage}/bin/wasm32-wasip1-clang";
     cxx = "${finalAttrs.finalPackage}/bin/wasm32-wasip1-clang++";
   };

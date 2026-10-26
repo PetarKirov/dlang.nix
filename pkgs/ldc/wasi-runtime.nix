@@ -59,6 +59,11 @@ stdenv.mkDerivation {
     runHook postInstall
   '';
 
+  passthru.buildStatus = {
+    build = true;
+    check = false;
+  };
+
   meta = {
     description = "LDC's druntime and Phobos for ${triple}";
     homepage = "https://github.com/ldc-developers/ldc";

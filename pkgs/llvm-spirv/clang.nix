@@ -24,7 +24,7 @@ let
   major = lib.versions.major llvm.version;
   inherit (stdenv.hostPlatform) isDarwin;
 in
-wrapCCWith {
+(wrapCCWith {
   # What kind of compiler it wraps is read from `passthru`, which is not part
   # of the derivation: the store path stays the LLVM install's.
   cc = llvm.overrideAttrs (old: {
@@ -47,4 +47,12 @@ wrapCCWith {
   + lib.optionalString isDarwin ''
     ln -s "${compiler-rt.out}/lib" "$rsrc/lib"
   '';
-}
+}).overrideAttrs
+  (old: {
+    passthru = old.passthru // {
+      buildStatus = {
+        build = true;
+        check = false;
+      };
+    };
+  })

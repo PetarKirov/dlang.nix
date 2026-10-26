@@ -93,6 +93,10 @@ symlinkJoin {
     done
   '';
   passthru = {
+    buildStatus = {
+      build = true;
+      check = false;
+    };
     inherit androidRuntimes mergedConf;
     # Back-compat alias: the aarch64 runtime (the first registered target).
     androidRuntime = (lib.head androidRuntimes).runtime;
