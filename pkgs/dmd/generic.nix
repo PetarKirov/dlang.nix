@@ -24,7 +24,6 @@
   curl,
   tzdata,
   gdb,
-  gcc11,
   Foundation,
   targetPackages,
   fetchpatch,
@@ -89,7 +88,7 @@ let
     [
       "SHELL=${bash}/bin/bash"
       "DMD=$(NIX_BUILD_TOP)/dmd/${buildPath}/dmd"
-      "CC=${if stdenv.isDarwin then stdenv.cc else gcc11}/bin/cc"
+      "CC=${stdenv.cc}/bin/cc"
       "HOST_DMD=${hostDCInfo.dmdWrapper}"
       "PIC=1"
       "BUILD=${buildMode}"
