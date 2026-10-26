@@ -178,7 +178,6 @@ stdenv.mkDerivation rec {
     unzip
     pkg-config
   ]
-  ++ lib.optional stdenv.hostPlatform.isDarwin darwin.apple_sdk.frameworks.Foundation
   # https://github.com/NixOS/nixpkgs/pull/36378#issuecomment-385034818
   ++ lib.optional (!stdenv.hostPlatform.isDarwin) gdb;
 
