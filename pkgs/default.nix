@@ -206,6 +206,11 @@ in
 
       vulkanPackages = {
         llvm-spirv-vulkan = llvmSpirvVulkan;
+        # C and C++ on the same clang and LLVM, without rebuilding them.
+        clang-sparkles = pkgs.callPackage ./llvm-spirv/clang.nix {
+          llvm = llvmSpirvVulkan;
+          compiler-rt = pkgs.llvmPackages_20.compiler-rt;
+        };
         ldc-vulkan =
           (pkgs.callPackage
             (import ./ldc/generic.nix {
