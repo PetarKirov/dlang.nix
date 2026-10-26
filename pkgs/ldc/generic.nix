@@ -1,5 +1,5 @@
 # `srcOverride` swaps the release tarball for an arbitrary source tree (used to
-# build LDC from a git fork — see the `ldc-wasm` packages); `checkOverride` forces
+# build LDC from a git fork — see `ldc-vulkan`); `checkOverride` forces
 # `doCheck` (the fork build skips the dmd test suite, whose paths assume the
 # release tarball layout).
 {
