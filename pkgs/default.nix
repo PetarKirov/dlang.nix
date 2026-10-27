@@ -150,14 +150,35 @@ in
       };
       clangStdenvSparkles = pkgs.overrideCC pkgs.stdenv clangSparkles;
 
+      # TC22: the tests Nix runs for the toolchain (./llvm-spirv/tests.nix), as
+      # `passthru.tests` and as flake checks.
+      toolchainTests =
+        ldc:
+        pkgs.callPackage ./llvm-spirv/tests.nix {
+          clangStdenv = clangStdenvSparkles;
+          inherit ldc;
+          llvmTools = llvmViews.clang;
+        };
+      withToolchainTests =
+        ldc:
+        ldc.overrideAttrs (old: {
+          passthru = old.passthru // {
+            tests = toolchainTests ldc;
+          };
+        });
+
       vulkanPackages = {
         llvm-spirv-vulkan = llvmSpirvVulkan;
         llvm-spirv-vulkan-dev = llvmViews.dev;
         clang-sparkles-unwrapped = llvmViews.clang;
         compiler-rt-sparkles = compilerRtSparkles;
         # C and C++ on the same clang and LLVM as LDC.
-        clang-sparkles = clangSparkles;
-        ldc-vulkan =
+        clang-sparkles = clangSparkles.overrideAttrs (old: {
+          passthru = old.passthru // {
+            tests.clang = (toolchainTests null).clang;
+          };
+        });
+        ldc-vulkan = withToolchainTests (
           (pkgs.callPackage
             (import ./ldc/generic.nix {
               version = "1.43.0-sparkles";
@@ -213,7 +234,8 @@ in
                   self'.packages.ldc-bootstrap
                 ];
               }
-            );
+            )
+        );
       };
 
       # ---- The same compiler for WASI (wasm32-wasip1) — Linux and macOS ----
@@ -279,5 +301,11 @@ in
       // optionalAttrs (pkgs.hostPlatform.isLinux || pkgs.hostPlatform.isDarwin) (
         vulkanPackages // sparklesPackages
       );
+
+      checks = optionalAttrs (pkgs.hostPlatform.isLinux || pkgs.hostPlatform.isDarwin) {
+        toolchain-clang = vulkanPackages.clang-sparkles.tests.clang;
+        toolchain-runtimes = vulkanPackages.ldc-vulkan.tests.runtimes;
+        toolchain-ldc = vulkanPackages.ldc-vulkan.tests.ldc;
+      };
     };
 }
