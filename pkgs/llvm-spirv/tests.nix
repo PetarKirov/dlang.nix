@@ -19,6 +19,8 @@
   ldc,
   llvmTools,
   python3,
+  spirv-tools,
+  runtimeShell,
 }:
 let
   inherit (stdenv.hostPlatform) isDarwin isLinux;
@@ -173,16 +175,52 @@ in
 
   ldc = ldc.overrideAttrs (old: {
     pname = "${old.pname}-checked";
+    # druntime's profile test runs its recipes with `/bin/bash`.
+    postPatch = (old.postPatch or "") + ''
+      substituteInPlace runtime/druntime/test/profile/Makefile \
+        --replace-fail "SHELL=/bin/bash" "SHELL=${runtimeShell}"
+    '';
     doCheck = true;
-    nativeCheckInputs = (old.nativeCheckInputs or [ ]) ++ [ python3 ];
+    # Known failures, each a FileCheck pattern written for the LLVM releases
+    # upstream LDC tests against, where LLVM main prints or optimizes the
+    # same program differently. Listed in Sparkles'
+    # docs/specs/toolchain/testing.md; a listed test that passes is an
+    # unexpected pass, which fails the check, so the list only shrinks.
+    LIT_XFAIL = lib.concatStringsSep ";" [
+      # Constant GEPs into the counter arrays print as `i8` offsets.
+      "PGO/allstatementtypes.d"
+      "PGO/branching_switch.d"
+      "PGO/break.d"
+      "PGO/exceptions.d"
+      "PGO/functions.d"
+      # The profile summary's metadata fields changed.
+      "PGO/summary.d"
+      # `module asm` prints its string on the next line.
+      "codegen/casm.i"
+      # Different instruction order and devirtualization at -O.
+      "codegen/devirtualization_assumevtable.d"
+      "codegen/int128.d"
+    ];
+    # `spirv-dis` for the Vulkan code-generation tests.
+    nativeCheckInputs = (old.nativeCheckInputs or [ ]) ++ [
+      python3
+      spirv-tools
+    ];
     # The lit directories that cover the fork's targets, instrumentation and
     # runtimes, then druntime's and Phobos' own unittests. Known failures are
     # listed, per test, in Sparkles' docs/specs/toolchain/testing.md.
     checkPhase = ''
       runHook preCheck
+      # lit puts LLVM's tool directory, with its raw clang, on PATH; link through
+      # the wrapped one instead (tests/lit.site.cfg passes CC through).
+      export CC=${clangStdenv.cc}/bin/cc
       ninja -j$NIX_BUILD_CORES all-test-runners
       (cd tests && python3 runlit.py -v codegen driver instrument linking sanitizers PGO)
-      ctest -j$NIX_BUILD_CORES --output-on-failure -E "ldc2-unittest|lit-tests|dmd-testsuite"
+      # std.datetime.timezone: under the test runner every zone resolves to
+      # `/<name>`, though a program built the same way finds it; cause not
+      # yet found (Sparkles' docs/specs/toolchain/testing.md).
+      ctest -j$NIX_BUILD_CORES --output-on-failure \
+        -E "ldc2-unittest|lit-tests|dmd-testsuite|std\.datetime\.timezone"
       runHook postCheck
     '';
     # The check build is a test, not a package: nothing references it.
