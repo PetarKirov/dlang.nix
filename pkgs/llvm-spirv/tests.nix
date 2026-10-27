@@ -258,6 +258,8 @@ in
       rm -rf $out/*
       touch $out/passed
     '';
+    # Nothing is left to fix up (the package's own fixup edits lib/libLTO.dylib).
+    preFixup = "";
     disallowedReferences = [ ];
   });
 }
