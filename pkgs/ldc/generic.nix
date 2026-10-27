@@ -109,6 +109,8 @@ stdenv.mkDerivation rec {
 
   passthru = {
     inherit buildStatus;
+    # The C compiler `ldc2` links through unless `CC` names another.
+    inherit linkCc;
   };
 
   src =
