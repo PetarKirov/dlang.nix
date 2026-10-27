@@ -53,6 +53,11 @@ let
   quietTarget = lib.optionalString (
     wrapperCc != null
   ) " --set-default NIX_CC_WRAPPER_SUPPRESS_TARGET_WARNING 1";
+  # A Darwin link with debug info runs dsymutil (LDC's fork; see
+  # driver/linker-gcc.cpp), which the wrapped compiler's clang ships beside it.
+  dsymutil = lib.optionalString (
+    wrapperCc != null && stdenv.hostPlatform.isDarwin
+  ) " --set-default DSYMUTIL ${wrapperCc.cc}/bin/dsymutil";
   elfOnly = name: if stdenv.hostPlatform.isElf then name else null;
 
   # The 1.4x line builds against LLVM 15-20; nixpkgs ships it on LLVM 18.
@@ -316,7 +321,7 @@ stdenv.mkDerivation rec {
 
       wrapProgram $out/bin/ldc2 \
         --prefix PATH ":" "${linkCc}/bin" \
-        --set-default CC "${linkCc}/bin/cc"${quietTarget}
+        --set-default CC "${linkCc}/bin/cc"${quietTarget}${dsymutil}
     '';
 
   meta = with lib; {

@@ -223,6 +223,8 @@ in
         for s in ASAN LSAN TSAN UBSAN; do
           export ''${s}_SYMBOLIZER_PATH=${llvmTools}/bin/llvm-symbolizer
         done
+        # The tests' debug links make a .dSYM for llvm-symbolizer to read.
+        export DSYMUTIL=${llvmTools}/bin/dsymutil
         install_name_tool -add_rpath ${llvmTools}/lib lib/libLTO.dylib
         ${darwin.sigtool}/bin/codesign -f -s - lib/libLTO.dylib
       ''}
