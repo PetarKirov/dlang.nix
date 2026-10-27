@@ -27,7 +27,6 @@
   fetchurl,
   cmake,
   ninja,
-  llvmPackages_12,
   llvmPackages_18,
   curl,
   tzdata,
@@ -56,15 +55,10 @@ let
   ) " --set-default NIX_CC_WRAPPER_SUPPRESS_TARGET_WARNING 1";
   elfOnly = name: if stdenv.hostPlatform.isElf then name else null;
 
-  # LDC tracks LLVM closely: 1.30 builds against LLVM 12, the 1.4x line needs
-  # LLVM 15-20 (nixpkgs ships 1.40.1 on LLVM 18, so we use 18 here too).
-  llvmPackages =
-    if llvmPackagesOverride != null then
-      llvmPackagesOverride
-    else if lib.versionAtLeast version "1.41.0" then
-      llvmPackages_18
-    else
-      llvmPackages_12;
+  # The 1.4x line builds against LLVM 15-20; nixpkgs ships it on LLVM 18.
+  # Older releases need an LLVM nixpkgs no longer has, and are built from
+  # binaries only.
+  llvmPackages = if llvmPackagesOverride != null then llvmPackagesOverride else llvmPackages_18;
 
   pathConfig = runCommand "phobos-tzdata-curl-paths" { } ''
     mkdir $out
