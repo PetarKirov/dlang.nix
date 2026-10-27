@@ -3,8 +3,10 @@
 # same C library call with and without link-time optimization, where the LTO
 # build must have inlined it from the sysroot's LTO libc (Sparkles' toolchain
 # specification, TCW3), and no legacy exception-handling instruction may
-# survive the link.
+# survive the link. On preview 1, a reactor (TCW7) whose `_initialize` runs
+# its module constructor before its export is called.
 {
+  lib,
   runCommand,
   wasmtime,
   wasm-tools,
@@ -43,6 +45,19 @@ let
     {
         auto q = div(cast(int) args.length + 83, 2);
         printf("%d\n", q.quot);
+    }
+  '';
+  reactor = writeText "reactor.d" ''
+    module reactor;
+
+    int initialized;
+    static this() { initialized = 42; }
+
+    extern (C) int answer()
+    {
+        auto xs = new int[](1000);
+        xs[$ - 1] = initialized;
+        return xs[$ - 1];
     }
   '';
 in
@@ -86,5 +101,16 @@ runCommand "ldc-wasi-tests-${target}"
         exit 1
       fi
     done
+    ${lib.optionalString (target == "wasm32-wasip1") ''
+      ldc2 -mtriple=${target} -mexec-model=reactor ${reactor} \
+        -L--export=answer -of=reactor.wasm
+      wasm-tools print reactor.wasm > reactor.wat
+      grep -q '(export "_initialize"' reactor.wat || { echo "reactor.wasm exports no _initialize"; exit 1; }
+      if grep -q '(export "_start"' reactor.wat; then
+        echo "reactor.wasm exports _start"
+        exit 1
+      fi
+      expect "$(run --invoke answer reactor.wasm)" 42
+    ''}
     touch $out
   ''
