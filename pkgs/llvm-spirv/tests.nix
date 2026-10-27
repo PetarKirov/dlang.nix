@@ -177,10 +177,17 @@ in
   ldc = ldc.overrideAttrs (old: {
     pname = "${old.pname}-checked";
     # druntime's profile test runs its recipes with `/bin/bash`.
-    postPatch = (old.postPatch or "") + ''
-      substituteInPlace runtime/druntime/test/profile/Makefile \
-        --replace-fail "SHELL=/bin/bash" "SHELL=${runtimeShell}"
-    '';
+    postPatch =
+      (old.postPatch or "")
+      + ''
+        substituteInPlace runtime/druntime/test/profile/Makefile \
+          --replace-fail "SHELL=/bin/bash" "SHELL=${runtimeShell}"
+      ''
+      # The coverage test calls BSD sed's `-i ''` on macOS; the build has GNU sed.
+      + lib.optionalString stdenv.hostPlatform.isDarwin ''
+        substituteInPlace runtime/druntime/test/coverage/Makefile \
+          --replace-fail "SED_INPLACE:=-i '''" "SED_INPLACE:=-i"
+      '';
     doCheck = true;
     # Known failures, each a FileCheck pattern written for the LLVM releases
     # upstream LDC tests against, where LLVM main prints or optimizes the
@@ -240,8 +247,10 @@ in
       # std.datetime.timezone: under the test runner every zone resolves to
       # `/<name>`, though a program built the same way finds it; cause not
       # yet found (Sparkles' docs/specs/toolchain/testing.md).
+      # druntime-test-exceptions on macOS: its traces take file and line from
+      # atos, which the build sandbox lacks; druntime does not read the .dSYM.
       ctest -j$NIX_BUILD_CORES --output-on-failure \
-        -E "ldc2-unittest|lit-tests|dmd-testsuite|std\.datetime\.timezone"
+        -E "ldc2-unittest|lit-tests|dmd-testsuite|std\.datetime\.timezone${lib.optionalString stdenv.hostPlatform.isDarwin "|druntime-test-exceptions"}"
       runHook postCheck
     '';
     # The check build is a test, not a package: nothing references it.

@@ -83,10 +83,10 @@
     "ldc-sparkles": {
       "flake": false,
       "locked": {
-        "lastModified": 1793096161,
-        "narHash": "sha256-87Xdupq6iLeKySj75NK73RrV0OWOAYUeu14O7QR7PO4=",
+        "lastModified": 1793096717,
+        "narHash": "sha256-LRSfeaEkf8JwBbg7DSHp+Qr13QWBaOKYkOcvBewu+ac=",
         "ref": "sparkles/main",
-        "rev": "2cf737f805d5993aca0a6d544e70c38b9566c91f",
+        "rev": "277f534f6d6dfac2ad0351cf64422fced9532cf7",
         "revCount": 49370,
         "submodules": true,
         "type": "git",
