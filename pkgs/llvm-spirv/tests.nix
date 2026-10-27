@@ -21,6 +21,7 @@
   python3,
   spirv-tools,
   runtimeShell,
+  darwin,
 }:
 let
   inherit (stdenv.hostPlatform) isDarwin isLinux;
@@ -214,6 +215,17 @@ in
       # lit puts LLVM's tool directory, with its raw clang, on PATH; link through
       # the wrapped one instead (tests/lit.site.cfg passes CC through).
       export CC=${clangStdenv.cc}/bin/cc
+      ${lib.optionalString stdenv.hostPlatform.isDarwin ''
+        # Sanitizer reports symbolize through llvm-symbolizer: the build
+        # sandbox has no atos. The tests also link LTO through the build
+        # tree's libLTO.dylib, which needs the clang view's libLLVM (as the
+        # installed one does, see ../default.nix).
+        for s in ASAN LSAN TSAN UBSAN; do
+          export ''${s}_SYMBOLIZER_PATH=${llvmTools}/bin/llvm-symbolizer
+        done
+        install_name_tool -add_rpath ${llvmTools}/lib lib/libLTO.dylib
+        ${darwin.sigtool}/bin/codesign -f -s - lib/libLTO.dylib
+      ''}
       ninja -j$NIX_BUILD_CORES all-test-runners
       (cd tests && python3 runlit.py -v codegen driver instrument linking sanitizers PGO)
       # std.datetime.timezone: under the test runner every zone resolves to

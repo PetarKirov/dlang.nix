@@ -231,9 +231,16 @@ in
                 # generic.nix scrubs the bootstrap compiler's `__FILE__` strings
                 # on ELF only; on Darwin this build does, and the fixup phase
                 # signs the result again.
-                nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ pkgs.removeReferencesTo ];
+                nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [
+                  pkgs.removeReferencesTo
+                  pkgs.darwin.autoSignDarwinBinariesHook
+                ];
                 preFixup = (old.preFixup or "") + ''
                   find "$out" -type f -exec remove-references-to -t ${self'.packages.ldc-bootstrap} '{}' +
+                  # LLVM's libLTO.dylib, which LDC copies for ld64's LTO, links
+                  # @rpath/libLLVM.*.dylib, and LDC's lib/ has no libLLVM. The clang
+                  # view has it, and is in the closure anyway as the link compiler.
+                  install_name_tool -add_rpath ${llvmViews.clang}/lib $out/lib/libLTO.dylib
                 '';
                 disallowedReferences = (old.disallowedReferences or [ ]) ++ [
                   self'.packages.ldc-bootstrap
