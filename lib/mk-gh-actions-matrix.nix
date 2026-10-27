@@ -4,7 +4,6 @@ rec {
   nixSystemToGHPlatform = {
     # GH-hosted runners:
     "x86_64-linux" = "ubuntu-latest";
-    "x86_64-darwin" = "macos-26-intel"; # x64 macOS 26 runner
     "aarch64-darwin" = "macos-latest";
   };
 
