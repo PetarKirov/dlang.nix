@@ -12,6 +12,12 @@
   # LLVM closely and some versions (e.g. the wasm32-wasip2 fork) need a newer LLVM
   # than the default below.
   llvmPackagesOverride ? null,
+  # The C compiler the `ldc2` wrapper puts on `PATH` and in `CC` for linking and
+  # ImportC; the target stdenv's by default. ldc2 passes the compiler an
+  # explicit `-target`, which a nix-wrapped clang warns about when it differs
+  # from its own spelling (`arm64-apple-macos14.0` against
+  # `arm64-apple-darwin`); with this set, the wrapper keeps quiet.
+  wrapperCc ? null,
 }:
 {
   lib,
@@ -44,6 +50,10 @@ let
   inherit (import ../../lib/build-status.nix { inherit lib; }) getBuildStatus;
   inherit (import ../../lib/version-utils.nix { inherit lib; }) versionBetween;
   buildStatus = getBuildStatus "ldc" version stdenv.system;
+  linkCc = if wrapperCc != null then wrapperCc else targetPackages.stdenv.cc;
+  quietTarget = lib.optionalString (
+    wrapperCc != null
+  ) " --set-default NIX_CC_WRAPPER_SUPPRESS_TARGET_WARNING 1";
   elfOnly = name: if stdenv.hostPlatform.isElf then name else null;
 
   # LDC tracks LLVM closely: 1.30 builds against LLVM 12, the 1.4x line needs
@@ -309,8 +319,8 @@ stdenv.mkDerivation rec {
     + ''
 
       wrapProgram $out/bin/ldc2 \
-        --prefix PATH ":" "${targetPackages.stdenv.cc}/bin" \
-        --set-default CC "${targetPackages.stdenv.cc}/bin/cc"
+        --prefix PATH ":" "${linkCc}/bin" \
+        --set-default CC "${linkCc}/bin/cc"${quietTarget}
     '';
 
   meta = with lib; {

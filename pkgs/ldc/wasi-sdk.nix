@@ -7,8 +7,9 @@
 # The release's sysroot and builtins are target code, so the same tarballs
 # serve every build host; only the previews in `previews` are kept. The
 # driver is the clang of the LLVM that LDC is built against, linking with its
-# `wasm-ld`. Both binaries are copied in, so a consumer's closure does not
-# keep the whole LLVM install (static libraries and all).
+# `wasm-ld`, linked in from the `clang` view of ../llvm-spirv/views.nix, so a
+# consumer's closure does not keep the whole LLVM install (static libraries
+# and all).
 #
 # Upstream LDC's CI uses this wasi-sdk release. Older wasi-libc cannot lock a
 # recursive mutex twice (WebAssembly/wasi-libc#777), which every druntime
@@ -18,7 +19,9 @@
   stdenvNoCC,
   fetchurl,
   runtimeShell,
-  # The LLVM install LDC is built against, with clang and lld.
+  # The `clang` view of the LLVM LDC is built against (clang, lld).
+  clang,
+  # The install itself, which nothing here may reference.
   llvm,
   version ? "34",
   # The WASI targets to keep, as wasi-sdk names their directories.
@@ -33,7 +36,7 @@ let
     url = "https://github.com/WebAssembly/wasi-sdk/releases/download/wasi-sdk-${version}/libclang_rt-${version}.0.tar.gz";
     hash = "sha256-7uPmNNz3GqIrEzM5FiPPXJllpjfcQoonsahYwCbFh/E=";
   };
-  clangMajor = lib.versions.major llvm.version;
+  clangMajor = lib.versions.major clang.version;
   keep = lib.concatMapStringsSep " " (p: "wasm32-${p}") previews;
 in
 stdenvNoCC.mkDerivation (finalAttrs: {
@@ -64,11 +67,11 @@ stdenvNoCC.mkDerivation (finalAttrs: {
         *) rm -r $dir ;;
       esac
     done
-    cp -r ${llvm}/lib/clang/${clangMajor}/include $out/lib/clang/include
+    ln -s ${clang}/lib/clang/${clangMajor}/include $out/lib/clang/include
 
-    cp ${llvm}/bin/clang-${clangMajor} $out/libexec/clang
+    ln -s ${clang}/bin/clang-${clangMajor} $out/libexec/clang
     ln -s clang $out/libexec/clang++
-    cp ${llvm}/bin/lld $out/libexec/lld
+    ln -s ${clang}/bin/lld $out/libexec/lld
     ln -s lld $out/libexec/wasm-ld
 
     for exe in clang clang++; do

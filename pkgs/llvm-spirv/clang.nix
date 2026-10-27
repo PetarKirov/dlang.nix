@@ -1,51 +1,52 @@
 # `clang-sparkles`: a cc-wrapper over the clang that `llvm-spirv-vulkan`
-# already builds, so C and C++ compile with the same clang and LLVM as
-# `ldc-vulkan`, and `overrideCC stdenv clang-sparkles` is a stdenv for it.
+# builds, as cut out of the install by ./views.nix, so C and C++ compile with
+# the same clang and LLVM as `ldc-vulkan`, and `overrideCC stdenv
+# clang-sparkles` is a stdenv for it.
 #
 # The wrapper is the layer nixpkgs puts over every compiler: the libc and C++
-# library headers, rpaths and hardening. It only links to the LLVM install, so
-# none of it rebuilds LLVM. What that install lacks is borrowed:
+# library headers, rpaths and hardening. What the view lacks is borrowed:
 #
-# - Linux: libstdc++ from stdenv's gcc, as nixpkgs' `clangStdenv` does; no
-#   compiler-rt, as libgcc is clang's default runtime there.
-# - Darwin: stdenv's libc++, and the builtins archive (`libclang_rt.osx.a`,
-#   which every Darwin link pulls in) from nixpkgs' compiler-rt, whose ABI does
-#   not change with the compiler's version.
+# - Linux: libstdc++ from stdenv's gcc, as nixpkgs' `clangStdenv` does.
+# - Darwin: stdenv's libc++.
+#
+# The resource directory is the view's built-in headers plus the runtimes of
+# `compiler-rt`. ./compiler-rt.nix is itself built by this wrapper, so it is
+# applied twice: first with nixpkgs' compiler-rt on Darwin (whose builtins
+# archive every Darwin link pulls in, with an ABI that does not change with
+# the compiler) and none on Linux, where libgcc is clang's default runtime;
+# then with the fork's own.
 {
   lib,
   stdenv,
   wrapCCWith,
-  # The `llvm-spirv-vulkan` install: LLVM, clang and lld under one prefix.
-  llvm,
-  # Darwin's builtins archive.
-  compiler-rt,
+  # The `clang` view of ./views.nix.
+  cc,
+  # A compiler-rt whose `lib/clang/<major>/lib` (or, for nixpkgs', `lib`)
+  # holds the runtimes; null for none.
+  compiler-rt ? null,
 }:
 let
-  major = lib.versions.major llvm.version;
+  major = lib.versions.major cc.version;
   inherit (stdenv.hostPlatform) isDarwin;
+  runtimeLib =
+    if compiler-rt == null then
+      null
+    else
+      "${compiler-rt.out}/${compiler-rt.passthru.resourceLib or "lib"}";
 in
 (wrapCCWith {
-  # What kind of compiler it wraps is read from `passthru`, which is not part
-  # of the derivation: the store path stays the LLVM install's.
-  cc = llvm.overrideAttrs (old: {
-    passthru = (old.passthru or { }) // {
-      isClang = true;
-      langC = true;
-      langCC = true;
-    };
-  });
+  inherit cc;
   libcxx = if isDarwin then stdenv.cc.libcxx else null;
-  extraPackages = lib.optional isDarwin compiler-rt;
-  # The resource directory nixpkgs' own clang wrappers assemble: the
-  # install's built-in headers, and on Darwin compiler-rt's libraries.
+  extraPackages = lib.optional (compiler-rt != null) compiler-rt;
+  # The resource directory nixpkgs' own clang wrappers assemble.
   extraBuildCommands = ''
     rsrc="$out/resource-root"
     mkdir "$rsrc"
-    ln -s "${llvm}/lib/clang/${major}/include" "$rsrc"
+    ln -s "${cc}/lib/clang/${major}/include" "$rsrc"
     echo "-resource-dir=$rsrc" >> $out/nix-support/cc-cflags
   ''
-  + lib.optionalString isDarwin ''
-    ln -s "${compiler-rt.out}/lib" "$rsrc/lib"
+  + lib.optionalString (runtimeLib != null) ''
+    ln -s "${runtimeLib}" "$rsrc/lib"
   '';
 }).overrideAttrs
   (old: {

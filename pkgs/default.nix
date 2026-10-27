@@ -128,27 +128,54 @@ in
       # with `--override-input`.
       ldcVulkanSrc = inputs.ldc-sparkles;
 
+      # The install cut into what builds read (`dev`) and what a compiler
+      # needs at run time (`clang`).
+      llvmViews = pkgs.callPackage ./llvm-spirv/views.nix { llvm = llvmSpirvVulkan; };
+
+      # compiler-rt is built by clang, so the wrapper comes twice: first with
+      # nixpkgs' compiler-rt on Darwin (see ./llvm-spirv/clang.nix), then with
+      # the fork's.
+      clangSparklesBootstrap = pkgs.callPackage ./llvm-spirv/clang.nix {
+        cc = llvmViews.clang;
+        compiler-rt = if pkgs.stdenv.hostPlatform.isDarwin then pkgs.llvmPackages_20.compiler-rt else null;
+      };
+      compilerRtSparkles = pkgs.callPackage ./llvm-spirv/compiler-rt.nix {
+        stdenv = pkgs.overrideCC pkgs.stdenv clangSparklesBootstrap;
+        src = inputs.llvm-sparkles;
+        inherit (llvmSpirvVulkan) version;
+      };
+      clangSparkles = pkgs.callPackage ./llvm-spirv/clang.nix {
+        cc = llvmViews.clang;
+        compiler-rt = compilerRtSparkles;
+      };
+      clangStdenvSparkles = pkgs.overrideCC pkgs.stdenv clangSparkles;
+
       vulkanPackages = {
         llvm-spirv-vulkan = llvmSpirvVulkan;
-        # C and C++ on the same clang and LLVM, without rebuilding them.
-        clang-sparkles = pkgs.callPackage ./llvm-spirv/clang.nix {
-          llvm = llvmSpirvVulkan;
-          compiler-rt = pkgs.llvmPackages_20.compiler-rt;
-        };
+        llvm-spirv-vulkan-dev = llvmViews.dev;
+        clang-sparkles-unwrapped = llvmViews.clang;
+        compiler-rt-sparkles = compilerRtSparkles;
+        # C and C++ on the same clang and LLVM as LDC.
+        clang-sparkles = clangSparkles;
         ldc-vulkan =
           (pkgs.callPackage
             (import ./ldc/generic.nix {
               version = "1.43.0-sparkles";
               srcOverride = ldcVulkanSrc;
-              # The fork's lit tests need an LLVM with FileCheck and the
-              # spirv-tools; the release test suite assumes a tarball layout.
+              # The fork's lit tests run as `passthru.tests`; the release test
+              # suite assumes a tarball layout.
               checkOverride = false;
+              # The view without compiler drivers: CMake finds the stdenv's
+              # wrapped clang, never the install's raw one.
               llvmPackagesOverride = {
-                llvm = llvmSpirvVulkan;
-                lld = llvmSpirvVulkan;
+                llvm.dev = llvmViews.dev;
+                lld.dev = llvmViews.dev;
               };
+              wrapperCc = clangSparkles;
             })
             {
+              # LDC's own C++ by its own clang.
+              stdenv = clangStdenvSparkles;
               # The upstream binary release, as the version catalog bootstraps
               # with: the source-built `ldc`'s config links `ldc_rt.dso.o` a second
               # time into LDC's own executables (duplicate `rt.dso` symbols).
@@ -158,27 +185,32 @@ in
             (
               old:
               {
-                # The bootstrap compiler's druntime asserts bake `__FILE__` paths
-                # into LDC's own D code: dead strings, but enough to keep the
-                # ~470 MiB bootstrap in the closure of every shader build (the
-                # same leak `dmd` had). Scrub, and assert it stays gone.
+                cmakeFlags =
+                  (old.cmakeFlags or [ ])
+                  ++ [
+                    # LLVM's tools share `libLLVM`, but LDC links the static
+                    # libraries, keeping LLVM out of its runtime closure.
+                    "-DLLVM_IS_SHARED=OFF"
+                    # The fork's runtimes, copied into LDC's `lib/` as
+                    # `libldc_rt.*` (ASan, LSan, MSan, TSan, profile, libFuzzer,
+                    # XRay, builtins).
+                    "-DCOMPILER_RT_BASE_DIR=${compilerRtSparkles}/lib/clang"
+                  ]
+                  ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [
+                    "-DCOMPILER_RT_LIBDIR_OS=linux"
+                    "-DLDC_INSTALL_LLVM_RUNTIME_LIBS_ARCH=${pkgs.stdenv.hostPlatform.parsed.cpu.name}"
+                  ];
+              }
+              // lib.optionalAttrs pkgs.stdenv.hostPlatform.isDarwin {
+                # generic.nix scrubs the bootstrap compiler's `__FILE__` strings
+                # on ELF only; on Darwin this build does, and the fixup phase
+                # signs the result again.
                 nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [ pkgs.removeReferencesTo ];
                 preFixup = (old.preFixup or "") + ''
                   find "$out" -type f -exec remove-references-to -t ${self'.packages.ldc-bootstrap} '{}' +
                 '';
                 disallowedReferences = (old.disallowedReferences or [ ]) ++ [
                   self'.packages.ldc-bootstrap
-                ];
-              }
-              // lib.optionalAttrs pkgs.stdenv.hostPlatform.isDarwin {
-                # The LLVM install ships clang (the WASI C driver), and it is on
-                # PATH here as `llvmPackages.llvm.dev`. Darwin's stdenv names its
-                # compilers `clang`/`clang++`, so CMake would find that unwrapped
-                # clang, which has no SDK or libc++ headers ('new' file not
-                # found), instead of stdenv's wrapper. Name the wrapper.
-                cmakeFlags = (old.cmakeFlags or [ ]) ++ [
-                  "-DCMAKE_C_COMPILER=${pkgs.stdenv.cc}/bin/cc"
-                  "-DCMAKE_CXX_COMPILER=${pkgs.stdenv.cc}/bin/c++"
                 ];
               }
             );
@@ -188,11 +220,14 @@ in
       # `ldc-sparkles` is `ldc-vulkan` plus a druntime/Phobos cross-built for
       # `wasm32-wasip1` from its own source, linked through wasi-sdk's sysroot:
       # one compiler for the host, Vulkan shaders and WASI.
-      wasiSdk = pkgs.callPackage ./ldc/wasi-sdk.nix { llvm = llvmSpirvVulkan; };
+      wasiSdk = pkgs.callPackage ./ldc/wasi-sdk.nix {
+        clang = llvmViews.clang;
+        llvm = llvmSpirvVulkan;
+      };
 
       ldcSparklesWasiRuntime = pkgs.callPackage ./ldc/wasi-runtime.nix {
         ldc = vulkanPackages.ldc-vulkan;
-        llvm = llvmSpirvVulkan;
+        llvm = llvmViews.clang;
         inherit wasiSdk;
       };
 
@@ -208,11 +243,13 @@ in
     in
     {
       overlayAttrs = self'.packages;
-      legacyPackages =
-        { }
-        // (genPkgVersions "dmd").hierarchical
-        // (genPkgVersions "ldc").hierarchical
-        // (genPkgVersions "dub").hierarchical;
+      legacyPackages = {
+        # A stdenv whose C and C++ compiler is `clang-sparkles`.
+        clangStdenv-sparkles = clangStdenvSparkles;
+      }
+      // (genPkgVersions "dmd").hierarchical
+      // (genPkgVersions "ldc").hierarchical
+      // (genPkgVersions "dub").hierarchical;
 
       packages = {
         # NOTE: This is only the default. The bootstrap compiler in the
