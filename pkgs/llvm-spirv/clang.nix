@@ -24,6 +24,9 @@
   # A compiler-rt whose `lib/clang/<major>/lib` (or, for nixpkgs', `lib`)
   # holds the runtimes; null for none.
   compiler-rt ? null,
+  # LLVM's libunwind and libc++ (./llvm-runtimes.nix) in place of libgcc_s and
+  # libstdc++: the all-LLVM runtime profile. Null for the default profile.
+  llvm-runtimes ? null,
 }:
 let
   major = lib.versions.major cc.version;
@@ -36,7 +39,19 @@ let
 in
 (wrapCCWith {
   inherit cc;
-  libcxx = if isDarwin then stdenv.cc.libcxx else null;
+  libcxx = if isDarwin then stdenv.cc.libcxx else llvm-runtimes;
+  # Links take compiler-rt's builtins and LLVM's unwinder; C++ links take
+  # libc++, which the wrapper adds for a `libcxx` with `isLLVM`.
+  # Driver flags for links go in `cc-cflags`, as in nixpkgs' LLVM-runtime
+  # clang (`pkgsLLVM`), which therefore also quiets them for compiles.
+  nixSupport = lib.optionalAttrs (llvm-runtimes != null) {
+    cc-cflags = [
+      "-rtlib=compiler-rt"
+      "--unwindlib=libunwind"
+      "-Wno-unused-command-line-argument"
+    ];
+    cc-ldflags = [ "-L${llvm-runtimes}/lib" ];
+  };
   extraPackages = lib.optional (compiler-rt != null) compiler-rt;
   # The resource directory nixpkgs' own clang wrappers assemble.
   extraBuildCommands = ''

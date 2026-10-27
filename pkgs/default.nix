@@ -150,6 +150,13 @@ in
       };
       clangStdenvSparkles = pkgs.overrideCC pkgs.stdenv clangSparkles;
 
+      # LLVM's libunwind and libc++ for the all-LLVM runtime profile (TC18).
+      llvmRuntimesSparkles = pkgs.callPackage ./llvm-spirv/llvm-runtimes.nix {
+        stdenv = clangStdenvSparkles;
+        src = inputs.llvm-sparkles;
+        inherit (llvmSpirvVulkan) version;
+      };
+
       # TC22: the tests Nix runs for the toolchain (./llvm-spirv/tests.nix), as
       # `passthru.tests` and as flake checks.
       toolchainTests =
@@ -281,6 +288,21 @@ in
           }) names;
         };
 
+      # The all-LLVM runtime profile (TC18), on Linux; on macOS the system's
+      # C++ library and unwinder already are LLVM's.
+      llvmRuntimePackages = rec {
+        llvm-runtimes-sparkles = llvmRuntimesSparkles;
+        clang-sparkles-llvm-runtimes = pkgs.callPackage ./llvm-spirv/clang.nix {
+          cc = llvmViews.clang;
+          compiler-rt = compilerRtSparkles;
+          llvm-runtimes = llvmRuntimesSparkles;
+        };
+        ldc-vulkan-llvm-runtimes = pkgs.callPackage ./ldc/with-llvm-runtimes.nix {
+          ldc = vulkanPackages.ldc-vulkan;
+          cc = clang-sparkles-llvm-runtimes;
+        };
+      };
+
       sparklesPackages = {
         wasi-wasip1 = wasiPreviews.wasip1;
         wasi-wasip2 = wasiPreviews.wasip2;
@@ -336,13 +358,19 @@ in
       // optionalAttrs (system == "x86_64-linux") x86_32Packages
       // optionalAttrs (pkgs.hostPlatform.isLinux || pkgs.hostPlatform.isDarwin) (
         vulkanPackages // sparklesPackages
-      );
+      )
+      // optionalAttrs pkgs.hostPlatform.isLinux llvmRuntimePackages;
 
       checks =
         optionalAttrs (pkgs.hostPlatform.isLinux || pkgs.hostPlatform.isDarwin) {
           toolchain-clang = vulkanPackages.clang-sparkles.tests.clang;
           toolchain-runtimes = vulkanPackages.ldc-vulkan.tests.runtimes;
           toolchain-ldc = vulkanPackages.ldc-vulkan.tests.ldc;
+        }
+        // optionalAttrs pkgs.hostPlatform.isLinux {
+          toolchain-llvm-runtimes = pkgs.callPackage ./ldc/llvm-runtimes-tests.nix {
+            ldc = llvmRuntimePackages.ldc-vulkan-llvm-runtimes;
+          };
         }
         // lib.concatMapAttrs (name: runtime: {
           "wasi-${name}-runtime" = runtime.tests.runners;
