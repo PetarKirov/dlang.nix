@@ -1,0 +1,28 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Petar Kirov <petar.p.kirov@gmail.com>
+Date: Tue, 27 Oct 2026 10:03:58 +0200
+Subject: [PATCH] [libc++] Include the IBM locale base API on z/OS only
+
+The fallback branch of __locale_dir/locale_base_api.h, which WASI's libc
+takes, included locale_base_api/ibm.h unconditionally, whose z/OS
+definitions break the build for wasm32-wasi (undeclared ctype masks in
+ctype_base.h). wasi-sdk carries this as llvm-undo-part-of-194317.patch.
+---
+ libcxx/include/__locale_dir/locale_base_api.h | 4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
+
+diff --git a/libcxx/include/__locale_dir/locale_base_api.h b/libcxx/include/__locale_dir/locale_base_api.h
+index 91bd9cfd6d..bd0391e322 100644
+--- a/libcxx/include/__locale_dir/locale_base_api.h
++++ b/libcxx/include/__locale_dir/locale_base_api.h
+@@ -136,7 +136,9 @@
+ //       (by providing global non-reserved names) and the new API. As we move individual platforms
+ //       towards the new way of defining the locale base API, this should disappear since each platform
+ //       will define those directly.
+-#    include <__locale_dir/locale_base_api/ibm.h>
++#    if defined(__MVS__)
++#      include <__locale_dir/locale_base_api/ibm.h>
++#    endif
+ 
+ #    include <__locale_dir/locale_base_api/bsd_locale_fallbacks.h>
+ 

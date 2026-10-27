@@ -250,29 +250,53 @@ in
         );
       };
 
-      # ---- The same compiler for WASI (wasm32-wasip1) — Linux and macOS ----
-      # `ldc-sparkles` is `ldc-vulkan` plus a druntime/Phobos cross-built for
-      # `wasm32-wasip1` from its own source, linked through wasi-sdk's sysroot:
-      # one compiler for the host, Vulkan shaders and WASI.
-      wasiSdk = pkgs.callPackage ./ldc/wasi-sdk.nix {
+      # ---- The same compiler for WASI — Linux and macOS ----
+      # WASI built from source (./wasi): for each preview a sysroot and a
+      # driver, `wasm32-wasipN-clang`, whose passthru has the sysroot,
+      # resource directory and builtins; and LDC's druntime and Phobos for
+      # it (./ldc/wasi-runtime.nix). `ldc-sparkles` is `ldc-vulkan` with the
+      # production previews, 1 and 2, one `ldc2.conf` section each: one
+      # compiler for the host, Vulkan shaders and WASI. Preview 3 is
+      # experimental (Sparkles' toolchain specification, TCW2), so only
+      # `ldc-sparkles-wasip3-experimental` carries it.
+      wasiPreviews = pkgs.callPackages ./wasi {
         clang = llvmViews.clang;
-        llvm = llvmSpirvVulkan;
+        llvmSrc = inputs.llvm-sparkles;
       };
-
-      ldcSparklesWasiRuntime = pkgs.callPackage ./ldc/wasi-runtime.nix {
-        ldc = vulkanPackages.ldc-vulkan;
-        llvm = llvmViews.clang;
-        inherit wasiSdk;
-      };
+      wasiRuntimes = lib.mapAttrs (
+        _: driver:
+        pkgs.callPackage ./ldc/wasi-runtime.nix {
+          ldc = vulkanPackages.ldc-vulkan;
+          llvm = llvmViews.clang;
+          inherit driver;
+        }
+      ) wasiPreviews;
+      withWasi =
+        names:
+        pkgs.callPackage ./ldc/with-wasi.nix {
+          ldc = vulkanPackages.ldc-vulkan;
+          previews = map (name: {
+            driver = wasiPreviews.${name};
+            runtime = wasiRuntimes.${name};
+          }) names;
+        };
 
       sparklesPackages = {
-        wasi-sdk = wasiSdk;
-        ldc-sparkles-wasi-runtime = ldcSparklesWasiRuntime;
-        ldc-sparkles = pkgs.callPackage ./ldc/with-wasi.nix {
-          ldc = vulkanPackages.ldc-vulkan;
-          wasiRuntime = ldcSparklesWasiRuntime;
-          inherit wasiSdk;
-        };
+        wasi-wasip1 = wasiPreviews.wasip1;
+        wasi-wasip2 = wasiPreviews.wasip2;
+        wasi-wasip3-experimental = wasiPreviews.wasip3;
+        ldc-sparkles-wasi-runtime-wasip1 = wasiRuntimes.wasip1;
+        ldc-sparkles-wasi-runtime-wasip2 = wasiRuntimes.wasip2;
+        ldc-sparkles-wasi-runtime-wasip3-experimental = wasiRuntimes.wasip3;
+        ldc-sparkles = withWasi [
+          "wasip1"
+          "wasip2"
+        ];
+        ldc-sparkles-wasip3-experimental = withWasi [
+          "wasip1"
+          "wasip2"
+          "wasip3"
+        ];
       };
     in
     {
@@ -314,10 +338,18 @@ in
         vulkanPackages // sparklesPackages
       );
 
-      checks = optionalAttrs (pkgs.hostPlatform.isLinux || pkgs.hostPlatform.isDarwin) {
-        toolchain-clang = vulkanPackages.clang-sparkles.tests.clang;
-        toolchain-runtimes = vulkanPackages.ldc-vulkan.tests.runtimes;
-        toolchain-ldc = vulkanPackages.ldc-vulkan.tests.ldc;
-      };
+      checks =
+        optionalAttrs (pkgs.hostPlatform.isLinux || pkgs.hostPlatform.isDarwin) {
+          toolchain-clang = vulkanPackages.clang-sparkles.tests.clang;
+          toolchain-runtimes = vulkanPackages.ldc-vulkan.tests.runtimes;
+          toolchain-ldc = vulkanPackages.ldc-vulkan.tests.ldc;
+        }
+        // lib.concatMapAttrs (name: runtime: {
+          "wasi-${name}-runtime" = runtime.tests.runners;
+          "wasi-${name}-programs" = pkgs.callPackage ./ldc/wasi-tests.nix {
+            ldc = sparklesPackages.ldc-sparkles;
+            inherit (runtime) target;
+          };
+        }) (removeAttrs wasiRuntimes [ "wasip3" ]);
     };
 }

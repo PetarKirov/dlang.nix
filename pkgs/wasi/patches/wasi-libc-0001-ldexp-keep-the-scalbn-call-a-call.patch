@@ -1,0 +1,45 @@
+From: Petar Kirov <petar.p.kirov@gmail.com>
+Subject: [PATCH] ldexp: keep the scalbn call a call
+
+clang 24 turns a call to scalbn into llvm.ldexp, which lowers to a call to
+ldexp, so musl's ldexp (`return scalbn(x, n);`) calls itself forever.
+musl's own build passes -ffreestanding; wasi-libc's does not. The
+attribute keeps the call in these three functions only: -fno-builtin for
+the whole library would also stop LTO from inlining any of it.
+---
+diff --git a/libc-top-half/musl/src/math/ldexp.c b/libc-top-half/musl/src/math/ldexp.c
+--- a/libc-top-half/musl/src/math/ldexp.c
++++ b/libc-top-half/musl/src/math/ldexp.c
+@@ -1,5 +1,8 @@
+ #include <math.h>
+ 
++/* Without this, clang turns the call into llvm.ldexp, which lowers to a
++ * call to ldexp: the function would call itself. */
++__attribute__((no_builtin("scalbn")))
+ double ldexp(double x, int n)
+ {
+ 	return scalbn(x, n);
+diff --git a/libc-top-half/musl/src/math/ldexpf.c b/libc-top-half/musl/src/math/ldexpf.c
+--- a/libc-top-half/musl/src/math/ldexpf.c
++++ b/libc-top-half/musl/src/math/ldexpf.c
+@@ -1,5 +1,8 @@
+ #include <math.h>
+ 
++/* Without this, clang turns the call into llvm.ldexp, which lowers to a
++ * call to ldexpf: the function would call itself. */
++__attribute__((no_builtin("scalbnf")))
+ float ldexpf(float x, int n)
+ {
+ 	return scalbnf(x, n);
+diff --git a/libc-top-half/musl/src/math/ldexpl.c b/libc-top-half/musl/src/math/ldexpl.c
+--- a/libc-top-half/musl/src/math/ldexpl.c
++++ b/libc-top-half/musl/src/math/ldexpl.c
+@@ -1,5 +1,8 @@
+ #include <math.h>
+ 
++/* Without this, clang turns the call into llvm.ldexp, which lowers to a
++ * call to ldexpl: the function would call itself. */
++__attribute__((no_builtin("scalbnl")))
+ long double ldexpl(long double x, int n)
+ {
+ 	return scalbnl(x, n);

@@ -1,22 +1,59 @@
-# An LDC that also compiles and links `wasm32-wasip1` programs: the compiler,
-# plus a `60-wasi.conf` drop-in in its `etc/ldc2.conf/` directory that links
-# WASI programs against ./wasi-runtime.nix through wasi-sdk's driver. The
-# compiler's own drop-ins stay: upstream's `51-target-wasm-base.conf` (stack
-# size, exception handling) and `55-target-wasm-naked.conf` (bare wasm
-# without a runtime) still apply.
+# An LDC that also compiles and links WASI programs, one preview per triple:
+# the compiler, plus a `60-wasi.conf` drop-in in its `etc/ldc2.conf/`
+# directory with a section for each preview, which links against that
+# preview's druntime and Phobos (./wasi-runtime.nix) through its driver
+# (../wasi). The compiler's own drop-ins stay: upstream's
+# `51-target-wasm-base.conf` (stack size, exception handling) and
+# `55-target-wasm-naked.conf` (bare wasm without a runtime) still apply.
 #
-#   ldc2 -mtriple=wasm32-wasip1 app.d   # app.wasm, runs under wasmtime
+#   ldc2 -mtriple=wasm32-wasip1 app.d   # a module, runs under wasmtime
+#   ldc2 -mtriple=wasm32-wasip2 app.d   # a component
 #
 # The drivers are wrapped with `-conf=` for the merged directory: an `ldc2`
 # reached through a symlink would read the unwrapped package's configuration.
 {
   lib,
   symlinkJoin,
+  writeText,
   makeWrapper,
   ldc,
-  wasiRuntime,
-  wasiSdk,
+  # One `{ runtime, driver }` per preview.
+  previews,
 }:
+let
+  section =
+    { runtime, driver }:
+    let
+      # `wasm32-wasi` is preview 1's older name.
+      pattern =
+        if lib.hasSuffix "wasip1" driver.target then
+          "^wasm32-.*-wasi(p1)?$"
+        else
+          "^wasm32-.*-${lib.removePrefix "wasm32-" driver.target}$";
+    in
+    ''
+      "${pattern}":
+      {
+          switches ~= [
+              "-defaultlib=phobos2-ldc,druntime-ldc",
+              // No shared druntime/Phobos on WASI, whatever `50-nix.conf` says.
+              "-link-defaultlib-shared=false",
+              "-gcc=${driver}/bin/${driver.target}-clang",
+          ];
+          lib-dirs = [
+              "${runtime}/lib",
+          ];
+          rpath = "";
+      };
+    '';
+  conf = writeText "60-wasi.conf" (
+    ''
+      // Added by dlang.nix: each WASI preview links against its own druntime
+      // and Phobos through its own driver.
+    ''
+    + lib.concatMapStrings section previews
+  );
+in
 symlinkJoin {
   name = "${ldc.name}-wasi";
   paths = [ ldc ];
@@ -26,23 +63,7 @@ symlinkJoin {
     rm -r $conf
     mkdir -p $conf
     cp -L ${ldc}/etc/ldc2.conf/* $conf/
-    cat > $conf/60-wasi.conf <<'EOF'
-    // Added by dlang.nix: WASI preview 1 programs link against druntime and
-    // Phobos through wasi-sdk's driver.
-    "^wasm32-.*-wasi(p1)?$":
-    {
-        switches ~= [
-            "-defaultlib=phobos2-ldc,druntime-ldc",
-            // No shared druntime/Phobos on WASI, whatever `50-nix.conf` says.
-            "-link-defaultlib-shared=false",
-            "-gcc=${wasiSdk.cc}",
-        ];
-        lib-dirs = [
-            "${wasiRuntime}/lib",
-        ];
-        rpath = "";
-    };
-    EOF
+    cp ${conf} $conf/60-wasi.conf
 
     for drv in ldc2 ldmd2; do
       rm $out/bin/$drv
@@ -50,12 +71,12 @@ symlinkJoin {
     done
   '';
   passthru = (ldc.passthru or { }) // {
-    inherit wasiRuntime wasiSdk;
+    inherit previews;
     unwrapped = ldc;
     inherit (ldc) src version;
   };
   meta = ldc.meta // {
-    description = "${ldc.meta.description or "LDC"}, with a wasm32-wasip1 runtime";
+    description = "${ldc.meta.description or "LDC"}, with WASI runtimes";
     mainProgram = "ldc2";
   };
 }
