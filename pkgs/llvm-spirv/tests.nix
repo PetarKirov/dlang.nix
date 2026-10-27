@@ -187,21 +187,28 @@ in
     # same program differently. Listed in Sparkles'
     # docs/specs/toolchain/testing.md; a listed test that passes is an
     # unexpected pass, which fails the check, so the list only shrinks.
-    LIT_XFAIL = lib.concatStringsSep ";" [
-      # Constant GEPs into the counter arrays print as `i8` offsets.
-      "PGO/allstatementtypes.d"
-      "PGO/branching_switch.d"
-      "PGO/break.d"
-      "PGO/exceptions.d"
-      "PGO/functions.d"
-      # The profile summary's metadata fields changed.
-      "PGO/summary.d"
-      # `module asm` prints its string on the next line.
-      "codegen/casm.i"
-      # Different instruction order and devirtualization at -O.
-      "codegen/devirtualization_assumevtable.d"
-      "codegen/int128.d"
-    ];
+    LIT_XFAIL = lib.concatStringsSep ";" (
+      [
+        # Constant GEPs into the counter arrays print as `i8` offsets.
+        "PGO/allstatementtypes.d"
+        "PGO/branching_switch.d"
+        "PGO/break.d"
+        "PGO/exceptions.d"
+        "PGO/functions.d"
+        # The profile summary's metadata fields changed.
+        "PGO/summary.d"
+        # `module asm` prints its string on the next line.
+        "codegen/casm.i"
+        # Different instruction order and devirtualization at -O.
+        "codegen/devirtualization_assumevtable.d"
+        "codegen/int128.d"
+      ]
+      ++ lib.optionals stdenv.hostPlatform.isDarwin [
+        # AddressSanitizer on macOS does not know a druntime fiber's stack, and
+        # reports the overflow as a wild pointer rather than in that stack.
+        "sanitizers/asan_fiber.d"
+      ]
+    );
     # `spirv-dis` for the Vulkan code-generation tests.
     nativeCheckInputs = (old.nativeCheckInputs or [ ]) ++ [
       python3
