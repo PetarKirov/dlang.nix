@@ -207,7 +207,12 @@ in
               old:
               {
                 cmakeFlags =
-                  (old.cmakeFlags or [ ])
+                  # generic.nix sets the runtime's `D_FLAGS`, which replaces LDC's
+                  # own (`-w -de -preview=dip1000 -preview=dtorfields
+                  # -preview=fieldwise`): druntime and Phobos then build without
+                  # the previews upstream ships them with, and Phobos' unittests
+                  # do not compile. `D_EXTRA_FLAGS` adds to them instead.
+                  (map (lib.replaceStrings [ "-D D_FLAGS=" ] [ "-D D_EXTRA_FLAGS=" ]) (old.cmakeFlags or [ ]))
                   ++ [
                     # LLVM's tools share `libLLVM`, but LDC links the static
                     # libraries, keeping LLVM out of its runtime closure.
