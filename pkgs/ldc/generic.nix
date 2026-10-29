@@ -18,6 +18,11 @@
   # from its own spelling (`arm64-apple-macos14.0` against
   # `arm64-apple-darwin`); with this set, the wrapper keeps quiet.
   wrapperCc ? null,
+  # Whether `ldc2` is wrapped with that compiler. Without the wrapper the
+  # package references no C compiler, so a closure that only compiles (as a
+  # shader compiler does) does not carry one; ./with-link-cc.nix adds the
+  # wrapper in a package of its own.
+  wrapLinkCc ? true,
 }:
 {
   lib,
@@ -317,7 +322,7 @@ stdenv.mkDerivation rec {
           substitute ${ldcConfFile} "$out/etc/ldc2.conf" --subst-var out
         ''
     )
-    + ''
+    + lib.optionalString wrapLinkCc ''
 
       wrapProgram $out/bin/ldc2 \
         --prefix PATH ":" "${linkCc}/bin" \

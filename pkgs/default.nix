@@ -186,74 +186,81 @@ in
           };
         });
         ldc-vulkan = withToolchainTests (
-          (pkgs.callPackage
-            (import ./ldc/generic.nix {
-              version = "1.43.0-sparkles";
-              srcOverride = ldcVulkanSrc;
-              # The fork's lit tests run as `passthru.tests`; the release test
-              # suite assumes a tarball layout.
-              checkOverride = false;
-              # The view without compiler drivers: CMake finds the stdenv's
-              # wrapped clang, never the install's raw one.
-              llvmPackagesOverride = {
-                llvm.dev = llvmViews.dev;
-                lld.dev = llvmViews.dev;
-              };
-              wrapperCc = clangSparkles;
-            })
-            {
-              # LDC's own C++ by its own clang.
-              stdenv = clangStdenvSparkles;
-              # The upstream binary release, as the version catalog bootstraps
-              # with: the source-built `ldc`'s config links `ldc_rt.dso.o` a second
-              # time into LDC's own executables (duplicate `rt.dso` symbols).
-              hostDCompiler = self'.packages.ldc-bootstrap;
-            }
-          ).overrideAttrs
-            (
-              old:
-              {
-                cmakeFlags =
-                  # generic.nix sets the runtime's `D_FLAGS`, which replaces LDC's
-                  # own (`-w -de -preview=dip1000 -preview=dtorfields
-                  # -preview=fieldwise`): druntime and Phobos then build without
-                  # the previews upstream ships them with, and Phobos' unittests
-                  # do not compile. `D_EXTRA_FLAGS` adds to them instead.
-                  (map (lib.replaceStrings [ "-D D_FLAGS=" ] [ "-D D_EXTRA_FLAGS=" ]) (old.cmakeFlags or [ ]))
-                  ++ [
-                    # LLVM's tools share `libLLVM`, but LDC links the static
-                    # libraries, keeping LLVM out of its runtime closure.
-                    "-DLLVM_IS_SHARED=OFF"
-                    # The fork's runtimes, copied into LDC's `lib/` as
-                    # `libldc_rt.*` (ASan, LSan, MSan, TSan, profile, libFuzzer,
-                    # XRay, builtins).
-                    "-DCOMPILER_RT_BASE_DIR=${compilerRtSparkles}/lib/clang"
-                  ]
-                  ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [
-                    "-DCOMPILER_RT_LIBDIR_OS=linux"
-                    "-DLDC_INSTALL_LLVM_RUNTIME_LIBS_ARCH=${pkgs.stdenv.hostPlatform.parsed.cpu.name}"
-                  ];
-              }
-              // lib.optionalAttrs pkgs.stdenv.hostPlatform.isDarwin {
-                # generic.nix scrubs the bootstrap compiler's `__FILE__` strings
-                # on ELF only; on Darwin this build does, and the fixup phase
-                # signs the result again.
-                nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [
-                  pkgs.removeReferencesTo
-                  pkgs.darwin.autoSignDarwinBinariesHook
-                ];
-                preFixup = (old.preFixup or "") + ''
-                  find "$out" -type f -exec remove-references-to -t ${self'.packages.ldc-bootstrap} '{}' +
-                  # LLVM's libLTO.dylib, which LDC copies for ld64's LTO, links
-                  # @rpath/libLLVM.*.dylib, and LDC's lib/ has no libLLVM. The clang
-                  # view has it, and is in the closure anyway as the link compiler.
-                  install_name_tool -add_rpath ${llvmViews.clang}/lib $out/lib/libLTO.dylib
-                '';
-                disallowedReferences = (old.disallowedReferences or [ ]) ++ [
-                  self'.packages.ldc-bootstrap
-                ];
-              }
-            )
+          pkgs.callPackage ./ldc/with-link-cc.nix {
+            cc = clangSparkles;
+            ldc =
+              (pkgs.callPackage
+                (import ./ldc/generic.nix {
+                  version = "1.43.0-sparkles";
+                  srcOverride = ldcVulkanSrc;
+                  # The fork's lit tests run as `passthru.tests`; the release test
+                  # suite assumes a tarball layout.
+                  checkOverride = false;
+                  # The view without compiler drivers: CMake finds the stdenv's
+                  # wrapped clang, never the install's raw one.
+                  llvmPackagesOverride = {
+                    llvm.dev = llvmViews.dev;
+                    lld.dev = llvmViews.dev;
+                  };
+                  wrapperCc = clangSparkles;
+                  # ./ldc/with-link-cc.nix wraps it, so `.unwrapped` carries no
+                  # link compiler.
+                  wrapLinkCc = false;
+                })
+                {
+                  # LDC's own C++ by its own clang.
+                  stdenv = clangStdenvSparkles;
+                  # The upstream binary release, as the version catalog bootstraps
+                  # with: the source-built `ldc`'s config links `ldc_rt.dso.o` a second
+                  # time into LDC's own executables (duplicate `rt.dso` symbols).
+                  hostDCompiler = self'.packages.ldc-bootstrap;
+                }
+              ).overrideAttrs
+                (
+                  old:
+                  {
+                    cmakeFlags =
+                      # generic.nix sets the runtime's `D_FLAGS`, which replaces LDC's
+                      # own (`-w -de -preview=dip1000 -preview=dtorfields
+                      # -preview=fieldwise`): druntime and Phobos then build without
+                      # the previews upstream ships them with, and Phobos' unittests
+                      # do not compile. `D_EXTRA_FLAGS` adds to them instead.
+                      (map (lib.replaceStrings [ "-D D_FLAGS=" ] [ "-D D_EXTRA_FLAGS=" ]) (old.cmakeFlags or [ ]))
+                      ++ [
+                        # LLVM's tools share `libLLVM`, but LDC links the static
+                        # libraries, keeping LLVM out of its runtime closure.
+                        "-DLLVM_IS_SHARED=OFF"
+                        # The fork's runtimes, copied into LDC's `lib/` as
+                        # `libldc_rt.*` (ASan, LSan, MSan, TSan, profile, libFuzzer,
+                        # XRay, builtins).
+                        "-DCOMPILER_RT_BASE_DIR=${compilerRtSparkles}/lib/clang"
+                      ]
+                      ++ lib.optionals pkgs.stdenv.hostPlatform.isLinux [
+                        "-DCOMPILER_RT_LIBDIR_OS=linux"
+                        "-DLDC_INSTALL_LLVM_RUNTIME_LIBS_ARCH=${pkgs.stdenv.hostPlatform.parsed.cpu.name}"
+                      ];
+                  }
+                  // lib.optionalAttrs pkgs.stdenv.hostPlatform.isDarwin {
+                    # generic.nix scrubs the bootstrap compiler's `__FILE__` strings
+                    # on ELF only; on Darwin this build does, and the fixup phase
+                    # signs the result again.
+                    nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [
+                      pkgs.removeReferencesTo
+                      pkgs.darwin.autoSignDarwinBinariesHook
+                    ];
+                    preFixup = (old.preFixup or "") + ''
+                      find "$out" -type f -exec remove-references-to -t ${self'.packages.ldc-bootstrap} '{}' +
+                      # LLVM's libLTO.dylib, which LDC copies for ld64's LTO, links
+                      # @rpath/libLLVM.*.dylib, and LDC's lib/ has no libLLVM. The clang
+                      # view has it, and is in the closure anyway as the link compiler.
+                      install_name_tool -add_rpath ${llvmViews.clang}/lib $out/lib/libLTO.dylib
+                    '';
+                    disallowedReferences = (old.disallowedReferences or [ ]) ++ [
+                      self'.packages.ldc-bootstrap
+                    ];
+                  }
+                );
+          }
         );
       };
 

@@ -174,7 +174,8 @@ in
         ''
       );
 
-  ldc = ldc.overrideAttrs (old: {
+  # The compiler build itself; `ldc` may be ./../ldc/with-link-cc.nix's wrapper.
+  ldc = (ldc.unwrapped or ldc).overrideAttrs (old: {
     pname = "${old.pname}-checked";
     # druntime's profile test runs its recipes with `/bin/bash`.
     postPatch =
