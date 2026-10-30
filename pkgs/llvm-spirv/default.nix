@@ -36,11 +36,13 @@
   version,
 }:
 let
-  # clang/tools and llvm/tools directories, as CMake spells them. Kept: the
-  # clang driver and `clang-shlib`; llc, opt, llvm-as, -dis and -link; the
-  # binutils (ar, nm, objcopy, objdump, readobj, size, strings); llvm-config;
-  # the profile, coverage, symbolizer, XRay and sancov tools that pair with
-  # compiler-rt's runtimes; dsymutil, llvm-lipo, libLTO and llvm-shlib.
+  # clang/tools and llvm/tools directories, as CMake spells them. Kept, each
+  # for its user (Sparkles' toolchain specification, TC9): the clang driver
+  # and `clang-shlib`; llc and opt, for LDC's lit tests; the binutils (ar, nm,
+  # objcopy, objdump, readobj, size, strings) and llvm-config; llvm-dwarfdump,
+  # for debug information (and llvm-locstats, which uses it); the profile,
+  # coverage, symbolizer and XRay tools that pair with compiler-rt's runtimes;
+  # dsymutil, llvm-lipo, libLTO and llvm-shlib.
   unusedClangTools = [
     "APINOTES_TEST"
     "C_INDEX_TEST"
@@ -72,6 +74,10 @@ let
   unusedLlvmTools = [
     "DXIL_DIS"
     "LLI"
+    "LLVM_AS"
+    "LLVM_DIS"
+    "LLVM_LINK"
+    "LLVM_MC"
     "LLUBI"
     "LLVM_BCANALYZER"
     "LLVM_C_TEST"
@@ -122,6 +128,7 @@ let
     "OBJ2YAML"
     "OPT_VIEWER"
     "REDUCE_CHUNK_LIST"
+    "SANCOV"
     "SANSTATS"
     "SPIRV_TOOLS"
     "VERIFY_USELISTORDER"
@@ -148,8 +155,12 @@ stdenv.mkDerivation (finalAttrs: {
     (lib.cmakeFeature "LLVM_ENABLE_PROJECTS" "clang;lld")
     (lib.cmakeFeature "LLVM_TARGETS_TO_BUILD" "AArch64;X86;SPIRV;WebAssembly")
     (lib.cmakeBool "LLVM_ENABLE_ASSERTIONS" true)
-    # Clang is the WASI C driver only.
+    # Clang is the C and C++ compiler of clang-sparkles and the WASI drivers:
+    # no static analyzer, no ClangIR, and no `clang-cl` or `clang-dxc`.
     (lib.cmakeBool "CLANG_ENABLE_STATIC_ANALYZER" false)
+    (lib.cmakeBool "CLANG_ENABLE_CIR" false)
+    (lib.cmakeFeature "CLANG_LINKS_TO_CREATE" "clang++;clang-cpp")
+    (lib.cmakeBool "CLANG_INSTALL_HMAPTOOL" false)
     (lib.cmakeBool "LLVM_INCLUDE_TESTS" false)
     (lib.cmakeBool "LLVM_INCLUDE_BENCHMARKS" false)
     (lib.cmakeBool "LLVM_INCLUDE_EXAMPLES" false)
@@ -167,11 +178,15 @@ stdenv.mkDerivation (finalAttrs: {
     (lib.cmakeBool "LLVM_BUILD_LLVM_DYLIB" true)
     (lib.cmakeBool "LLVM_LINK_LLVM_DYLIB" true)
     (lib.cmakeBool "CLANG_LINK_CLANG_DYLIB" true)
-    # FileCheck, `not` and `count`, for LDC's lit tests.
-    (lib.cmakeBool "LLVM_INSTALL_UTILS" true)
   ]
   ++ map (tool: lib.cmakeBool "CLANG_TOOL_${tool}_BUILD" false) unusedClangTools
   ++ map (tool: lib.cmakeBool "LLVM_TOOL_${tool}_BUILD" false) unusedLlvmTools;
+
+  # FileCheck, `not` and `count`, for LDC's lit tests; LLVM_INSTALL_UTILS would
+  # install every utility.
+  postInstall = ''
+    install -m755 bin/FileCheck bin/not bin/count $out/bin/
+  '';
 
   passthru = {
     # ./../ldc/generic.nix reads `llvmPackages.llvm.dev` / `.lld.dev`.

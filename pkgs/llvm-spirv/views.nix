@@ -35,7 +35,6 @@ let
     "clang++"
     "clang-cpp"
     "clang-${major}"
-    "clang-cl"
     "lld"
     "ld.lld"
     "ld64.lld"

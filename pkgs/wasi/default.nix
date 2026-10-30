@@ -176,16 +176,6 @@ let
             python3
           ];
           cmakeDir = "../runtimes";
-          # Commits of the fork's `sparkles/main` that the locked LLVM revision
-          # predates: libunwind's exports (llvm/llvm-project#168449) and
-          # libc++'s z/OS-only locale header, which wasi-sdk carries, and the
-          # default rune table WASI lost when libc++ split its locale API.
-          # They go when the lock moves with the next LLVM rebuild (WTD36).
-          patches = [
-            ./patches/0001-libunwind-exclude-__declspec-from-wasm-build.patch
-            ./patches/0002-libc-Include-the-IBM-locale-base-API-on-z-OS-only.patch
-            ./patches/0003-libc-Provide-the-default-rune-table-for-WASI-again.patch
-          ];
           # LTO libraries go where clang looks for them: `lib/<target>/llvm-lto/`
           # and the version clang reports, as wasi-libc does.
           preConfigure = ''

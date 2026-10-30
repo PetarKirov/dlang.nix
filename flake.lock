@@ -83,11 +83,11 @@
     "ldc-sparkles": {
       "flake": false,
       "locked": {
-        "lastModified": 1793255816,
-        "narHash": "sha256-A3cX6MawUXrlYoYm5cJWkwjNxn5YdQgVN5LSY1mirqQ=",
+        "lastModified": 1793364018,
+        "narHash": "sha256-i00sQh57n3pbW+230i7anOmWT9f+KeAw0VjP5+M15tY=",
         "ref": "sparkles/main",
-        "rev": "89c1a7f6c9bb0f035c22aae21db4596a0971ae21",
-        "revCount": 49371,
+        "rev": "83a9f4182e4ba57e50210455ee9ce1fd3e139e88",
+        "revCount": 49377,
         "submodules": true,
         "type": "git",
         "url": "https://github.com/PetarKirov/ldc"
@@ -102,10 +102,10 @@
     "llvm-sparkles": {
       "flake": false,
       "locked": {
-        "lastModified": 1792878720,
-        "narHash": "sha256-9OY8KW5hNDttk2J8V43xzV3pLlyfRPJQWkf6HvsjgE4=",
+        "lastModified": 1793363577,
+        "narHash": "sha256-JSEWpayOnhMvZ9xlVtk8Xgo0TaqgJmI4y6KfAdAUSrE=",
         "ref": "sparkles/main",
-        "rev": "24d1ae35e055e8a32192fc07da66885d0e2c5576",
+        "rev": "275dcf288790e62c922d50926e78755ab8aa19fe",
         "shallow": true,
         "type": "git",
         "url": "https://github.com/PetarKirov/llvm-project"
@@ -119,11 +119,11 @@
     },
     "nixpkgs": {
       "locked": {
-        "lastModified": 1793057227,
-        "narHash": "sha256-G1cCIWSWbCnQi1aIdI/tHtyI3Jd+1Z4x57sJ9754jco=",
+        "lastModified": 1793363981,
+        "narHash": "sha256-Ru8rtvBrBwagkQR7+V290MdNwBlxHtlY0qgqdxDfUHw=",
         "owner": "PetarKirov",
         "repo": "nixpkgs",
-        "rev": "60c0882dd14bc083ea721a42b8c31bfaa91b8bcf",
+        "rev": "b32e1eb268f8a32ec738297d6a0cc0374c184fa8",
         "type": "github"
       },
       "original": {
