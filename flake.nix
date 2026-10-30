@@ -73,6 +73,9 @@
             editorconfig-checker.enable = true;
             nixfmt-rfc-style = {
               enable = true;
+              # nixpkgs' `nixfmt-rfc-style` is now an alias of `nixfmt`, and
+              # warns; the hook's default package names the alias.
+              package = pkgs.nixfmt;
             };
           };
         };

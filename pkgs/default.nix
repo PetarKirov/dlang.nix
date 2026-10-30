@@ -353,7 +353,7 @@ in
       // (genPkgVersions "ldc").flattened "binary"
       // (genPkgVersions "ldc").flattened "source"
       // (genPkgVersions "dub").flattened "source"
-      // optionalAttrs pkgs.hostPlatform.isx86 (
+      // optionalAttrs pkgs.stdenv.hostPlatform.isx86 (
         {
           dmd-bootstrap = self'.packages."dmd-binary-2_098_0";
           dmd = self'.packages."dmd-2_112_0";
@@ -363,18 +363,18 @@ in
       )
       // optionalAttrs (ndkHostTag != null) androidPackages
       // optionalAttrs (system == "x86_64-linux") x86_32Packages
-      // optionalAttrs (pkgs.hostPlatform.isLinux || pkgs.hostPlatform.isDarwin) (
+      // optionalAttrs (pkgs.stdenv.hostPlatform.isLinux || pkgs.stdenv.hostPlatform.isDarwin) (
         vulkanPackages // sparklesPackages
       )
-      // optionalAttrs pkgs.hostPlatform.isLinux llvmRuntimePackages;
+      // optionalAttrs pkgs.stdenv.hostPlatform.isLinux llvmRuntimePackages;
 
       checks =
-        optionalAttrs (pkgs.hostPlatform.isLinux || pkgs.hostPlatform.isDarwin) {
+        optionalAttrs (pkgs.stdenv.hostPlatform.isLinux || pkgs.stdenv.hostPlatform.isDarwin) {
           toolchain-clang = vulkanPackages.clang-sparkles.tests.clang;
           toolchain-runtimes = vulkanPackages.ldc-vulkan.tests.runtimes;
           toolchain-ldc = vulkanPackages.ldc-vulkan.tests.ldc;
         }
-        // optionalAttrs pkgs.hostPlatform.isLinux {
+        // optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
           toolchain-llvm-runtimes = pkgs.callPackage ./ldc/llvm-runtimes-tests.nix {
             ldc = llvmRuntimePackages.ldc-vulkan-llvm-runtimes;
           };

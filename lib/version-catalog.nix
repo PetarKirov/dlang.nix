@@ -30,7 +30,7 @@ let
     in
     result';
 
-  system = pkgs.hostPlatform.system;
+  system = pkgs.stdenv.hostPlatform.system;
   filterBySystem = pkgs: lib.filterAttrs (_name: pkg: builtins.elem system pkg.meta.platforms) pkgs;
 in
 {

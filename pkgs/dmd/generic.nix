@@ -42,7 +42,7 @@ let
   hostDCInfo = getDCInfo hostDCompiler;
 
   # Minimum macOS version every Darwin compiler/linker invocation should target.
-  # Only forced under `stdenv.isDarwin` guards, so it stays lazy on Linux where
+  # Only forced under `stdenv.hostPlatform.isDarwin` guards, so it stays lazy on Linux where
   # the attribute is absent.
   darwinTarget = stdenv.hostPlatform.darwinMinVersion;
 
@@ -72,7 +72,7 @@ let
   };
 
   bits = builtins.toString stdenv.hostPlatform.parsed.cpu.bits;
-  os = if stdenv.isDarwin then "osx" else stdenv.hostPlatform.parsed.kernel.name;
+  os = if stdenv.hostPlatform.isDarwin then "osx" else stdenv.hostPlatform.parsed.kernel.name;
 
   buildMode = if enableRelease then "release" else "debug";
 
@@ -114,39 +114,38 @@ stdenv.mkDerivation rec {
 
   enableParallelBuilding = true;
 
-  srcs =
-    [
-      (fetchFromGitHub {
-        owner = "dlang";
-        repo = "dmd";
-        rev = "v${version}";
-        sha256 = dmdSha256;
-        name = "dmd";
-      })
-      (fetchFromGitHub {
-        owner = "dlang";
-        repo = "phobos";
-        rev = "v${version}";
-        sha256 = phobosSha256;
-        name = "phobos";
-      })
-      (fetchFromGitHub {
-        owner = "dlang";
-        repo = "tools";
-        rev = "v${version}";
-        sha256 = toolsSha256;
-        name = "tools";
-      })
-    ]
-    ++ lib.optionals druntimeRepo [
-      (fetchFromGitHub {
-        owner = "dlang";
-        repo = "druntime";
-        rev = "v${version}";
-        sha256 = druntimeSha256;
-        name = "druntime";
-      })
-    ];
+  srcs = [
+    (fetchFromGitHub {
+      owner = "dlang";
+      repo = "dmd";
+      rev = "v${version}";
+      sha256 = dmdSha256;
+      name = "dmd";
+    })
+    (fetchFromGitHub {
+      owner = "dlang";
+      repo = "phobos";
+      rev = "v${version}";
+      sha256 = phobosSha256;
+      name = "phobos";
+    })
+    (fetchFromGitHub {
+      owner = "dlang";
+      repo = "tools";
+      rev = "v${version}";
+      sha256 = toolsSha256;
+      name = "tools";
+    })
+  ]
+  ++ lib.optionals druntimeRepo [
+    (fetchFromGitHub {
+      owner = "dlang";
+      repo = "druntime";
+      rev = "v${version}";
+      sha256 = druntimeSha256;
+      name = "druntime";
+    })
+  ];
 
   sourceRoot = ".";
 
@@ -330,7 +329,7 @@ stdenv.mkDerivation rec {
     # makefile is `posix.mak` in older releases and `Makefile` from 2.112 on, so
     # cover both: the guard skips files a given version doesn't ship and
     # `--replace-quiet` tolerates the line being absent.
-    + lib.optionalString stdenv.isDarwin ''
+    + lib.optionalString stdenv.hostPlatform.isDarwin ''
       for mk in ${druntimePrefix}/posix.mak ${druntimePrefix}/Makefile phobos/posix.mak phobos/Makefile; do
         if [ -e "$mk" ]; then
           substituteInPlace "$mk" \
@@ -358,10 +357,10 @@ stdenv.mkDerivation rec {
     ''
     # This test causes a linking failure before
     # https://github.com/dlang/dmd/commit/cab51f946a8b2d3f0fcb856cf6c52a18a6779930
-    + lib.optionalString stdenv.isLinux ''
+    + lib.optionalString stdenv.hostPlatform.isLinux ''
       substituteInPlace phobos/std/socket.d --replace "assert(ih.addrList[0] == 0x7F_00_00_01);" ""
     ''
-    + lib.optionalString stdenv.isDarwin ''
+    + lib.optionalString stdenv.hostPlatform.isDarwin ''
       substituteInPlace phobos/std/socket.d --replace "foreach (name; names)" "names = []; foreach (name; names)"
     '';
 
@@ -369,20 +368,20 @@ stdenv.mkDerivation rec {
     makeWrapper
     which
     installShellFiles
-  ] ++ lib.optional (lib.versionOlder version "2.088.0") git;
+  ]
+  ++ lib.optional (lib.versionOlder version "2.088.0") git;
 
-  buildInputs =
-    [
-      curl
-      tzdata
-    ]
-    ++ lib.optionals stdenv.isDarwin [
-      # Exports MACOSX_DEPLOYMENT_TARGET for every build/check phase. Covers the
-      # compiler invocations the druntime/phobos makefiles don't drive (building
-      # dmd itself, the test harness) — without it DMD's codegen falls back to its
-      # hardcoded 10.9 default (compiler/src/dmd/backend/machobj.d).
-      (darwinMinVersionHook darwinTarget)
-    ];
+  buildInputs = [
+    curl
+    tzdata
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isDarwin [
+    # Exports MACOSX_DEPLOYMENT_TARGET for every build/check phase. Covers the
+    # compiler invocations the druntime/phobos makefiles don't drive (building
+    # dmd itself, the test harness) — without it DMD's codegen falls back to its
+    # hardcoded 10.9 default (compiler/src/dmd/backend/machobj.d).
+    (darwinMinVersionHook darwinTarget)
+  ];
 
   nativeCheckInputs = [ gdb ] ++ lib.optional (lib.versionOlder version "2.089.0") unzip;
 
@@ -460,7 +459,7 @@ stdenv.mkDerivation rec {
 
     wrapProgram $out/bin/dmd \
       --prefix PATH ":" "${targetPackages.stdenv.cc}/bin" \
-      --set-default CC "${targetPackages.stdenv.cc}/bin/cc"${lib.optionalString stdenv.isDarwin " \\\n      --set-default MACOSX_DEPLOYMENT_TARGET \"${darwinTarget}\""}
+      --set-default CC "${targetPackages.stdenv.cc}/bin/cc"${lib.optionalString stdenv.hostPlatform.isDarwin " \\\n      --set-default MACOSX_DEPLOYMENT_TARGET \"${darwinTarget}\""}
 
     substitute ${dmdConfFile} "$out/bin/dmd.conf" --subst-var out
 
