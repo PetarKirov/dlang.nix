@@ -19,6 +19,10 @@
   lib,
   stdenv,
   wrapCCWith,
+  # The bintools wrapper (nixpkgs' by default). On Linux, ./lld.nix's
+  # `passthru.bintools`, whose `bin/` adds a wrapped `ld.lld`, which the
+  # compiler wrapper links into its own `bin/`.
+  bintools,
   # The `clang` view of ./views.nix.
   cc,
   # A compiler-rt whose `lib/clang/<major>/lib` (or, for nixpkgs', `lib`)
@@ -38,7 +42,7 @@ let
       "${compiler-rt.out}/${compiler-rt.passthru.resourceLib or "lib"}";
 in
 (wrapCCWith {
-  inherit cc;
+  inherit cc bintools;
   libcxx = if isDarwin then stdenv.cc.libcxx else llvm-runtimes;
   # Links take compiler-rt's builtins and LLVM's unwinder; C++ links take
   # libc++, which the wrapper adds for a `libcxx` with `isLLVM`.
@@ -59,6 +63,12 @@ in
     mkdir "$rsrc"
     ln -s "${cc}/lib/clang/${major}/include" "$rsrc"
     echo "-resource-dir=$rsrc" >> $out/nix-support/cc-cflags
+  ''
+  # clang looks for `ld.lld` beside itself before the wrapper's `bin/`, so the
+  # view's raw one would take `-fuse-ld=lld` links, with no RUNPATH and the
+  # FHS dynamic linker; `-B` puts the wrapper's `bin/` first.
+  + lib.optionalString (!isDarwin) ''
+    echo "-B$out/bin/" >> $out/nix-support/cc-cflags
   ''
   + lib.optionalString (runtimeLib != null) ''
     ln -s "${runtimeLib}" "$rsrc/lib"

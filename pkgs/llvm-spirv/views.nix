@@ -12,6 +12,7 @@
 #   runtimes (symbolizer, profile and coverage tools, XRay). The compiler
 #   ./clang.nix wraps; `disallowedReferences` asserts it names no path of the
 #   install.
+# - `lld`: links to the lld drivers of `clang`, alone, for ./lld.nix to wrap.
 {
   lib,
   stdenv,
@@ -95,7 +96,7 @@ let
         done
       '';
 in
-{
+rec {
   dev =
     runCommand "llvm-spirv-vulkan-dev-${llvm.version}"
       {
@@ -155,4 +156,19 @@ in
       description = "clang, lld and the shared LLVM libraries of llvm-spirv-vulkan";
     };
   };
+
+  lld =
+    runCommand "lld-sparkles-unwrapped-${llvm.version}"
+      {
+        inherit (llvm) version;
+        passthru.buildStatus = buildStatus;
+      }
+      ''
+        mkdir -p $out/bin
+        for tool in lld ld.lld ld64.lld lld-link wasm-ld; do
+          if [ -e ${clang}/bin/$tool ]; then
+            ln -s ${clang}/bin/$tool $out/bin/
+          fi
+        done
+      '';
 }

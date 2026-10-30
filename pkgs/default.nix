@@ -132,22 +132,35 @@ in
       # needs at run time (`clang`).
       llvmViews = pkgs.callPackage ./llvm-spirv/views.nix { llvm = llvmSpirvVulkan; };
 
+      # lld with its ELF driver behind the bintools wrapper (Linux). The clang
+      # wrappers take its bintools, so `-fuse-ld=lld` sets RUNPATHs.
+      lldSparkles = pkgs.callPackage ./llvm-spirv/lld.nix { lld = llvmViews.lld; };
+      clangBintools = optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
+        inherit (lldSparkles) bintools;
+      };
+
       # compiler-rt is built by clang, so the wrapper comes twice: first with
       # nixpkgs' compiler-rt on Darwin (see ./llvm-spirv/clang.nix), then with
       # the fork's.
-      clangSparklesBootstrap = pkgs.callPackage ./llvm-spirv/clang.nix {
-        cc = llvmViews.clang;
-        compiler-rt = if pkgs.stdenv.hostPlatform.isDarwin then pkgs.llvmPackages_20.compiler-rt else null;
-      };
+      clangSparklesBootstrap = pkgs.callPackage ./llvm-spirv/clang.nix (
+        clangBintools
+        // {
+          cc = llvmViews.clang;
+          compiler-rt = if pkgs.stdenv.hostPlatform.isDarwin then pkgs.llvmPackages_20.compiler-rt else null;
+        }
+      );
       compilerRtSparkles = pkgs.callPackage ./llvm-spirv/compiler-rt.nix {
         stdenv = pkgs.overrideCC pkgs.stdenv clangSparklesBootstrap;
         src = inputs.llvm-sparkles;
         inherit (llvmSpirvVulkan) version;
       };
-      clangSparkles = pkgs.callPackage ./llvm-spirv/clang.nix {
-        cc = llvmViews.clang;
-        compiler-rt = compilerRtSparkles;
-      };
+      clangSparkles = pkgs.callPackage ./llvm-spirv/clang.nix (
+        clangBintools
+        // {
+          cc = llvmViews.clang;
+          compiler-rt = compilerRtSparkles;
+        }
+      );
       clangStdenvSparkles = pkgs.overrideCC pkgs.stdenv clangSparkles;
 
       # LLVM's libunwind and libc++ for the all-LLVM runtime profile (TC18).
@@ -303,11 +316,14 @@ in
       # C++ library and unwinder already are LLVM's.
       llvmRuntimePackages = rec {
         llvm-runtimes-sparkles = llvmRuntimesSparkles;
-        clang-sparkles-llvm-runtimes = pkgs.callPackage ./llvm-spirv/clang.nix {
-          cc = llvmViews.clang;
-          compiler-rt = compilerRtSparkles;
-          llvm-runtimes = llvmRuntimesSparkles;
-        };
+        clang-sparkles-llvm-runtimes = pkgs.callPackage ./llvm-spirv/clang.nix (
+          clangBintools
+          // {
+            cc = llvmViews.clang;
+            compiler-rt = compilerRtSparkles;
+            llvm-runtimes = llvmRuntimesSparkles;
+          }
+        );
         ldc-vulkan-llvm-runtimes = pkgs.callPackage ./ldc/with-llvm-runtimes.nix {
           ldc = vulkanPackages.ldc-vulkan;
           cc = clang-sparkles-llvm-runtimes;
@@ -370,7 +386,9 @@ in
       // optionalAttrs (pkgs.stdenv.hostPlatform.isLinux || pkgs.stdenv.hostPlatform.isDarwin) (
         vulkanPackages // sparklesPackages
       )
-      // optionalAttrs pkgs.stdenv.hostPlatform.isLinux llvmRuntimePackages;
+      // optionalAttrs pkgs.stdenv.hostPlatform.isLinux (
+        llvmRuntimePackages // { lld-sparkles = lldSparkles; }
+      );
 
       checks =
         optionalAttrs (pkgs.stdenv.hostPlatform.isLinux || pkgs.stdenv.hostPlatform.isDarwin) {

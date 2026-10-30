@@ -2,7 +2,8 @@
 # specification, TC22), exposed as each package's `passthru.tests`:
 #
 # - `clang`: `clang-sparkles` compiles and runs C, C++20 and, on macOS,
-#   Objective-C.
+#   Objective-C; on Linux, `-fuse-ld=lld` links through the bintools wrapper,
+#   so a library from another store path lands on the RUNPATH.
 # - `runtimes`: the compiler-rt runtimes LDC ships, through LDC and through
 #   clang: AddressSanitizer reports a heap overflow, UBSan an overflow,
 #   `-fprofile-instr-generate` writes a profile that `llvm-profdata` merges,
@@ -22,6 +23,7 @@
   spirv-tools,
   runtimeShell,
   darwin,
+  zlib,
 }:
 let
   inherit (stdenv.hostPlatform) isDarwin isLinux;
@@ -61,6 +63,16 @@ in
           int main(void) { @autoreleasepool { NSLog(@"objc ok"); } return 0; }
           EOF
           cc -fobjc-arc hello.m -framework Foundation -o hello-m && ./hello-m 2>&1 | grep -q 'objc ok'
+        ''
+        + lib.optionalString isLinux ''
+          cat > z.c <<'EOF'
+          #include <stdio.h>
+          #include <zlib.h>
+          int main(void) { puts(zlibVersion()); return 0; }
+          EOF
+          cc -fuse-ld=lld z.c -I${lib.getDev zlib}/include -L${lib.getLib zlib}/lib -lz -o z-lld
+          readelf -d z-lld | grep RUNPATH | grep -q '${lib.getLib zlib}/lib'
+          ./z-lld
         ''
         + ''
           touch $out
