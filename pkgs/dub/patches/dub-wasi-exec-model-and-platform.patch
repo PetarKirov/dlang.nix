@@ -1,0 +1,81 @@
+diff --git a/changelog/wasi-platform.dd b/changelog/wasi-platform.dd
+new file mode 100644
+index 0000000..78a5287
+--- /dev/null
++++ b/changelog/wasi-platform.dd
+@@ -0,0 +1,13 @@
++WASI targets get a `wasi` platform, and `-mexec-model` reaches the link
++
++When the compiler predefines `version(WASI)`, the build platform now
++includes `wasi` beside `wasm`, so a recipe can scope settings to a
++WebAssembly program that has a system interface:
++
++-------
++dflags "-mexec-model=reactor" platform="wasi"
++-------
++
++LDC's `-mexec-model=` (`command` or `reactor`) is now forwarded to the
++separate link step, where it selects the WASI start files; before, a
++reactor built with the default build mode linked as a command.
+diff --git a/source/dub/compilers/ldc.d b/source/dub/compilers/ldc.d
+index d28b575..2641ed3 100644
+--- a/source/dub/compilers/ldc.d
++++ b/source/dub/compilers/ldc.d
+@@ -359,11 +359,21 @@ config    /etc/ldc2.conf (x86_64-pc-linux-gnu)
+ 				    || arg.startsWith("-link-")
+ 				    || arg.startsWith("-linker=")
+ 				    || arg.startsWith("-march=")
++				    || arg.startsWith("-mexec-model=")
+ 				    || arg.startsWith("-mscrtlib=")
+ 				    || arg.startsWith("-mtriple=");
+ 		}
+ 	}
+ 
++	unittest {
++		// The WASI execution model selects the start files at link time.
++		assert(isLinkerDFlag("-mexec-model=reactor"));
++		assert(isLinkerDFlag("--mexec-model=command"));
++		assert(isLinkerDFlag("-mtriple=wasm32-unknown-wasip1"));
++		assert(!isLinkerDFlag("-mcpu=generic"));
++		assert(!isLinkerDFlag("-O3"));
++	}
++
+ 	protected string[] defaultProbeArgs () const {
+ 		return ["-c", "-o-", "-v"];
+ 	}
+diff --git a/source/dub/platform.d b/source/dub/platform.d
+index bddbb89..f3eeb97 100644
+--- a/source/dub/platform.d
++++ b/source/dub/platform.d
+@@ -47,6 +47,7 @@ enum string platformCheck = q{
+ 	version(MinGW) ret ~= "mingw";
+ 	version(PlayStation4) ret ~= "playstation4";
+ 	version(WebAssembly) ret ~= "wasm";
++	version(WASI) ret ~= "wasi";
+ 	version(Emscripten) ret ~= "emscripten";
+ 	return ret;
+ };
+@@ -257,6 +258,23 @@ unittest {
+ 	assert(platform.matchesSpecification("-x86_64"));
+ }
+ 
++unittest {
++	// A WASI target is reported as both "wasm" and "wasi", so a recipe can
++	// tell a WASI program from WebAssembly without a system interface.
++	import std.algorithm.searching : canFind;
++	assert(pragmaGen(platformCheck).canFind(q{version(WASI) pragma(msg, ` "wasi"`);}));
++
++	auto wasi = BuildPlatform(["wasm", "wasi"], ["wasm32"], "ldc");
++	assert(wasi.matchesSpecification("wasi"));
++	assert(wasi.matchesSpecification("wasi-ldc"));
++	assert(wasi.matchesSpecification("wasi-wasm32-ldc"));
++	assert(wasi.matchesSpecification("wasm"));
++	assert(!wasi.matchesSpecification("linux"));
++
++	auto bare = BuildPlatform(["wasm"], ["wasm32"], "ldc");
++	assert(!bare.matchesSpecification("wasi"));
++}
++
+ /// Represents a platform a package can be build upon.
+ struct BuildPlatform {
+ 	/// Special constant used to denote matching any build platform.

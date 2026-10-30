@@ -2,6 +2,8 @@
   version,
   dubSha256,
   rev ? "v${version}",
+  # Patches applied to dub's source, from ./patches.
+  patches ? [ ],
 }:
 {
   lib,
@@ -38,6 +40,8 @@ stdenv.mkDerivation rec {
     inherit rev;
     sha256 = dubSha256;
   };
+
+  inherit patches;
 
   dubvar = "\\$DUB";
   postPatch = ''
