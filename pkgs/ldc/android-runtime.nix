@@ -34,6 +34,26 @@ let
   # arch is everything before it.
   archTag = lib.head (lib.splitString "--" mtriple);
   buildDir = "build-android-${archTag}";
+
+  # The toolchain store paths the runtime would otherwise carry, mapped at
+  # compile time (the libraries stay unstripped, for ndk-stack): the NDK's
+  # headers and clang resource directory in the C parts' DWARF (the NDK's
+  # toolchain file compiles with -g), and the compiler's own paths wherever
+  # the D modules name them. Each is forbidden as a reference below, so a
+  # consumer's closure never gains the NDK through the runtime. `match`
+  # drops the string context, so naming a path here adds no dependency.
+  storePathOf = p: lib.head (builtins.match "(${builtins.storeDir}/[^/]+).*" p);
+  ndkStorePath = storePathOf ndk;
+  ldcStorePaths = lib.unique (
+    map storePathOf [
+      "${ldc}"
+      "${ldc.unwrapped or ldc}"
+    ]
+  );
+  ndkPrefixMap = "-ffile-prefix-map=${ndkStorePath}=/ndk";
+  dPrefixMapFlags = lib.concatMapStringsSep " " (
+    p: "--dFlags=-ffile-prefix-map=${p}=/ldc"
+  ) ldcStorePaths;
 in
 stdenv.mkDerivation {
   pname = "ldc-android-runtime-${archTag}";
@@ -57,6 +77,7 @@ stdenv.mkDerivation {
   # rewrites each ELF archive with a Mach-O style `__.SYMDEF SORTED` symbol
   # table that lld then rejects as "truncated or malformed".
   dontStrip = true;
+  disallowedReferences = [ ndkStorePath ] ++ ldcStorePaths;
 
   buildPhase = ''
     runHook preBuild
@@ -72,6 +93,8 @@ stdenv.mkDerivation {
       --ldcSrcDir="$PWD" \
       --buildDir="$PWD/${buildDir}" \
       --dFlags="-mtriple=${mtriple}" \
+      ${dPrefixMapFlags} \
+      --cFlags=${ndkPrefixMap} \
       --targetSystem="Android;Linux;UNIX" \
       BUILD_SHARED_LIBS=OFF \
       CMAKE_TOOLCHAIN_FILE=${ndk}/build/cmake/android.toolchain.cmake \
