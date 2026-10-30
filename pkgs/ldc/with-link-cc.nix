@@ -12,6 +12,8 @@
   stdenv,
   symlinkJoin,
   makeWrapper,
+  cctools,
+  darwin,
   ldc,
   # A cc-wrapped C compiler (`clang-sparkles`).
   cc,
@@ -31,12 +33,31 @@ symlinkJoin {
   inherit (ldc) name;
   paths = [ ldc ];
   nativeBuildInputs = [ makeWrapper ];
-  postBuild = ''
-    for drv in ldc2 ldmd2; do
-      rm $out/bin/$drv
-      makeWrapper ${ldc}/bin/$drv $out/bin/$drv ${lib.concatStringsSep " " flags}
-    done
-  '';
+  postBuild =
+    lib.optionalString stdenv.hostPlatform.isDarwin ''
+      # LLVM's libLTO.dylib, which LDC hands ld64 for LTO (`-lto_library`),
+      # links @rpath/libLLVM.*.dylib, and LDC's lib/ has no libLLVM. The clang
+      # the wrapper links through has it, so this copy finds it there; the
+      # unwrapped LDC's stays without, keeping clang out of its closure. The
+      # wrapped drivers run the unwrapped ldc2, which would pick the
+      # libLTO.dylib beside itself, so they name this copy.
+      ltoFlags=
+      if [ -e $out/lib/libLTO.dylib ]; then
+        # install_name_tool, and the codesign_allocate codesign runs.
+        PATH=${cctools}/bin:$PATH
+        cp --remove-destination ${ldc}/lib/libLTO.dylib $out/lib/libLTO.dylib
+        chmod u+w $out/lib/libLTO.dylib
+        install_name_tool -add_rpath ${cc.cc}/lib $out/lib/libLTO.dylib
+        ${darwin.sigtool}/bin/codesign -f -s - $out/lib/libLTO.dylib
+        ltoFlags="--add-flags -flto-binary=$out/lib/libLTO.dylib"
+      fi
+    ''
+    + ''
+      for drv in ldc2 ldmd2; do
+        rm $out/bin/$drv
+        makeWrapper ${ldc}/bin/$drv $out/bin/$drv ${lib.concatStringsSep " " flags}${lib.optionalString stdenv.hostPlatform.isDarwin " $ltoFlags"}
+      done
+    '';
   passthru = (ldc.passthru or { }) // {
     unwrapped = ldc;
     linkCc = cc;

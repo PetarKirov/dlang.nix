@@ -267,10 +267,6 @@ in
                     ];
                     preFixup = (old.preFixup or "") + ''
                       find "$out" -type f -exec remove-references-to -t ${self'.packages.ldc-bootstrap} '{}' +
-                      # LLVM's libLTO.dylib, which LDC copies for ld64's LTO, links
-                      # @rpath/libLLVM.*.dylib, and LDC's lib/ has no libLLVM. The clang
-                      # view has it, and is in the closure anyway as the link compiler.
-                      install_name_tool -add_rpath ${llvmViews.clang}/lib $out/lib/libLTO.dylib
                     '';
                     disallowedReferences = (old.disallowedReferences or [ ]) ++ [
                       self'.packages.ldc-bootstrap

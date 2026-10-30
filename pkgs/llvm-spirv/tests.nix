@@ -246,7 +246,7 @@ in
         # Sanitizer reports symbolize through llvm-symbolizer: the build
         # sandbox has no atos. The tests also link LTO through the build
         # tree's libLTO.dylib, which needs the clang view's libLLVM (as the
-        # installed one does, see ../default.nix).
+        # wrapped one does, see ../ldc/with-link-cc.nix).
         for s in ASAN LSAN TSAN UBSAN; do
           export ''${s}_SYMBOLIZER_PATH=${llvmTools}/bin/llvm-symbolizer
         done
