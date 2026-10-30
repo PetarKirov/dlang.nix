@@ -354,6 +354,10 @@ in
         # A stdenv whose C and C++ compiler is `clang-sparkles`.
         clangStdenv-sparkles = clangStdenvSparkles;
       }
+      // optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
+        # The same, for the all-LLVM runtime profile: C++ against libc++.
+        clangStdenv-sparkles-llvm-runtimes = pkgs.overrideCC pkgs.stdenv llvmRuntimePackages.clang-sparkles-llvm-runtimes;
+      }
       // (genPkgVersions "dmd").hierarchical
       // (genPkgVersions "ldc").hierarchical
       // (genPkgVersions "dub").hierarchical;
