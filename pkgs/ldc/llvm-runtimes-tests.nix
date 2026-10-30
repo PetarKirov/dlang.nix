@@ -6,10 +6,16 @@
 #   caught in C++;
 # - an uncaught D exception prints a stack trace that resolves its D frames
 #   to file and line;
-# - the program needs neither libgcc_s nor libstdc++, and loads neither.
+# - the program needs neither libgcc_s nor libstdc++, and loads neither;
+# - a link that asks for the shared druntime and Phobos, as dub's unittest
+#   build types do, links them statically all the same, and its exported
+#   unwinder serves the stack trace;
+# - a link by lld names a library from another store path on its RUNPATH.
 {
   runCommand,
+  lib,
   binutils,
+  zlib,
   ldc,
 }:
 runCommand "ldc-llvm-runtimes-tests"
@@ -104,5 +110,27 @@ runCommand "ldc-llvm-runtimes-tests"
       echo "the program loaded a GCC runtime"
       exit 1
     fi
+
+    ldc2 -g --link-defaultlib-shared -L--export-dynamic interop.d cpp.o -of=interop-shared
+    readelf -d interop-shared | tee dynamic-shared.txt
+    if grep -E 'libgcc_s|libdruntime|libphobos' dynamic-shared.txt; then
+      echo "-link-defaultlib-shared linked a shared runtime"
+      exit 1
+    fi
+    [ "$(./interop-shared)" = "$expected" ] || { echo "interop-shared failed"; exit 1; }
+    if ./interop-shared uncaught 2> trace-shared.txt; then
+      echo "the uncaught exception did not fail the program"
+      exit 1
+    fi
+    grep -q '^interop.d:[0-9]' trace-shared.txt || { echo "no D frame in the stack trace"; exit 1; }
+
+    cat > z.d <<'EOF'
+    extern (C) const(char)* zlibVersion();
+    extern (C) int puts(const(char)*);
+    void main() { puts(zlibVersion()); }
+    EOF
+    ldc2 --linker=lld z.d -L-L${lib.getLib zlib}/lib -L-lz -of=z-lld
+    readelf -d z-lld | grep RUNPATH | grep -q '${lib.getLib zlib}/lib'
+    ./z-lld
     touch $out
   ''
