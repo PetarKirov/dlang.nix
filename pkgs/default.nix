@@ -230,6 +230,10 @@ in
                         # LLVM's tools share `libLLVM`, but LDC links the static
                         # libraries, keeping LLVM out of its runtime closure.
                         "-DLLVM_IS_SHARED=OFF"
+                        # Compile-time `real` in the target's format on any host: a
+                        # quadruple-precision target (WASI, AArch64 Linux, Android)
+                        # folds exactly on x86_64 and macOS hosts too (TCW11).
+                        "-DLDC_REAL_APFLOAT=ON"
                         # The fork's runtimes, copied into LDC's `lib/` as
                         # `libldc_rt.*` (ASan, LSan, MSan, TSan, profile, libFuzzer,
                         # XRay, builtins).

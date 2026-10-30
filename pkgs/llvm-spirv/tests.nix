@@ -244,14 +244,9 @@ in
         ${darwin.sigtool}/bin/codesign -f -s - lib/libLTO.dylib
       ''}
       ninja -j$NIX_BUILD_CORES all-test-runners
-      (cd tests && python3 runlit.py -v codegen driver instrument linking sanitizers PGO)
-      # std.datetime.timezone: under the test runner every zone resolves to
-      # `/<name>`, though a program built the same way finds it; cause not
-      # yet found (Sparkles' docs/specs/toolchain/testing.md).
-      # druntime-test-exceptions on macOS: its traces take file and line from
-      # atos, which the build sandbox lacks; druntime does not read the .dSYM.
+      (cd tests && python3 runlit.py -v codegen compilable driver instrument linking sanitizers PGO)
       ctest -j$NIX_BUILD_CORES --output-on-failure \
-        -E "ldc2-unittest|lit-tests|dmd-testsuite|std\.datetime\.timezone${lib.optionalString stdenv.hostPlatform.isDarwin "|druntime-test-exceptions"}"
+        -E "ldc2-unittest|lit-tests|dmd-testsuite"
       runHook postCheck
     '';
     # The check build is a test, not a package: nothing references it.

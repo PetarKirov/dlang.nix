@@ -14,6 +14,7 @@
   cmake,
   ninja,
   wasmtime,
+  tzdata,
   # The compiler: provides `ldc-build-runtime`, the `ldc2` that compiles the
   # runtime, and `.src`.
   ldc,
@@ -25,14 +26,16 @@
 let
   inherit (driver) target;
 
-  # druntime modules whose unittests fail on WASI, space-separated and sorted.
-  # core.math: compile-time `real` arithmetic folds with the build host's own
-  # `real` (x87 on x86, `double` on macOS), so its quadruple-precision
-  # results are wrong unless that is quadruple precision too, as on
-  # aarch64-linux (Sparkles' toolchain specification, TCW11).
-  knownFailures = lib.optionalString (
-    !(stdenv.buildPlatform.isLinux && stdenv.buildPlatform.isAarch64)
-  ) "core.math";
+  # The test runners, each with the modules whose unittests fail on WASI,
+  # space-separated and sorted (Sparkles' toolchain specification, TCW10).
+  # The LDC folds compile-time `real` in the target's format on any host
+  # (TCW11), so the lists do not depend on the build host.
+  runners = {
+    druntime-test-runner = "";
+    druntime-test-runner-debug = "";
+    phobos2-test-runner = "";
+    phobos2-test-runner-debug = "";
+  };
 
   build =
     { testRunners }:
@@ -68,11 +71,8 @@ let
           BUILD_SHARED_LIBS=OFF \
           BUILD_LTO_LIBS=ON
       ''
-      # Phobos' unittests do not build where compile-time `real` arithmetic is
-      # not quadruple precision (see knownFailures), so only druntime's runners
-      # are built.
       + lib.optionalString testRunners ''
-        ninja -C build-${target} druntime-test-runner druntime-test-runner-debug
+        ninja -C build-${target} ${lib.concatStringsSep " " (lib.attrNames runners)}
       ''
       + ''
 
@@ -86,24 +86,35 @@ let
         export WASMTIME_BACKTRACE_DETAILS=1
         # wasmtime keeps a compilation cache under $HOME.
         export HOME=$TMPDIR
+        # Phobos' tests write temporary files under `/tmp`, read `$HOME`, and
+        # load time zones from `$TZDIR`: each runner gets a scratch root and
+        # the time-zone database, as upstream LDC's WASI CI grants them.
+        mkdir -p "$TMPDIR/wasi-root/tmp"
         # A runner exits 1 when a module fails, and otherwise only when it
         # traps. Any failure but the known ones fails the check, and so does
         # a known failure that now passes.
-        for runner in druntime-test-runner druntime-test-runner-debug; do
+        while read -r runner knownFailures; do
           echo "== $runner"
           status=0
-          wasmtime run -W exceptions=y "$runner" > "$TMPDIR/$runner.log" || status=$?
+          wasmtime run -W exceptions=y \
+            --dir "$TMPDIR/wasi-root::/" \
+            --dir ${tzdata}/share/zoneinfo::/tz \
+            --env TZDIR=/tz/ \
+            --env HOME=/tmp \
+            -S inherit-network \
+            "$runner" < /dev/null > "$TMPDIR/$runner.log" || status=$?
           cat "$TMPDIR/$runner.log"
           if [ "$status" -gt 1 ]; then
             echo "$runner trapped (exit status $status)"
             exit 1
           fi
           failed=$(sed -n 's/^\*\*\*\*\*\* FAIL [^ ]* //p' "$TMPDIR/$runner.log" | sort | xargs)
-          if [ "$failed" != "${knownFailures}" ]; then
-            echo "$runner: modules [$failed] failed, [${knownFailures}] expected"
+          if [ "$failed" != "$knownFailures" ]; then
+            echo "$runner: modules [$failed] failed, [$knownFailures] expected"
             exit 1
           fi
-        done
+        done <<'EOF'
+        ${lib.concatStrings (lib.mapAttrsToList (runner: failures: "${runner} ${failures}\n") runners)}EOF
         cd ..
         runHook postCheck
       '';

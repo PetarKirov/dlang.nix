@@ -4,12 +4,18 @@
 # build must have inlined it from the sysroot's LTO libc (Sparkles' toolchain
 # specification, TCW3), and no legacy exception-handling instruction may
 # survive the link. On preview 1, a reactor (TCW7) whose `_initialize` runs
-# its module constructor before its export is called.
+# its module constructor before its export is called. On preview 2 and 3, the
+# same reactor as a library component exporting a WIT world (TCW7): no
+# `wasi:cli/run`, and its start function, which wit-component points at
+# `_initialize`, runs the module constructors exactly once, before the first
+# export call; a command component composed onto it calls the export twice in
+# one instance and sees the constructors ran once.
 {
   lib,
   runCommand,
   wasmtime,
   wasm-tools,
+  wac-cli,
   writeText,
   ldc,
   target,
@@ -60,6 +66,60 @@ let
         return xs[$ - 1];
     }
   '';
+  component = writeText "component.d" ''
+    module component;
+
+    int initialized;
+    int ctorRuns;
+    int answered;
+    static this() { initialized = 42; ++ctorRuns; }
+
+    extern (C) int answer()
+    {
+        auto xs = new int[](1000);
+        xs[$ - 1] = initialized;
+        ++answered;
+        return xs[$ - 1];
+    }
+
+    // How often the module constructors ran, times 100, plus the calls so far.
+    extern (C) int calls() => ctorRuns * 100 + answered;
+  '';
+  componentWit = writeText "component.wit" ''
+    package sparkles:probe;
+
+    world probe {
+        export answer: func() -> s32;
+        export calls: func() -> s32;
+    }
+  '';
+  # Calls the component's exports from one instance.
+  caller = writeText "caller.d" ''
+    module caller;
+
+    import core.stdc.stdio : printf;
+    import ldc.attributes : llvmAttr;
+
+    @llvmAttr("wasm-import-module", "$root") @llvmAttr("wasm-import-name", "answer")
+    extern (C) int probeAnswer();
+    @llvmAttr("wasm-import-module", "$root") @llvmAttr("wasm-import-name", "calls")
+    extern (C) int probeCalls();
+
+    void main()
+    {
+        const a = probeAnswer();
+        const b = probeAnswer();
+        printf("answer %d %d, calls %d\n", a, b, probeCalls());
+    }
+  '';
+  callerWit = writeText "caller.wit" ''
+    package sparkles:probe-caller;
+
+    world caller {
+        import answer: func() -> s32;
+        import calls: func() -> s32;
+    }
+  '';
 in
 runCommand "ldc-wasi-tests-${target}"
   {
@@ -67,6 +127,7 @@ runCommand "ldc-wasi-tests-${target}"
       ldc
       wasmtime
       wasm-tools
+      wac-cli
     ];
   }
   ''
@@ -111,6 +172,24 @@ runCommand "ldc-wasi-tests-${target}"
         exit 1
       fi
       expect "$(run --invoke answer reactor.wasm)" 42
+    ''}
+    ${lib.optionalString (target != "wasm32-wasip1") ''
+      ldc2 -mtriple=${target} -mexec-model=reactor ${component} \
+        -L--component-type=${componentWit} -L--export=answer -L--export=calls \
+        -of=component.wasm
+      wasm-tools component wit component.wasm > component.wit
+      for f in answer calls; do
+        grep -q "export $f: func() -> s32;" component.wit || { echo "component.wasm does not export $f"; exit 1; }
+      done
+      if grep -q 'export wasi:cli/run' component.wit; then
+        echo "component.wasm exports wasi:cli/run"
+        exit 1
+      fi
+      expect "$(run --invoke 'answer()' component.wasm)" 42
+      expect "$(run --invoke 'calls()' component.wasm)" 100
+      ldc2 -mtriple=${target} ${caller} -L--component-type=${callerWit} -of=caller.wasm
+      wac plug caller.wasm --plug component.wasm -o composed.wasm
+      expect "$(run composed.wasm)" "answer 42 42, calls 102"
     ''}
     touch $out
   ''
