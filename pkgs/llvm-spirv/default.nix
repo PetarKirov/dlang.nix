@@ -31,6 +31,8 @@
   cmake,
   ninja,
   python3,
+  zlib,
+  zstd,
   # The `llvm-sparkles` flake input.
   src,
   version,
@@ -146,6 +148,12 @@ stdenv.mkDerivation (finalAttrs: {
     python3
   ];
 
+  # Debug-section compression (see `LLVM_ENABLE_ZLIB` below).
+  buildInputs = [
+    zlib
+    zstd
+  ];
+
   # The monorepo root is the source root (the patch is monorepo-relative);
   # CMake configures the `llvm/` subproject from the build directory.
   cmakeDir = "../llvm";
@@ -166,10 +174,17 @@ stdenv.mkDerivation (finalAttrs: {
     (lib.cmakeBool "LLVM_INCLUDE_EXAMPLES" false)
     (lib.cmakeBool "LLVM_INCLUDE_DOCS" false)
     (lib.cmakeBool "LLVM_ENABLE_BINDINGS" false)
-    # No optional system libraries: `llvm-config --system-libs` would then ask
-    # every LDC link for them, and none of them matters to a shader compiler.
-    (lib.cmakeBool "LLVM_ENABLE_ZLIB" false)
-    (lib.cmakeBool "LLVM_ENABLE_ZSTD" false)
+    # zlib and zstd compress and decompress debug sections. clang-sparkles is
+    # a general C and C++ compiler, and nixpkgs' `separateDebugInfo` passes
+    # `-Wa,--compress-debug-sections`, which a clang without zlib met with
+    # `UNREACHABLE … zlib::compress is unavailable`; lld needs them to link
+    # such objects. Required, not detected, so a missing one fails the
+    # configure step. `llvm-config --system-libs` then names `-lz -lzstd` for
+    # every link of the static libraries (LDC's, ../default.nix).
+    (lib.cmakeFeature "LLVM_ENABLE_ZLIB" "FORCE_ON")
+    (lib.cmakeFeature "LLVM_ENABLE_ZSTD" "FORCE_ON")
+    # No other optional system library: none matters to these compilers, and
+    # each would join every LDC link too.
     (lib.cmakeBool "LLVM_ENABLE_LIBXML2" false)
     (lib.cmakeBool "LLVM_ENABLE_LIBEDIT" false)
     (lib.cmakeBool "LLVM_ENABLE_TERMINFO" false)

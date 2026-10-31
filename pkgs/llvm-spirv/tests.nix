@@ -3,7 +3,8 @@
 #
 # - `clang`: `clang-sparkles` compiles and runs C, C++20 and, on macOS,
 #   Objective-C; on Linux, `-fuse-ld=lld` links through the bintools wrapper,
-#   so a library from another store path lands on the RUNPATH.
+#   so a library from another store path lands on the RUNPATH, and objects
+#   with zlib- and zstd-compressed debug sections compile and link.
 # - `runtimes`: the compiler-rt runtimes LDC ships, through LDC and through
 #   clang: AddressSanitizer reports a heap overflow, UBSan an overflow,
 #   `-fprofile-instr-generate` writes a profile that `llvm-profdata` merges,
@@ -73,6 +74,34 @@ in
           cc -fuse-ld=lld z.c -I${lib.getDev zlib}/include -L${lib.getLib zlib}/lib -lz -o z-lld
           readelf -d z-lld | grep RUNPATH | grep -q '${lib.getLib zlib}/lib'
           ./z-lld
+
+          # Compressed debug sections, as nixpkgs' `separateDebugInfo` asks for
+          # (`-Wa,--compress-debug-sections`): clang compresses them with zlib or
+          # zstd, and ld.lld reads them back. The source is large enough for
+          # compression to pay, or clang keeps a section plain.
+          cat > debug.c <<'EOF'
+          #include <stdio.h>
+          #include <stdlib.h>
+          #include <string.h>
+          struct point { int x, y, z; const char *name; struct point *next; };
+          int main(int argc, char **argv) {
+            struct point *p = calloc(1, sizeof *p);
+            p->name = argc > 1 ? argv[1] : "debug ok";
+            printf("%s %zu\n", p->name, strlen(p->name));
+            free(p);
+            return 0;
+          }
+          EOF
+          # The bare flag, nixpkgs' spelling, means zlib.
+          for flag in "" =zlib =zstd; do
+            z=''${flag#=}
+            z=''${z:-zlib}
+            cc -g -Wa,--compress-debug-sections$flag -c debug.c -o debug.o
+            readelf -t debug.o | grep -A4 '\] \.debug_info$' | grep -qi "^ *$z," \
+              || { echo "--compress-debug-sections$flag: .debug_info is not $z-compressed"; readelf -t debug.o; exit 1; }
+            cc -fuse-ld=lld debug.o -o debug
+            ./debug | grep -qx 'debug ok 8'
+          done
         ''
         + ''
           touch $out

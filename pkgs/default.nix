@@ -232,6 +232,13 @@ in
                 (
                   old:
                   {
+                    # `llvm-config --system-libs` names them for the static
+                    # LLVM link (./llvm-spirv), and the `dev` view LDC reads is a
+                    # native input, whose libraries no link searches.
+                    buildInputs = (old.buildInputs or [ ]) ++ [
+                      pkgs.zlib
+                      pkgs.zstd
+                    ];
                     cmakeFlags =
                       # generic.nix sets the runtime's `D_FLAGS`, which replaces LDC's
                       # own (`-w -de -preview=dip1000 -preview=dtorfields
