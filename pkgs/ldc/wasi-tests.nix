@@ -53,6 +53,16 @@ let
         printf("%d\n", q.quot);
     }
   '';
+  # Links std.socket: its `Protocol` class (kept by the module's ModuleInfo)
+  # must not reference netdb functions wasi-libc does not define.
+  sockets = writeText "sockets.d" ''
+    module sockets;
+
+    import std.socket : Protocol, ProtocolType;
+    import std.stdio : writeln;
+
+    void main() { writeln(new Protocol().getProtocolByType(ProtocolType.TCP)); }
+  '';
   reactor = writeText "reactor.d" ''
     module reactor;
 
@@ -174,6 +184,8 @@ runCommand "ldc-wasi-tests-${target}"
       expect "$(run --invoke answer reactor.wasm)" 42
     ''}
     ${lib.optionalString (target != "wasm32-wasip1") ''
+      ldc2 -mtriple=${target} ${sockets} -of=sockets.wasm
+      expect "$(run sockets.wasm)" false
       ldc2 -mtriple=${target} -mexec-model=reactor ${component} \
         -L--component-type=${componentWit} -L--export=answer -L--export=calls \
         -of=component.wasm
