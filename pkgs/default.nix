@@ -421,10 +421,13 @@ in
           toolchain-clang = vulkanPackages.clang-sparkles.tests.clang;
           toolchain-runtimes = vulkanPackages.ldc-vulkan.tests.runtimes;
           toolchain-ldc = vulkanPackages.ldc-vulkan.tests.ldc;
-          # The compiler, its druntime and its Phobos.
-          toolchain-ldc-reproducible = reproducible "ldc-vulkan" vulkanPackages.ldc-vulkan.unwrapped;
         }
         // optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
+          # The compiler, its druntime and its Phobos. Linux only: on Darwin the
+          # build directory has a random name, of varying length, and it is in
+          # the `__FILE__` strings of the D frontend, which the bootstrap
+          # compiler (without -fmacro-prefix-map) compiles.
+          toolchain-ldc-reproducible = reproducible "ldc-vulkan" vulkanPackages.ldc-vulkan.unwrapped;
           toolchain-llvm-runtimes = pkgs.callPackage ./ldc/llvm-runtimes-tests.nix {
             ldc = llvmRuntimePackages.ldc-vulkan-llvm-runtimes;
           };
