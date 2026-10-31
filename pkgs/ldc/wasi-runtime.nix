@@ -56,15 +56,15 @@ let
       buildPhase = ''
         runHook preBuild
 
-        # One compiler process per module: LLVM's object-file lowering keeps
-        # the previous modules' `llvm.used` globals across the modules of one
-        # process, and a stale entry retains a segment of a new global that
-        # reuses its address, so compiling all modules at once is not
-        # reproducible (TCW9). Until the fork clears that set per module
-        # (`Used.clear()` in TargetLoweringObjectFile{ELF,Wasm}::initialize),
-        # and until a second difference all-at-once mode shows in the bitcode
-        # of a few Phobos modules (cause not yet found) is gone, each module
-        # gets a process of its own.
+        # One compiler process per module, for reproducible archives (TCW9).
+        # Compiling all modules at once differed between builds twice over.
+        # LLVM's object-file lowering kept earlier modules' `llvm.used`
+        # globals, and a stale entry retained the segment of a new global at
+        # a freed one's address; the fork now clears that set per module
+        # (019489a268, `Used.clear()` in
+        # TargetLoweringObjectFile{ELF,Wasm}::initialize). The bitcode of a few
+        # Phobos modules still differs in the order of their allocas, for a
+        # reason not yet found, so each module keeps a process of its own.
         #
         # The sources' paths (in `__FILE__` and debug info) are mapped to the
         # Linux sandbox's: on Darwin the build directory has a random name.
