@@ -56,6 +56,15 @@ let
       buildPhase = ''
         runHook preBuild
 
+        # One compiler process per module: LLVM's object-file lowering keeps
+        # the previous modules' `llvm.used` globals across the modules of one
+        # process, and a stale entry retains a segment of a new global that
+        # reuses its address, so compiling all modules at once is not
+        # reproducible (TCW9). Until the fork clears that set per module
+        # (`Used.clear()` in TargetLoweringObjectFile{ELF,Wasm}::initialize),
+        # and until a second difference all-at-once mode shows in the bitcode
+        # of a few Phobos modules (cause not yet found) is gone, each module
+        # gets a process of its own.
         ${ldc}/bin/ldc-build-runtime --ninja \
           --ldc=${ldc}/bin/ldc2 \
           --ldcSrcDir="$PWD" \
@@ -69,7 +78,8 @@ let
           CMAKE_RANLIB=${llvm}/bin/llvm-ranlib \
           CMAKE_TRY_COMPILE_TARGET_TYPE=STATIC_LIBRARY \
           BUILD_SHARED_LIBS=OFF \
-          BUILD_LTO_LIBS=ON
+          BUILD_LTO_LIBS=ON \
+          COMPILE_ALL_D_FILES_AT_ONCE=OFF
       ''
       + lib.optionalString testRunners ''
         ninja -C build-${target} ${lib.concatStringsSep " " (lib.attrNames runners)}
