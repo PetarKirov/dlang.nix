@@ -65,13 +65,18 @@ let
         # and until a second difference all-at-once mode shows in the bitcode
         # of a few Phobos modules (cause not yet found) is gone, each module
         # gets a process of its own.
+        #
+        # The sources' paths (in `__FILE__` and debug info) are mapped to the
+        # Linux sandbox's: on Darwin the build directory has a random name.
         ${ldc}/bin/ldc-build-runtime --ninja \
           --ldc=${ldc}/bin/ldc2 \
           --ldcSrcDir="$PWD" \
           --buildDir="$PWD/build-${target}" \
           --dFlags="-mtriple=${target}" \
+          --dFlags="-ffile-prefix-map=$PWD=/build/source" \
           --targetSystem=WASI \
           CMAKE_SYSTEM_NAME=WASI \
+          CMAKE_C_FLAGS="-ffile-prefix-map=$PWD=/build/source" \
           CMAKE_C_COMPILER=${driver}/bin/${target}-clang \
           CMAKE_CXX_COMPILER=${driver}/bin/${target}-clang++ \
           CMAKE_AR=${llvm}/bin/llvm-ar \
