@@ -394,10 +394,33 @@ in
       );
 
       checks =
+        let
+          # `drv` builds bit for bit the same twice: a second build under
+          # another name, compared file by file (TCW9).
+          reproducible =
+            name: drv:
+            let
+              again = drv.overrideAttrs (old: {
+                pname = old.pname + "-again";
+              });
+            in
+            pkgs.runCommand "${name}-reproducible" { } ''
+              (cd ${drv} && find . -type f | sort) > a
+              (cd ${again} && find . -type f | sort) > b
+              diff a b
+              status=0
+              while read -r f; do
+                cmp -s "${drv}/$f" "${again}/$f" || { echo "differs: $f"; status=1; }
+              done < a
+              [ $status = 0 ] && touch $out
+            '';
+        in
         optionalAttrs (pkgs.stdenv.hostPlatform.isLinux || pkgs.stdenv.hostPlatform.isDarwin) {
           toolchain-clang = vulkanPackages.clang-sparkles.tests.clang;
           toolchain-runtimes = vulkanPackages.ldc-vulkan.tests.runtimes;
           toolchain-ldc = vulkanPackages.ldc-vulkan.tests.ldc;
+          # The compiler, its druntime and its Phobos.
+          toolchain-ldc-reproducible = reproducible "ldc-vulkan" vulkanPackages.ldc-vulkan.unwrapped;
         }
         // optionalAttrs pkgs.stdenv.hostPlatform.isLinux {
           toolchain-llvm-runtimes = pkgs.callPackage ./ldc/llvm-runtimes-tests.nix {
@@ -410,23 +433,7 @@ in
             ldc = sparklesPackages.ldc-sparkles;
             inherit (runtime) target;
           };
-          # The runtime builds bit for bit the same twice: a second build under
-          # another name, compared file by file.
-          "wasi-${name}-reproducible" =
-            let
-              again = runtime.overrideAttrs (old: {
-                pname = old.pname + "-again";
-              });
-            in
-            pkgs.runCommand "ldc-runtime-${runtime.target}-reproducible" { } ''
-              (cd ${runtime} && find . -type f | sort) > a
-              (cd ${again} && find . -type f | sort) > b
-              diff a b
-              while read -r f; do
-                cmp "${runtime}/$f" "${again}/$f"
-              done < a
-              touch $out
-            '';
+          "wasi-${name}-reproducible" = reproducible "ldc-runtime-${runtime.target}" runtime;
         }) (removeAttrs wasiRuntimes [ "wasip3" ]);
     };
 }
