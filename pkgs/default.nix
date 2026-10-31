@@ -407,6 +407,23 @@ in
             ldc = sparklesPackages.ldc-sparkles;
             inherit (runtime) target;
           };
+          # The runtime builds bit for bit the same twice: a second build under
+          # another name, compared file by file.
+          "wasi-${name}-reproducible" =
+            let
+              again = runtime.overrideAttrs (old: {
+                pname = old.pname + "-again";
+              });
+            in
+            pkgs.runCommand "ldc-runtime-${runtime.target}-reproducible" { } ''
+              (cd ${runtime} && find . -type f | sort) > a
+              (cd ${again} && find . -type f | sort) > b
+              diff a b
+              while read -r f; do
+                cmp "${runtime}/$f" "${again}/$f"
+              done < a
+              touch $out
+            '';
         }) (removeAttrs wasiRuntimes [ "wasip3" ]);
     };
 }
