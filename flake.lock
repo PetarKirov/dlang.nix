@@ -102,10 +102,10 @@
     "llvm-sparkles": {
       "flake": false,
       "locked": {
-        "lastModified": 1793363577,
-        "narHash": "sha256-JSEWpayOnhMvZ9xlVtk8Xgo0TaqgJmI4y6KfAdAUSrE=",
+        "lastModified": 1793436318,
+        "narHash": "sha256-VKJA+re49aiAa6osyXYJdu4l2RJ6hwoNNo0CwEOT+zg=",
         "ref": "sparkles/main",
-        "rev": "275dcf288790e62c922d50926e78755ab8aa19fe",
+        "rev": "019489a268bec85a95a7298283476cfdbf0c04fc",
         "shallow": true,
         "type": "git",
         "url": "https://github.com/PetarKirov/llvm-project"
