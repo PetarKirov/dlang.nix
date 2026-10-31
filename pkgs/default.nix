@@ -395,22 +395,24 @@ in
 
       checks =
         let
-          # `drv` builds bit for bit the same twice: a second build under
-          # another name, compared file by file (TCW9).
+          # `drv` builds bit for bit the same twice (TCW9): a second build that
+          # differs only in an attribute, so only in its store path's hash,
+          # compared file by file with that hash mapped back.
           reproducible =
             name: drv:
             let
-              again = drv.overrideAttrs (old: {
-                pname = old.pname + "-again";
-              });
+              again = drv.overrideAttrs { reproducibleRebuild = true; };
             in
             pkgs.runCommand "${name}-reproducible" { } ''
-              (cd ${drv} && find . -type f | sort) > a
-              (cd ${again} && find . -type f | sort) > b
+              a=${drv} b=${again}
+              ha=''${a:11:32} hb=''${b:11:32}
+              (cd $a && find . -type f | sort) > a
+              (cd $b && find . -type f | sort) > b
               diff a b
               status=0
               while read -r f; do
-                cmp -s "${drv}/$f" "${again}/$f" || { echo "differs: $f"; status=1; }
+                LC_ALL=C sed "s/$hb/$ha/g" "$b/$f" > rebuilt
+                cmp -s "$a/$f" rebuilt || { echo "differs: $f"; status=1; }
               done < a
               [ $status = 0 ] && touch $out
             '';
