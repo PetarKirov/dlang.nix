@@ -247,6 +247,9 @@ in
                         # quadruple-precision target (WASI, AArch64 Linux, Android)
                         # folds exactly on x86_64 and macOS hosts too (TCW11).
                         "-DLDC_REAL_APFLOAT=ON"
+                        # druntime and Phobos one module per compiler process, for
+                        # reproducible archives: see ./ldc/wasi-runtime.nix.
+                        "-DCOMPILE_ALL_D_FILES_AT_ONCE=OFF"
                         # The fork's runtimes, copied into LDC's `lib/` as
                         # `libldc_rt.*` (ASan, LSan, MSan, TSan, profile, libFuzzer,
                         # XRay, builtins).
