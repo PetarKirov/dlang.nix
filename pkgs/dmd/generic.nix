@@ -304,6 +304,15 @@ stdenv.mkDerivation rec {
         extraPrefix = "phobos/";
         sha256 = "sha256-oM0OGSkbjqSxXLpPU3bA6Wfkv40SwUOJp8MK25/cUFU=";
       })
+    ]
+    ++ lib.optionals (versionBetween "2.112.0" "2.113.0" version) [
+      # -ftime-trace names every template instance it times, and naming one
+      # optimized each variable argument, which expands an enum still being
+      # initialized: druntime's `core.lifetime.hasContextPointers` passes
+      # itself to `anySatisfy`, so traced builds failed with "recursive
+      # initialization of constant". A variable in use now prints by name.
+      # The same fix is PetarKirov/ldc 0b25dd4ad7.
+      ./patches/timetrace-print-in-use-variable.patch
     ];
 
   postPatch =
