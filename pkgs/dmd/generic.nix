@@ -313,6 +313,11 @@ stdenv.mkDerivation rec {
       # initialization of constant". A variable in use now prints by name.
       # The same fix is PetarKirov/ldc 0b25dd4ad7.
       ./patches/timetrace-print-in-use-variable.patch
+      # The frontend wrote an output file in one write() call, which moves at
+      # most 0x7ffff000 bytes on Linux, so a time trace larger than that failed
+      # the build; and the error printed the name as a field of spaces
+      # (`%*.s`). PetarKirov/ldc 4aa7f4a1a9.
+      ./patches/timetrace-write-large-file.patch
     ];
 
   postPatch =
