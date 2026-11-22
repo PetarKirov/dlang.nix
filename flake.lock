@@ -1,5 +1,39 @@
 {
   "nodes": {
+    "dlang-tools-master": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1787010337,
+        "narHash": "sha256-loXsGNaMH93dw9U2+s9D5xQBbO1aeeAPPS/bSHLJkP4=",
+        "owner": "dlang",
+        "repo": "tools",
+        "rev": "298f0452c8b7ed4e234bb508e3429d379d08808f",
+        "type": "github"
+      },
+      "original": {
+        "owner": "dlang",
+        "ref": "master",
+        "repo": "tools",
+        "type": "github"
+      }
+    },
+    "dmd-sparkles": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1795344836,
+        "narHash": "sha256-sZwa5IU+jBYYZmA481hw/TPcF4JwvwkFNaTabohJ56U=",
+        "owner": "PetarKirov",
+        "repo": "dmd",
+        "rev": "dffd1fc4febe20f29e85e57e922f1570e05a9593",
+        "type": "github"
+      },
+      "original": {
+        "owner": "PetarKirov",
+        "ref": "sparkles/main",
+        "repo": "dmd",
+        "type": "github"
+      }
+    },
     "flake-compat": {
       "locked": {
         "lastModified": 1767039857,
@@ -133,14 +167,34 @@
         "type": "github"
       }
     },
+    "phobos-master": {
+      "flake": false,
+      "locked": {
+        "lastModified": 1794921207,
+        "narHash": "sha256-zgBJAARClXhhfnyX5ZcyOkhKEoFKzdK7QiG5iy8NLO8=",
+        "owner": "dlang",
+        "repo": "phobos",
+        "rev": "79358d1593b9647a2151dc699c34046f8f74fce8",
+        "type": "github"
+      },
+      "original": {
+        "owner": "dlang",
+        "ref": "master",
+        "repo": "phobos",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
+        "dlang-tools-master": "dlang-tools-master",
+        "dmd-sparkles": "dmd-sparkles",
         "flake-compat": "flake-compat",
         "flake-parts": "flake-parts",
         "git-hooks-nix": "git-hooks-nix",
         "ldc-sparkles": "ldc-sparkles",
         "llvm-sparkles": "llvm-sparkles",
-        "nixpkgs": "nixpkgs"
+        "nixpkgs": "nixpkgs",
+        "phobos-master": "phobos-master"
       }
     }
   },

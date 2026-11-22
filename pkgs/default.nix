@@ -387,6 +387,22 @@ in
         {
           dmd-bootstrap = self'.packages."dmd-binary-2_098_0";
           dmd = self'.packages."dmd-2_112_0";
+          # PetarKirov/dmd `sparkles/main` (the `dmd-sparkles` input): DMD master
+          # with the reproducibility fixes upstream has yet to take, and Phobos
+          # and the tools at master. Its test suites run in the fork, not here,
+          # as `ldc-vulkan`'s do.
+          dmd-sparkles = pkgs.callPackage (import ./dmd/generic.nix {
+            version = "2.115.0-sparkles";
+            dmdSha256 = "";
+            phobosSha256 = "";
+            toolsSha256 = "";
+            srcOverride = {
+              dmd = inputs.dmd-sparkles;
+              phobos = inputs.phobos-master;
+              tools = inputs.dlang-tools-master;
+            };
+            checkOverride = false;
+          }) { hostDCompiler = self'.packages."ldc-binary-1_42_0"; };
         }
         // (genPkgVersions "dmd").flattened "binary"
         // (genPkgVersions "dmd").flattened "source"

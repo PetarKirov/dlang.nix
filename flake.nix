@@ -29,6 +29,23 @@
       flake = false;
     };
 
+    # DMD master with the reproducibility fixes it does not have yet
+    # (`-lib` member headers, `-ffile-prefix-map`) and the large-output
+    # write: the source of `dmd-sparkles`, with Phobos and the tools at
+    # their master to match.
+    dmd-sparkles = {
+      url = "github:PetarKirov/dmd/sparkles/main";
+      flake = false;
+    };
+    phobos-master = {
+      url = "github:dlang/phobos/master";
+      flake = false;
+    };
+    dlang-tools-master = {
+      url = "github:dlang/tools/master";
+      flake = false;
+    };
+
     flake-compat.url = "github:edolstra/flake-compat";
 
     flake-parts = {

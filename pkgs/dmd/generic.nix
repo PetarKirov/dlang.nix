@@ -12,6 +12,11 @@
   enableProfile ? false,
   enableRelease ? true,
   enableUnittest ? false,
+  # `{ dmd, phobos, tools }`: source trees to build in place of the release
+  # tag's (a fork's branch, as `dmd-sparkles` builds); the hashes are unused.
+  srcOverride ? null,
+  # Whether to run the test suites, in place of the build status's answer.
+  checkOverride ? null,
 }:
 {
   stdenv,
@@ -114,7 +119,18 @@ stdenv.mkDerivation rec {
 
   enableParallelBuilding = true;
 
-  srcs = [
+  srcs =
+    if srcOverride != null then
+      # Each tree unpacks under the name the build expects (`dmd/`, …).
+      lib.mapAttrsToList (
+        name: src:
+        runCommand name { } ''
+          cp -r ${src} $out
+          chmod -R u+w $out
+        ''
+      ) { inherit (srcOverride) dmd phobos tools; }
+    else
+  [
     (fetchFromGitHub {
       owner = "dlang";
       repo = "dmd";
@@ -422,7 +438,7 @@ stdenv.mkDerivation rec {
     runHook postBuild
   '';
 
-  doCheck = buildStatus.check;
+  doCheck = if checkOverride != null then checkOverride else buildStatus.check;
 
   checkFlagsMake = commonBuildFlags { forMake = true; } ++ [ "N=$(checkJobs)" ];
   checkFlagsRunD = commonBuildFlags { forMake = false; };
