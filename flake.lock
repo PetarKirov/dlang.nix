@@ -20,11 +20,11 @@
     "dmd-sparkles": {
       "flake": false,
       "locked": {
-        "lastModified": 1795485427,
-        "narHash": "sha256-A9h263DqQ8nNBbu0vASm01fSnYTcprwu0Oa2BWZ9Hrg=",
+        "lastModified": 1795564996,
+        "narHash": "sha256-MMldKhbwRjBSCpFW6y8NznXlHwExqcFUvQedG03LaZo=",
         "owner": "PetarKirov",
         "repo": "dmd",
-        "rev": "e0b6e795ff3c9841a1fb5d944b3b422cd8e1c3d3",
+        "rev": "0964acb1e000222b62027b734e7bd6daebf56181",
         "type": "github"
       },
       "original": {
