@@ -117,11 +117,11 @@
     "ldc-sparkles": {
       "flake": false,
       "locked": {
-        "lastModified": 1795708993,
-        "narHash": "sha256-SbrVl3Aw27yh9CYgo9iiafLLdV9jypoagqVGM+w+PdE=",
+        "lastModified": 1795728660,
+        "narHash": "sha256-zJVO9fRblH7PE485eV4GaYJ7GvidGMWZzfrqBqSCjKQ=",
         "ref": "sparkles/main",
-        "rev": "341bb78fb7d0dee906f5533f0752476d11c1431f",
-        "revCount": 49404,
+        "rev": "b4d4cc7c65df4954e8300e10cf010e35df97ca6b",
+        "revCount": 49405,
         "submodules": true,
         "type": "git",
         "url": "https://github.com/PetarKirov/ldc"
